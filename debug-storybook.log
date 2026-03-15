@@ -1,0 +1,25 @@
+[16:54:42.131] [INFO] storybook v10.2.19
+[16:54:42.236] [DEBUG] Getting package.json info for /Users/dirk.schoemakers/Code/lyco/package.json...
+[16:54:42.602] [INFO] Starting...
+[16:54:42.685] [DEBUG] Starting preview..
+[16:54:42.695] [INFO] Addon-docs: using MDX3
+[16:54:42.703] [INFO] Using implicit CSS loaders
+[16:54:42.749] [INFO] Using SWC as compiler
+[16:54:42.758] [INFO] Using default Webpack5 setup
+[16:54:42.883] [DEBUG] Using tsconfig paths for react-docgen
+[16:54:43.838] [ERROR] Failed to build the preview
+[16:54:43.839] [WARN] Force closed preview build
+[16:54:43.840] [ERROR] [38;2;241;97;97mSB_BUILDER-WEBPACK5_0003 (WebpackCompilationError): There were problems when compiling your code with Webpack.
+Run Storybook with --debug-webpack for more information.[39m
+    at starter (file://./node_modules/@storybook/builder-webpack5/dist/index.js:799:11)
+    at starter.next (<anonymous>)
+    at Module.start (file://./node_modules/@storybook/builder-webpack5/dist/index.js:857:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async storybookDevServer (file://./node_modules/storybook/dist/core-server/index.js:7295:83)
+    at async buildOrThrow (file://./node_modules/storybook/dist/core-server/index.js:4506:12)
+    at async buildDevStandalone (file://./node_modules/storybook/dist/core-server/index.js:7710:41)
+    at async withTelemetry (file://./node_modules/storybook/dist/_node-chunks/chunk-FJZ625UU.js:218:12)
+    at async dev (file://./node_modules/storybook/dist/bin/core.js:2734:3)
+    at async _Command.<anonymous> (file://./node_modules/storybook/dist/bin/core.js:2804:92)
+[16:54:43.841] [WARN] Broken build, fix the error above.
+You may need to refresh the browser.

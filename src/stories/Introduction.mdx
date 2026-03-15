@@ -1,0 +1,59 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Introduction" />
+
+# Lyco – Storybook-Konventionen
+
+Willkommen im Storybook des Lyco-Projekts. Diese Seite beschreibt die Konventionen für das Erstellen von Stories.
+
+## Dateinamenskonvention
+
+Story-Dateien folgen dem Muster **`<component-name>.stories.tsx`** und liegen direkt neben der zugehörigen Komponente.
+
+Beispiel:
+
+```
+src/components/cloze/
+├── score-pill.tsx
+└── score-pill.stories.tsx
+```
+
+## Ordnerstruktur
+
+Stories werden im gleichen Verzeichnis wie die Komponente abgelegt (Co-Location). So bleibt die Zuordnung zwischen Komponente und Story immer klar:
+
+```
+src/components/
+├── cloze/
+│   ├── score-pill.tsx
+│   ├── score-pill.stories.tsx
+│   ├── difficulty-selector.tsx
+│   └── difficulty-selector.stories.tsx
+└── songs/
+    ├── progress-bar.tsx
+    └── progress-bar.stories.tsx
+```
+
+## Beispiel einer Story-Datei
+
+```tsx
+import type { Meta, StoryObj } from "@storybook/react";
+import { ScorePill } from "./score-pill";
+
+const meta: Meta<typeof ScorePill> = {
+  title: "Cloze/ScorePill",
+  component: ScorePill,
+  tags: ["autodocs"],
+};
+export default meta;
+
+type Story = StoryObj<typeof ScorePill>;
+
+export const Default: Story = { args: { correct: 7, total: 10 } };
+export const Perfect: Story = { args: { correct: 10, total: 10 } };
+export const Zero: Story = { args: { correct: 0, total: 10 } };
+```
+
+## Automatische Dokumentation
+
+Durch `tags: ["autodocs"]` im Meta-Objekt generiert Storybook automatisch eine Docs-Seite für die Komponente. Diese enthält eine Props-Tabelle und alle definierten Stories. Wir empfehlen, dieses Tag in jeder Story-Datei zu setzen.
