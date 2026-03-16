@@ -105,15 +105,15 @@ Schrittweise Implementierung des Spaced-Repetition-Features: Zuerst das Datenmod
     - Dashboard-API (`src/app/api/dashboard/route.ts`) um `faelligeStrophenAnzahl` erweitern
     - _Anforderungen: 1.1_
 
-- [ ] 8. FlipCard-Komponente und Session-UI
-  - [-] 8.1 Komponente `FlipCard` in `src/components/spaced-repetition/flip-card.tsx`
+- [x] 8. FlipCard-Komponente und Session-UI
+  - [x] 8.1 Komponente `FlipCard` in `src/components/spaced-repetition/flip-card.tsx`
     - Props: `stropheName`, `zeilen`, `aufgedeckt`, `onFlip`
     - Vorderseite: Strophen-Name zentriert, „Tippe zum Aufdecken"
     - Rückseite: Vollständiger Strophentext (alle Zeilen sortiert nach `orderIndex`)
     - CSS-Flip-Animation (`transform: rotateY`, 400ms transition)
     - `aria-live="polite"` für aufgedeckten Text
 
-  - [~] 8.2 Komponente `SessionView` in `src/components/spaced-repetition/session-view.tsx`
+  - [x] 8.2 Komponente `SessionView` in `src/components/spaced-repetition/session-view.tsx`
     - Props: `strophen: FaelligeStrophe[]`, `songTitel: string`, `onComplete: () => void`
     - Fortschrittsindikator: „N / M erledigt"
     - Zeigt eine FlipCard pro Strophe
@@ -122,7 +122,7 @@ Schrittweise Implementierung des Spaced-Repetition-Features: Zuerst das Datenmod
     - Ruft `POST /api/spaced-repetition/review` pro Bewertung auf
     - Nach letzter Strophe: Zusammenfassung anzeigen und `onComplete` aufrufen
 
-  - [~] 8.3 Session-Seite `src/app/(main)/songs/[id]/spaced-repetition/page.tsx`
+  - [x] 8.3 Session-Seite `src/app/(main)/songs/[id]/spaced-repetition/page.tsx`
     - Lädt fällige Strophen via `GET /api/spaced-repetition/queue?songId={id}`
     - Rendert `SessionView` mit den fälligen Strophen
     - Bei Abschluss: Session-Eintrag via `POST /api/sessions` mit `lernmethode: SPACED_REPETITION` erstellen
@@ -135,7 +135,7 @@ Schrittweise Implementierung des Spaced-Repetition-Features: Zuerst das Datenmod
     - Test: SessionView zeigt Fortschrittsindikator korrekt
     - Test: „Gewusst"/„Nicht gewusst"-Buttons rufen Review-API auf
 
-- [~] 9. Abschluss-Checkpoint
+- [x] 9. Abschluss-Checkpoint
   - Sicherstellen, dass alle Tests bestehen. Bei Fragen den Nutzer konsultieren.
 
 ## Hinweise

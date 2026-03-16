@@ -27,8 +27,8 @@ export function createLLMClient(configOverride?: Partial<LLMClientConfig>): LLMC
     apiKey: configOverride?.apiKey ?? process.env.LLM_API_KEY ?? process.env.OPENAI_API_KEY ?? "",
     baseURL: configOverride?.baseURL ?? process.env.LLM_API_URL ?? undefined,
     model: configOverride?.model ?? process.env.LLM_MODEL ?? "gpt-4o-mini",
-    timeoutMs: configOverride?.timeoutMs ?? 30000,
-    maxRetries: configOverride?.maxRetries ?? 2,
+    timeoutMs: configOverride?.timeoutMs ?? 60000,
+    maxRetries: configOverride?.maxRetries ?? 4,
     responseFormat: configOverride?.responseFormat ?? "json_object",
   };
 
