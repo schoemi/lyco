@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import type { UserResponse } from "../../../../types/auth";
 import UserCreateDialog from "@/components/admin/user-create-dialog";
 import UserEditDialog from "@/components/admin/user-edit-dialog";
@@ -9,7 +8,7 @@ import UserDeleteDialog from "@/components/admin/user-delete-dialog";
 import PasswordResetDialog from "@/components/admin/password-reset-dialog";
 
 export default function AdminUsersPage() {
-  const { data: session } = useSession();
+  const [currentUserId, setCurrentUserId] = useState<string | undefined>();
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +35,11 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchUsers();
+    // Fetch current user ID for self-deletion check
+    fetch("/api/auth/session")
+      .then((r) => r.json())
+      .then((data) => setCurrentUserId(data?.user?.id))
+      .catch(() => {});
   }, []);
 
   function handleCreated(user: UserResponse) {
@@ -114,7 +118,7 @@ export default function AdminUsersPage() {
 
       <UserCreateDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={handleCreated} />
       <UserEditDialog open={!!editUser} user={editUser} onClose={() => setEditUser(null)} onUpdated={handleUpdated} />
-      <UserDeleteDialog open={!!deleteUser} user={deleteUser} currentUserId={session?.user?.id} onClose={() => setDeleteUser(null)} onDeleted={handleDeleted} />
+      <UserDeleteDialog open={!!deleteUser} user={deleteUser} currentUserId={currentUserId} onClose={() => setDeleteUser(null)} onDeleted={handleDeleted} />
       <PasswordResetDialog open={!!resetUser} user={resetUser} onClose={() => setResetUser(null)} />
     </div>
   );

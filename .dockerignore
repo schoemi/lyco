@@ -1,0 +1,17 @@
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.local
+.DS_Store
+*.md
+.planning
+.kiro
+.storybook
+.vscode
+__tests__
+storybook-static
+debug-storybook.log
+*.tsbuildinfo
+next-env.d.ts
