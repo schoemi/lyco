@@ -6,10 +6,17 @@ vi.mock("@/lib/auth", () => ({
   auth: () => mockAuth(),
 }));
 
-// Mock pdf-parse
-const mockPdfParse = vi.fn();
+// Mock pdf-parse — named import: import { PDFParse } from "pdf-parse"
+// The code does: new PDFParse({ data: buffer }).getText({ pageJoiner: "" })
+const mockGetText = vi.fn();
 vi.mock("pdf-parse", () => ({
-  default: (buffer: Buffer) => mockPdfParse(buffer),
+  PDFParse: class {
+    constructor() {}
+    getText() {
+      return mockGetText();
+    }
+    async destroy() {}
+  },
 }));
 
 // Mock OpenAI
@@ -80,7 +87,7 @@ describe("POST /api/songs/parse-pdf", () => {
 
   it("returns parsed result on successful flow", async () => {
     mockAuth.mockResolvedValue(session);
-    mockPdfParse.mockResolvedValue({ text: "Some song lyrics" });
+    mockGetText.mockResolvedValue({ text: "Some song lyrics" });
 
     const llmResult = {
       titel: "Test Song",

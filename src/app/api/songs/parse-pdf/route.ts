@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import pdf from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 import OpenAI from "openai";
 import type { PdfParseResult } from "@/types/import";
 
@@ -60,8 +60,10 @@ export async function POST(request: NextRequest) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const pdfData = await pdf(buffer);
+    const parser = new PDFParse({ data: buffer });
+    const pdfData = await parser.getText({ pageJoiner: "" });
     const rawText = pdfData.text;
+    await parser.destroy();
 
     if (!rawText || !rawText.trim()) {
       return NextResponse.json(

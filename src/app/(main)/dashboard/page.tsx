@@ -5,12 +5,25 @@ import Link from "next/link";
 import { SetCard } from "@/components/songs/set-card";
 import { SongRow } from "@/components/songs/song-row";
 import { ProgressBar } from "@/components/songs/progress-bar";
-import type { DashboardData } from "../../../types/song";
+import SongCreateDialog from "@/components/songs/song-create-dialog";
+import type { DashboardData, SongWithProgress } from "../../../types/song";
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+
+  function handleSongCreated(song: SongWithProgress) {
+    setCreateDialogOpen(false);
+    if (data) {
+      setData({
+        ...data,
+        allSongs: [...data.allSongs, song],
+        totalSongs: data.totalSongs + 1,
+      });
+    }
+  }
 
   useEffect(() => {
     async function fetchDashboard() {
@@ -86,16 +99,32 @@ export default function DashboardPage() {
 
       {/* Alle Songs */}
       <section className="space-y-2">
-        <h2 className="text-sm font-semibold text-gray-700">Alle Songs</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-gray-700">Alle Songs</h2>
+          <button
+            onClick={() => setCreateDialogOpen(true)}
+            className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            + Neuer Song
+          </button>
+        </div>
         {data.allSongs.length === 0 ? (
           <div className="rounded-lg border border-dashed border-gray-300 px-4 py-8 text-center">
             <p className="text-sm text-gray-400">Noch keine Songs vorhanden.</p>
-            <Link
-              href="/songs/import"
-              className="mt-2 inline-block text-sm font-medium text-purple-600 hover:text-purple-700"
-            >
-              Song importieren →
-            </Link>
+            <div className="mt-2 flex items-center justify-center gap-3">
+              <Link
+                href="/songs/import"
+                className="inline-block text-sm font-medium text-purple-600 hover:text-purple-700"
+              >
+                Song importieren →
+              </Link>
+              <button
+                onClick={() => setCreateDialogOpen(true)}
+                className="inline-block rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                + Neuer Song
+              </button>
+            </div>
           </div>
         ) : (
           <div className="rounded-lg border border-gray-200 bg-white divide-y divide-gray-100">
@@ -117,6 +146,12 @@ export default function DashboardPage() {
           </div>
         </section>
       )}
+      {/* Song-Erstellen-Dialog */}
+      <SongCreateDialog
+        open={createDialogOpen}
+        onClose={() => setCreateDialogOpen(false)}
+        onCreated={handleSongCreated}
+      />
     </div>
   );
 }

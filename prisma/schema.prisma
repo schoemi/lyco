@@ -108,6 +108,7 @@ model Song {
   kuenstler    String?
   sprache      String?
   emotionsTags String[] @default([])
+  analyse      String?
   userId       String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -125,6 +126,7 @@ model Strophe {
   name       String
   orderIndex Int
   songId     String
+  analyse    String?
   createdAt  DateTime @default(now())
 
   song         Song          @relation(fields: [songId], references: [id], onDelete: Cascade)

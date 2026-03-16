@@ -68,7 +68,7 @@ export function StanzaBlock({
                 if (!gapData.isGap) {
                   return (
                     <span key={gapData.gapId} className="mr-1">
-                      {gapData.word}
+                      {gapData.prefix}{gapData.word}{gapData.suffix}
                     </span>
                   );
                 }
@@ -78,6 +78,7 @@ export function StanzaBlock({
 
                 return (
                   <span key={gapData.gapId} className="inline-flex items-center mr-1">
+                    {gapData.prefix && <span>{gapData.prefix}</span>}
                     <GapInput
                       gapId={gapData.gapId}
                       targetWord={gapData.word}
@@ -88,6 +89,7 @@ export function StanzaBlock({
                       onChange={(value) => onAnswer(gapData.gapId, value)}
                       onBlur={() => onBlur(gapData.gapId)}
                     />
+                    {gapData.suffix && <span>{gapData.suffix}</span>}
                     <HintButton
                       disabled={
                         hints.has(gapData.gapId) ||

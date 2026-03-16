@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { generateHint } from "@/lib/cloze/hint";
 
 interface GapInputProps {
@@ -45,6 +46,25 @@ export function GapInput({
 
   const feedbackText = isCorrect ? "Richtig" : isIncorrect ? "Falsch" : "";
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === " ") {
+        e.preventDefault();
+        const allGapInputs = Array.from(
+          document.querySelectorAll<HTMLInputElement>('input[id^="gap-"]')
+        );
+        const currentIndex = allGapInputs.findIndex(
+          (el) => el.id === `gap-${gapId}`
+        );
+        const nextInput = allGapInputs[currentIndex + 1];
+        if (nextInput) {
+          nextInput.focus();
+        }
+      }
+    },
+    [gapId]
+  );
+
   return (
     <span className="inline-flex items-center align-baseline">
       <input
@@ -57,6 +77,7 @@ export function GapInput({
         size={size}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur}
+        onKeyDown={handleKeyDown}
         className={[
           "border-0 border-b-2 bg-transparent outline-none",
           "min-w-[60px] min-h-[44px]",

@@ -243,6 +243,7 @@ export async function getSongDetail(
       orderIndex: s.orderIndex,
       progress: fort ? fort.prozent : 0,
       notiz: notiz ? notiz.text : null,
+      analyse: s.analyse ?? null,
       zeilen,
       markups: stropheMarkups,
     };
@@ -263,6 +264,7 @@ export async function getSongDetail(
     emotionsTags: song.emotionsTags,
     progress,
     sessionCount,
+    analyse: song.analyse ?? null,
     strophen,
   };
 }

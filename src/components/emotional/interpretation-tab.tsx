@@ -28,6 +28,12 @@ export function InterpretationTab({
     for (const interp of interpretations) {
       initial[interp.stropheId] = interp.text;
     }
+    // Fall back to LLM-generated analyse if no manual interpretation exists
+    for (const strophe of strophen) {
+      if (!initial[strophe.id] && strophe.analyse) {
+        initial[strophe.id] = strophe.analyse;
+      }
+    }
     return initial;
   });
 

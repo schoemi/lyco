@@ -60,8 +60,16 @@ describe("generateGaps – Edge Cases", () => {
 
     // All words should be gaps in blind mode
     const words = result.map((g) => g.word);
-    expect(words).toEqual(["Über", "100", "Straßen,", "führen", "nach", "München!"]);
+    expect(words).toEqual(["Über", "100", "Straßen", "führen", "nach", "München"]);
     expect(result.every((g) => g.isGap)).toBe(true);
+
+    // Verify punctuation is stripped into prefix/suffix
+    const strassen = result.find((g) => g.word === "Straßen")!;
+    expect(strassen.suffix).toBe(",");
+    expect(strassen.prefix).toBe("");
+    const muenchen = result.find((g) => g.word === "München")!;
+    expect(muenchen.suffix).toBe("!");
+    expect(muenchen.prefix).toBe("");
 
     // Verify gapId format
     for (let i = 0; i < result.length; i++) {

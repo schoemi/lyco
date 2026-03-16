@@ -38,6 +38,13 @@ export function hashString(str: string): number {
   return hash;
 }
 
+export function stripPunctuation(token: string): { prefix: string; core: string; suffix: string } {
+  const match = token.match(/^([,.\!?;:"'()–…]*)(.*?)([,.\!?;:"'()–…]*)$/);
+  if (!match) return { prefix: "", core: token, suffix: "" };
+  return { prefix: match[1], core: match[2], suffix: match[3] };
+}
+
+
 export function generateGaps(zeilen: ZeileInput[], difficulty: DifficultyLevel): GapData[] {
   const config = DIFFICULTY_CONFIG[difficulty];
   const result: GapData[] = [];
@@ -103,12 +110,15 @@ export function generateGaps(zeilen: ZeileInput[], difficulty: DifficultyLevel):
     const gapIndices = new Set(indices.slice(0, numGaps));
 
     for (let i = 0; i < words.length; i++) {
+      const { prefix, core, suffix } = stripPunctuation(words[i]);
       result.push({
         gapId: `${zeile.id}-${i}`,
         zeileId: zeile.id,
         wordIndex: i,
-        word: words[i],
+        word: core,
         isGap: gapIndices.has(i),
+        prefix,
+        suffix,
       });
     }
   }

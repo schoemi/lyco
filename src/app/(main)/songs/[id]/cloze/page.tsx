@@ -7,6 +7,7 @@ import { DifficultySelector } from "@/components/cloze/difficulty-selector";
 import { StanzaBlock } from "@/components/cloze/stanza-block";
 import { ScorePill } from "@/components/cloze/score-pill";
 import { CheckAllButton } from "@/components/cloze/check-all-button";
+import { StrophenAuswahlDialog } from "@/components/cloze/strophen-auswahl-dialog";
 import { ProgressBar } from "@/components/songs/progress-bar";
 import { generateGaps } from "@/lib/cloze/gap-generator";
 import { validateAnswer } from "@/lib/cloze/validate-answer";
@@ -14,8 +15,11 @@ import { calculateProgress } from "@/lib/cloze/score";
 import type { SongDetail } from "@/types/song";
 import type { DifficultyLevel, GapData } from "@/types/cloze";
 
-function getZeilenFromSong(song: SongDetail) {
-  return song.strophen.flatMap((s) =>
+function getZeilenFromSong(song: SongDetail, activeStrophenIds?: Set<string> | null) {
+  const strophen = activeStrophenIds
+    ? song.strophen.filter((s) => activeStrophenIds.has(s.id))
+    : song.strophen;
+  return strophen.flatMap((s) =>
     s.zeilen.map((z) => ({ id: z.id, text: z.text }))
   );
 }
@@ -34,6 +38,8 @@ export default function ClozePage() {
   const [score, setScore] = useState<{ correct: number; total: number }>({ correct: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeStrophenIds, setActiveStrophenIds] = useState<Set<string> | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Track whether completion API calls have been fired
   const completionFired = useRef(false);
@@ -59,6 +65,10 @@ export default function ClozePage() {
         const songJson = await songRes.json();
         const loadedSong: SongDetail = songJson.song;
         setSong(loadedSong);
+
+        // Initialize activeStrophenIds to all strophe IDs
+        const allStrophenIds = new Set(loadedSong.strophen.map((s) => s.id));
+        setActiveStrophenIds(allStrophenIds);
 
         // Generate initial gaps with default difficulty
         const zeilen = loadedSong.strophen.flatMap((s) =>
@@ -102,14 +112,33 @@ export default function ClozePage() {
       setHints(new Set());
       completionFired.current = false;
 
-      const zeilen = getZeilenFromSong(song);
+      const zeilen = getZeilenFromSong(song, activeStrophenIds);
       const newGaps = generateGaps(zeilen, newDifficulty);
       setGaps(newGaps);
 
       const totalGaps = newGaps.filter((g) => g.isGap).length;
       setScore({ correct: 0, total: totalGaps });
     },
-    [song]
+    [song, activeStrophenIds]
+  );
+
+  // --- Strophen selection confirm ---
+  const handleStrophenConfirm = useCallback(
+    (selectedIds: Set<string>) => {
+      setActiveStrophenIds(selectedIds);
+      setDialogOpen(false);
+      if (!song) return;
+      const zeilen = getZeilenFromSong(song, selectedIds);
+      const newGaps = generateGaps(zeilen, difficulty);
+      setGaps(newGaps);
+      setAnswers({});
+      setFeedback({});
+      setHints(new Set());
+      completionFired.current = false;
+      const totalGaps = newGaps.filter((g) => g.isGap).length;
+      setScore({ correct: 0, total: totalGaps });
+    },
+    [song, difficulty]
   );
 
   // --- Answer change ---
@@ -182,8 +211,11 @@ export default function ClozePage() {
     completionFired.current = true;
 
     async function persistCompletion() {
-      // PUT progress for each strophe
-      for (const strophe of song!.strophen) {
+      // PUT progress only for active strophes
+      const strophenToUpdate = activeStrophenIds
+        ? song!.strophen.filter((s) => activeStrophenIds.has(s.id))
+        : song!.strophen;
+      for (const strophe of strophenToUpdate) {
         try {
           await fetch("/api/progress", {
             method: "PUT",
@@ -208,7 +240,7 @@ export default function ClozePage() {
     }
 
     persistCompletion();
-  }, [song, score, id]);
+  }, [song, score, id, activeStrophenIds]);
 
   // --- Derived values ---
   const progressPercent = calculateProgress(score.correct, score.total);
@@ -250,9 +282,9 @@ export default function ClozePage() {
     );
   }
 
-  const sortedStrophen = [...song.strophen].sort(
-    (a, b) => a.orderIndex - b.orderIndex
-  );
+  const sortedStrophen = [...song.strophen]
+    .filter((s) => !activeStrophenIds || activeStrophenIds.has(s.id))
+    .sort((a, b) => a.orderIndex - b.orderIndex);
 
   return (
     <div className="space-y-4 pb-6">
@@ -266,6 +298,14 @@ export default function ClozePage() {
         <div className="flex justify-end">
           <ScorePill correct={score.correct} total={score.total} />
         </div>
+
+        <button
+          type="button"
+          onClick={() => setDialogOpen(true)}
+          className="min-h-[44px] rounded bg-purple-100 px-4 py-2 text-sm font-medium text-purple-700 hover:bg-purple-200"
+        >
+          Strophen auswählen
+        </button>
 
         <div className="space-y-4">
           {sortedStrophen.map((strophe) => {
@@ -290,6 +330,15 @@ export default function ClozePage() {
 
         <CheckAllButton disabled={!hasOpenGaps} onClick={handleCheckAll} />
       </div>
+
+      <StrophenAuswahlDialog
+        songId={id}
+        strophen={song.strophen}
+        activeStrophenIds={activeStrophenIds ?? new Set(song.strophen.map((s) => s.id))}
+        open={dialogOpen}
+        onConfirm={handleStrophenConfirm}
+        onCancel={() => setDialogOpen(false)}
+      />
     </div>
   );
 }

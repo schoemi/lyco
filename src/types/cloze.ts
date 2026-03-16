@@ -6,6 +6,8 @@ export interface GapData {
   wordIndex: number;
   word: string;
   isGap: boolean;
+  prefix: string;
+  suffix: string;
 }
 
 export interface ScoreState {
