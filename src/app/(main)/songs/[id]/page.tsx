@@ -316,6 +316,12 @@ export default function SongDetailPage() {
           >
             🎤 Gesangstechnik-Coach
           </Link>
+          <Link
+            href={`/songs/${id}/zeile-fuer-zeile`}
+            className="flex min-h-[44px] items-center justify-center rounded-lg border border-purple-300 bg-white px-4 py-3 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-50"
+          >
+            📝 Zeile für Zeile
+          </Link>
         </div>
       </div>
 
