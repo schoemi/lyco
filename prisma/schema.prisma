@@ -76,6 +76,7 @@ model User {
   fortschritte     Fortschritt[]
   notizen          Notiz[]
   interpretationen Interpretation[]
+  wiederholungen   Wiederholung[]
 
   @@map("users")
 }
@@ -154,6 +155,7 @@ model Strophe {
   fortschritte     Fortschritt[]
   notizen          Notiz[]
   interpretationen Interpretation[]
+  wiederholungen   Wiederholung[]
 
   @@map("strophen")
 }
@@ -241,4 +243,21 @@ model Interpretation {
 
   @@unique([userId, stropheId])
   @@map("interpretationen")
+}
+
+model Wiederholung {
+  id              String   @id @default(cuid())
+  userId          String
+  stropheId       String
+  korrektZaehler  Int      @default(0)
+  faelligAm       DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  strophe Strophe @relation(fields: [stropheId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, stropheId])
+  @@index([userId, faelligAm])
+  @@map("wiederholungen")
 }

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { listSongs } from "@/lib/services/song-service";
 import { getAverageProgress } from "@/lib/services/progress-service";
 import { getTotalSessionCount } from "@/lib/services/session-service";
+import { getFaelligeAnzahl } from "@/lib/services/spaced-repetition-service";
 import type { DashboardData, DashboardSet, SongWithProgress } from "../../../types/song";
 
 export async function GET() {
@@ -50,9 +51,10 @@ export async function GET() {
     }));
 
     // Aggregate values
-    const [averageProgress, totalSessions] = await Promise.all([
+    const [averageProgress, totalSessions, faelligeStrophenAnzahl] = await Promise.all([
       getAverageProgress(userId),
       getTotalSessionCount(userId),
+      getFaelligeAnzahl(userId),
     ]);
 
     const data: DashboardData = {
@@ -61,6 +63,7 @@ export async function GET() {
       totalSongs: allSongs.length,
       totalSessions: totalSessions,
       averageProgress,
+      faelligeStrophenAnzahl,
     };
 
     return NextResponse.json(data);

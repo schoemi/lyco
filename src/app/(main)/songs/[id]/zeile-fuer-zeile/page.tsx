@@ -11,6 +11,14 @@ import { EingabeBereich } from "@/components/zeile-fuer-zeile/eingabe-bereich";
 import { StrophenAuswahlDialog } from "@/components/cloze/strophen-auswahl-dialog";
 import { validateLine } from "@/lib/zeile-fuer-zeile/validate-line";
 import { calculateStropheProgress } from "@/lib/zeile-fuer-zeile/progress";
+import { SchwierigkeitsAuswahl } from "@/components/zeile-fuer-zeile/schwierigkeits-auswahl";
+import { HinweisAnzeige } from "@/components/zeile-fuer-zeile/hinweis-anzeige";
+import {
+  type Schwierigkeitsstufe,
+  DEFAULT_SCHWIERIGKEITSSTUFE,
+  SCHWIERIGKEITS_STUFEN,
+  berechneHinweis,
+} from "@/lib/zeile-fuer-zeile/hint";
 import type { SongDetail } from "@/types/song";
 
 interface StropheLernzustand {
@@ -36,6 +44,8 @@ export default function ZeileFuerZeilePage() {
   const [zeilenStatus, setZeilenStatus] = useState<"eingabe" | "korrekt" | "loesung">("eingabe");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [stropheAbgeschlossen, setStropheAbgeschlossen] = useState(false);
+  const [schwierigkeitsstufe, setSchwierigkeitsstufe] =
+    useState<Schwierigkeitsstufe>(DEFAULT_SCHWIERIGKEITSSTUFE);
 
   // Per-strophe learning state
   const [strophenLernzustand, setStrophenLernzustand] = useState<
@@ -44,6 +54,30 @@ export default function ZeileFuerZeilePage() {
 
   // Track whether all-complete session has been fired
   const allCompleteFired = useRef(false);
+
+  // Load schwierigkeitsstufe from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("schwierigkeit-zeile-fuer-zeile");
+      if (
+        stored &&
+        SCHWIERIGKEITS_STUFEN.includes(stored as Schwierigkeitsstufe)
+      ) {
+        setSchwierigkeitsstufe(stored as Schwierigkeitsstufe);
+      }
+    } catch {
+      // localStorage may be unavailable (e.g. SSR, private browsing)
+    }
+  }, []);
+
+  // Save schwierigkeitsstufe to localStorage on change
+  useEffect(() => {
+    try {
+      localStorage.setItem("schwierigkeit-zeile-fuer-zeile", schwierigkeitsstufe);
+    } catch {
+      // Silent – localStorage may be unavailable
+    }
+  }, [schwierigkeitsstufe]);
 
   // --- Data loading ---
   useEffect(() => {
@@ -365,6 +399,11 @@ export default function ZeileFuerZeilePage() {
     return null;
   }
 
+  const hinweis =
+    zeilenStatus === "loesung"
+      ? ""
+      : berechneHinweis(currentZeile.text, schwierigkeitsstufe);
+
   return (
     <div className="space-y-4 pb-6">
       <ZeileFuerZeileNavbar songId={id} songTitle={song.titel} />
@@ -406,6 +445,13 @@ export default function ZeileFuerZeilePage() {
               text={currentZeile.text}
               visible={zeilenStatus === "loesung"}
             />
+
+            <SchwierigkeitsAuswahl
+              value={schwierigkeitsstufe}
+              onChange={setSchwierigkeitsstufe}
+            />
+
+            <HinweisAnzeige hinweis={hinweis} />
 
             <EingabeBereich
               eingabe={eingabe}

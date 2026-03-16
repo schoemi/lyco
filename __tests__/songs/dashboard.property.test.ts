@@ -11,13 +11,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import fc from "fast-check";
 
 // --- Hoisted mocks ---
-const { mockAuth, mockListSongs, mockGetAverageProgress, mockGetTotalSessionCount, mockSetFindMany } = vi.hoisted(() => {
+const { mockAuth, mockListSongs, mockGetAverageProgress, mockGetTotalSessionCount, mockSetFindMany, mockGetFaelligeAnzahl } = vi.hoisted(() => {
   return {
     mockAuth: vi.fn(),
     mockListSongs: vi.fn(),
     mockGetAverageProgress: vi.fn(),
     mockGetTotalSessionCount: vi.fn(),
     mockSetFindMany: vi.fn(),
+    mockGetFaelligeAnzahl: vi.fn(),
   };
 });
 
@@ -35,6 +36,10 @@ vi.mock("@/lib/services/progress-service", () => ({
 
 vi.mock("@/lib/services/session-service", () => ({
   getTotalSessionCount: mockGetTotalSessionCount,
+}));
+
+vi.mock("@/lib/services/spaced-repetition-service", () => ({
+  getFaelligeAnzahl: mockGetFaelligeAnzahl,
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -141,6 +146,7 @@ describe("Property 16: Dashboard-Aggregation", () => {
         mockSetFindMany.mockResolvedValue(prismaSets);
         mockGetAverageProgress.mockResolvedValue(expectedAverageProgress);
         mockGetTotalSessionCount.mockResolvedValue(expectedTotalSessions);
+        mockGetFaelligeAnzahl.mockResolvedValue(3);
 
         // Call the dashboard GET handler
         const response = await dashboardGET();

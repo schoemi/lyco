@@ -6,6 +6,7 @@ import { SetCard } from "@/components/songs/set-card";
 import { SongRow } from "@/components/songs/song-row";
 import { ProgressBar } from "@/components/songs/progress-bar";
 import SongCreateDialog from "@/components/songs/song-create-dialog";
+import { SpacedRepetitionWidget } from "@/components/spaced-repetition/spaced-repetition-widget";
 import type { DashboardData, SongWithProgress } from "../../../types/song";
 
 export default function DashboardPage() {
@@ -71,6 +72,9 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
+
+      {/* Spaced Repetition Widget */}
+      <SpacedRepetitionWidget faelligeAnzahl={data.faelligeStrophenAnzahl} />
 
       {/* Aggregate stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

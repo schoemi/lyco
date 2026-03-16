@@ -7,9 +7,7 @@ import { ProgressBar } from "@/components/songs/progress-bar";
 import SongEditForm from "@/components/songs/song-edit-form";
 import SongDeleteDialog from "@/components/songs/song-delete-dialog";
 import StropheEditor from "@/components/songs/strophe-editor";
-import TranslateButton from "@/components/songs/translate-button";
-import LanguageSelector from "@/components/songs/language-selector";
-import TranslationToggle from "@/components/songs/translation-toggle";
+import SongActionMenu from "@/components/songs/song-action-menu";
 import { useTranslation } from "@/hooks/use-translation";
 import type { SongDetail, StropheDetail } from "../../../../types/song";
 import type { SongAnalyseResult } from "@/types/song";
@@ -152,45 +150,19 @@ export default function SongDetailPage() {
             {song.titel}
           </h1>
           {!editing && (
-            <div className="flex flex-wrap gap-2 shrink-0 items-center">
-              <button
-                type="button"
-                onClick={handleAnalyze}
-                disabled={analyzing}
-                className="rounded-md border border-purple-300 px-3 py-1.5 text-sm font-medium text-purple-700 hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {analyzing ? "Analysiert…" : "🔍 Analysieren"}
-              </button>
-              <LanguageSelector
-                value={zielsprache}
-                onChange={setZielsprache}
-                disabled={translating}
-              />
-              <TranslateButton
-                translating={translating}
-                onClick={handleTranslate}
-              />
-              <button
-                type="button"
-                onClick={() => setEditing(true)}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Bearbeiten
-              </button>
-              <button
-                type="button"
-                onClick={() => setDeleteDialogOpen(true)}
-                className="rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50"
-              >
-                Löschen
-              </button>
-              {hasTranslations && (
-                <TranslationToggle
-                  checked={showTranslations}
-                  onChange={setShowTranslations}
-                />
-              )}
-            </div>
+            <SongActionMenu
+              analyzing={analyzing}
+              translating={translating}
+              zielsprache={zielsprache}
+              hasTranslations={hasTranslations}
+              showTranslations={showTranslations}
+              onAnalyze={handleAnalyze}
+              onTranslate={handleTranslate}
+              onEdit={() => setEditing(true)}
+              onDelete={() => setDeleteDialogOpen(true)}
+              onZielspracheChange={setZielsprache}
+              onShowTranslationsChange={setShowTranslations}
+            />
           )}
         </div>
 
