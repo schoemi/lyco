@@ -10,6 +10,7 @@ interface TranslationTabProps {
   revealedLines: Record<string, Set<string>>;
   onRevealLine: (stropheId: string, zeileId: string) => void;
   onRevealAll: (stropheId: string) => void;
+  onHideAll: (stropheId: string) => void;
   translating?: boolean;
   translateError?: string | null;
   translateSuccess?: boolean;
@@ -23,6 +24,7 @@ export function TranslationTab({
   revealedLines,
   onRevealLine,
   onRevealAll,
+  onHideAll,
   translating = false,
   translateError = null,
   translateSuccess = false,
@@ -81,6 +83,7 @@ export function TranslationTab({
           revealedLines={revealedLines[strophe.id] ?? new Set()}
           onRevealLine={(zeileId) => onRevealLine(strophe.id, zeileId)}
           onRevealAll={() => onRevealAll(strophe.id)}
+          onHideAll={() => onHideAll(strophe.id)}
         />
       ))}
     </div>

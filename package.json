@@ -14,6 +14,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
+    "@tailwindcss/typography": "^0.5.19",
     "bcrypt": "^6.0.0",
     "next": "^16.1.6",
     "next-auth": "^5.0.0-beta.30",
@@ -21,7 +22,8 @@
     "pdf-parse": "^2.4.5",
     "pg": "^8.20.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "react-markdown": "^10.1.0"
   },
   "devDependencies": {
     "@storybook/addon-a11y": "^10.2.19",

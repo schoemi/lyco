@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { StropheDetail } from "@/types/song";
 import type { InterpretationResponse } from "@/types/interpretation";
 import { StropheCard } from "./strophe-card";
+import TranslationToggle from "@/components/songs/translation-toggle";
 
 interface InterpretationTabProps {
   strophen: StropheDetail[];
@@ -22,6 +23,8 @@ export function InterpretationTab({
   onRevealAll,
   onInterpretationSave,
 }: InterpretationTabProps) {
+  const [showTranslations, setShowTranslations] = useState(false);
+
   // Local state for textarea values keyed by stropheId
   const [localTexts, setLocalTexts] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
@@ -50,6 +53,14 @@ export function InterpretationTab({
 
   return (
     <div className="space-y-4">
+      {/* Translation toggle */}
+      <div className="flex justify-end">
+        <TranslationToggle
+          checked={showTranslations}
+          onChange={setShowTranslations}
+        />
+      </div>
+
       {strophen.map((strophe) => {
         const currentText = localTexts[strophe.id] ?? "";
         return (
@@ -59,6 +70,8 @@ export function InterpretationTab({
             revealedLines={revealedLines[strophe.id] ?? new Set()}
             onRevealLine={(zeileId) => onRevealLine(strophe.id, zeileId)}
             onRevealAll={() => onRevealAll(strophe.id)}
+            twoColumnTranslation={showTranslations}
+            hideRevealLines={!showTranslations}
           >
             <div
               className="mt-4 rounded-lg p-4"

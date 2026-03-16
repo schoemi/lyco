@@ -182,4 +182,68 @@ describe("LLM-Client", () => {
       consoleSpy.mockRestore();
     });
   });
+
+  describe("responseFormat", () => {
+    it("defaults to json_object when responseFormat is not specified", async () => {
+      mockCreate.mockResolvedValue({
+        choices: [{ message: { content: '{"key":"value"}' } }],
+      });
+
+      const createLLMClient = await getCreateLLMClient();
+      const client = createLLMClient();
+      await client.chat([{ role: "user", content: "Hello" }]);
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          response_format: { type: "json_object" },
+        })
+      );
+    });
+
+    it("uses json_object when responseFormat is explicitly set to json_object", async () => {
+      mockCreate.mockResolvedValue({
+        choices: [{ message: { content: '{"key":"value"}' } }],
+      });
+
+      const createLLMClient = await getCreateLLMClient();
+      const client = createLLMClient({ responseFormat: "json_object" });
+      await client.chat([{ role: "user", content: "Hello" }]);
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          response_format: { type: "json_object" },
+        })
+      );
+    });
+
+    it("omits response_format when responseFormat is text", async () => {
+      mockCreate.mockResolvedValue({
+        choices: [{ message: { content: "Free text coach response" } }],
+      });
+
+      const createLLMClient = await getCreateLLMClient();
+      const client = createLLMClient({ responseFormat: "text" });
+      await client.chat([{ role: "user", content: "Give me singing tips" }]);
+
+      const callArgs = mockCreate.mock.calls[0][0];
+      expect(callArgs).not.toHaveProperty("response_format");
+      expect(callArgs).toEqual({
+        model: "test-model",
+        messages: [{ role: "user", content: "Give me singing tips" }],
+      });
+    });
+
+    it("returns text content correctly when responseFormat is text", async () => {
+      const freeText = "This is a free text response with coaching tips.";
+      mockCreate.mockResolvedValue({
+        choices: [{ message: { content: freeText } }],
+      });
+
+      const createLLMClient = await getCreateLLMClient();
+      const client = createLLMClient({ responseFormat: "text" });
+      const result = await client.chat([{ role: "user", content: "Coach me" }]);
+
+      expect(result).toBe(freeText);
+    });
+  });
 });

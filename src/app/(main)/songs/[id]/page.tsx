@@ -297,7 +297,7 @@ export default function SongDetailPage() {
       {/* Learning modes */}
       <div className="space-y-2">
         <h2 className="text-lg font-semibold text-gray-900">Lernmethoden</h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <Link
             href={`/songs/${id}/emotional`}
             className="flex min-h-[44px] items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
@@ -309,6 +309,12 @@ export default function SongDetailPage() {
             className="flex min-h-[44px] items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-purple-700"
           >
             ✏️ Lückentext
+          </Link>
+          <Link
+            href={`/songs/${id}/coach`}
+            className="flex min-h-[44px] items-center justify-center rounded-lg border border-green-300 bg-white px-4 py-3 text-sm font-medium text-green-700 transition-colors hover:bg-green-50"
+          >
+            🎤 Gesangstechnik-Coach
           </Link>
         </div>
       </div>

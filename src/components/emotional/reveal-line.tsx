@@ -18,29 +18,14 @@ export function RevealLine({ zeile, isRevealed, onReveal }: RevealLineProps) {
         {zeile.text}
       </p>
 
-      {/* Translation line – only rendered when translation exists */}
-      {hasTranslation && (
-        <button
-          type="button"
-          onClick={onReveal}
-          disabled={isRevealed}
-          className="block w-full min-h-[44px] rounded px-2 py-1 text-left transition-all duration-200 ease-in-out"
-          style={{
-            fontSize: "13px",
-            fontStyle: "italic",
-            color: isRevealed ? "#6b7280" : "transparent",
-            backgroundColor: isRevealed ? "transparent" : "#d1d5db",
-          }}
-          aria-label={
-            isRevealed
-              ? undefined
-              : `Übersetzung aufdecken: ${zeile.text}`
-          }
+      {/* Translation line – only rendered when translation exists and is revealed */}
+      {hasTranslation && isRevealed && (
+        <p
+          className="px-2 py-1 text-gray-500 italic"
+          style={{ fontSize: "13px" }}
         >
-          <span aria-hidden={!isRevealed}>
-            {zeile.uebersetzung}
-          </span>
-        </button>
+          {zeile.uebersetzung}
+        </p>
       )}
     </div>
   );

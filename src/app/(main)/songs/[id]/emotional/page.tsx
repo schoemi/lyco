@@ -57,6 +57,13 @@ export default function EmotionalPage() {
     });
   }, [song]);
 
+  const handleHideAll = useCallback((stropheId: string) => {
+    setRevealedLines((prev) => {
+      const { [stropheId]: _, ...rest } = prev;
+      return { ...rest, [stropheId]: new Set<string>() };
+    });
+  }, []);
+
   const handleInterpretationSave = useCallback(async (stropheId: string, text: string) => {
     try {
       const res = await fetch("/api/interpretations", {
@@ -184,6 +191,7 @@ export default function EmotionalPage() {
             revealedLines={revealedLines}
             onRevealLine={handleRevealLine}
             onRevealAll={handleRevealAll}
+            onHideAll={handleHideAll}
             translating={translating}
             translateError={translateError}
             translateSuccess={translateSuccess}

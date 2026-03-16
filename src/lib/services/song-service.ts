@@ -265,6 +265,7 @@ export async function getSongDetail(
     progress,
     sessionCount,
     analyse: song.analyse ?? null,
+    coachTipp: song.coachTipp ?? null,
     strophen,
   };
 }

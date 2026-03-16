@@ -36,6 +36,19 @@ enum MarkupTyp {
   TIMECODE
 }
 
+enum Geschlecht {
+  MAENNLICH
+  WEIBLICH
+  DIVERS
+}
+
+enum Erfahrungslevel {
+  ANFAENGER
+  FORTGESCHRITTEN
+  ERFAHREN
+  PROFI
+}
+
 enum MarkupZiel {
   STROPHE
   ZEILE
@@ -43,18 +56,23 @@ enum MarkupZiel {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  name         String?
-  passwordHash String
-  role         Role     @default(USER)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String           @id @default(cuid())
+  email           String           @unique
+  name            String?
+  passwordHash    String
+  role            Role             @default(USER)
+  alter           Int?
+  geschlecht      Geschlecht?
+  erfahrungslevel Erfahrungslevel?
+  stimmlage       String?
+  genre           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
-  loginAttempts LoginAttempt[]
-  sets         Set[]
-  songs        Song[]
-  sessions     Session[]
+  loginAttempts    LoginAttempt[]
+  sets             Set[]
+  songs            Song[]
+  sessions         Session[]
   fortschritte     Fortschritt[]
   notizen          Notiz[]
   interpretationen Interpretation[]
@@ -109,6 +127,7 @@ model Song {
   sprache      String?
   emotionsTags String[] @default([])
   analyse      String?
+  coachTipp    String?
   userId       String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

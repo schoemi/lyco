@@ -8,6 +8,7 @@ export interface LLMClientConfig {
   model: string;
   timeoutMs: number;
   maxRetries: number;
+  responseFormat?: "json_object" | "text";
 }
 
 export interface LLMMessage {
@@ -28,6 +29,7 @@ export function createLLMClient(configOverride?: Partial<LLMClientConfig>): LLMC
     model: configOverride?.model ?? process.env.LLM_MODEL ?? "gpt-4o-mini",
     timeoutMs: configOverride?.timeoutMs ?? 30000,
     maxRetries: configOverride?.maxRetries ?? 2,
+    responseFormat: configOverride?.responseFormat ?? "json_object",
   };
 
   if (!config.apiKey) {
@@ -50,7 +52,9 @@ export function createLLMClient(configOverride?: Partial<LLMClientConfig>): LLMC
             role: m.role,
             content: m.content,
           })),
-          response_format: { type: "json_object" },
+          ...(config.responseFormat !== "text" && {
+            response_format: { type: "json_object" },
+          }),
         });
 
         const content = response.choices[0]?.message?.content;

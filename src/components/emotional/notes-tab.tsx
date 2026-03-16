@@ -52,6 +52,7 @@ export function NotesTab({
             revealedLines={revealedLines[strophe.id] ?? new Set()}
             onRevealLine={(zeileId) => onRevealLine(strophe.id, zeileId)}
             onRevealAll={() => onRevealAll(strophe.id)}
+            hideRevealLines
           >
             <div className="mt-4">
               <textarea

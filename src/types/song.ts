@@ -93,6 +93,7 @@ export interface SongDetail {
   progress: number;
   sessionCount: number;
   analyse: string | null;
+  coachTipp: string | null;
   strophen: StropheDetail[];
 }
 
