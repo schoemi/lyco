@@ -6,7 +6,7 @@ const { auth } = NextAuth(authConfig);
 
 // Öffentliche Routen – kein Auth nötig
 const publicRoutes = ["/login", "/register", "/setup"];
-const publicApiPrefixes = ["/api/auth/", "/api/setup/"];
+const publicApiPrefixes = ["/api/auth/", "/api/setup"];
 
 // Admin-Routen – Auth + Admin-Rolle nötig
 const adminPagePrefix = "/admin";
