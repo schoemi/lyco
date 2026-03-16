@@ -9,9 +9,10 @@ interface ZeileEditorProps {
   zeilen: ZeileDetail[];
   onZeilenChanged: (zeilen: ZeileDetail[]) => void;
   editing?: boolean;
+  showTranslations?: boolean;
 }
 
-export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged, editing: isEditing = true }: ZeileEditorProps) {
+export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged, editing: isEditing = true, showTranslations = true }: ZeileEditorProps) {
   const [statusMessage, setStatusMessage] = useState("");
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [addText, setAddText] = useState("");
@@ -281,7 +282,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
         {sorted.map((zeile) => (
           <div key={zeile.id}>
             <p className="text-sm text-gray-900">{zeile.text}</p>
-            {zeile.uebersetzung && (
+            {showTranslations && zeile.uebersetzung && (
               <p className="text-xs text-gray-500 italic">{zeile.uebersetzung}</p>
             )}
           </div>
@@ -371,7 +372,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-gray-900">{zeile.text}</p>
-                {zeile.uebersetzung && (
+                {showTranslations && zeile.uebersetzung && (
                   <p className="text-xs text-gray-500 italic">{zeile.uebersetzung}</p>
                 )}
               </div>

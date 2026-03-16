@@ -1,14 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProgressBar } from "@/components/songs/progress-bar";
 import SongEditForm from "@/components/songs/song-edit-form";
 import SongDeleteDialog from "@/components/songs/song-delete-dialog";
 import StropheEditor from "@/components/songs/strophe-editor";
-import type { SongDetail } from "../../../../types/song";
+import TranslateButton from "@/components/songs/translate-button";
+import LanguageSelector from "@/components/songs/language-selector";
+import TranslationToggle from "@/components/songs/translation-toggle";
+import { useTranslation } from "@/hooks/use-translation";
+import type { SongDetail, StropheDetail } from "../../../../types/song";
 import type { SongAnalyseResult } from "@/types/song";
+
+function hasAnyTranslation(strophen: StropheDetail[]): boolean {
+  return strophen.some((s) =>
+    s.zeilen.some((z) => z.uebersetzung != null && z.uebersetzung.trim() !== "")
+  );
+}
 
 export default function SongDetailPage() {
   const params = useParams();
@@ -22,6 +32,22 @@ export default function SongDetailPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [analyseError, setAnalyseError] = useState<string | null>(null);
+
+  const [showTranslations, setShowTranslations] = useState(true);
+
+  const {
+    translating,
+    translateError,
+    translateSuccess,
+    zielsprache,
+    setZielsprache,
+    handleTranslate,
+  } = useTranslation({ songId: id, setSong });
+
+  const hasTranslations = useMemo(
+    () => (song ? hasAnyTranslation(song.strophen) : false),
+    [song?.strophen]
+  );
 
   const handleAnalyze = useCallback(async () => {
     if (!id || analyzing) return;
@@ -126,7 +152,7 @@ export default function SongDetailPage() {
             {song.titel}
           </h1>
           {!editing && (
-            <div className="flex gap-2 shrink-0">
+            <div className="flex flex-wrap gap-2 shrink-0 items-center">
               <button
                 type="button"
                 onClick={handleAnalyze}
@@ -135,6 +161,15 @@ export default function SongDetailPage() {
               >
                 {analyzing ? "Analysiert…" : "🔍 Analysieren"}
               </button>
+              <LanguageSelector
+                value={zielsprache}
+                onChange={setZielsprache}
+                disabled={translating}
+              />
+              <TranslateButton
+                translating={translating}
+                onClick={handleTranslate}
+              />
               <button
                 type="button"
                 onClick={() => setEditing(true)}
@@ -149,6 +184,12 @@ export default function SongDetailPage() {
               >
                 Löschen
               </button>
+              {hasTranslations && (
+                <TranslationToggle
+                  checked={showTranslations}
+                  onChange={setShowTranslations}
+                />
+              )}
             </div>
           )}
         </div>
@@ -188,6 +229,30 @@ export default function SongDetailPage() {
             {analyseError && (
               <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {analyseError}
+              </div>
+            )}
+
+            {/* Translation error */}
+            {translateError && (
+              <div
+                role="alert"
+                className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+              >
+                {translateError}
+              </div>
+            )}
+
+            {/* Translation success */}
+            {translateSuccess && (
+              <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                Übersetzung erfolgreich abgeschlossen.
+              </div>
+            )}
+
+            {/* Language warning: source === target */}
+            {song.sprache && song.sprache === zielsprache && (
+              <div className="rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-700">
+                Hinweis: Die Zielsprache entspricht der Originalsprache des Songs ({song.sprache}).
               </div>
             )}
 
@@ -256,6 +321,7 @@ export default function SongDetailPage() {
           strophen={song.strophen}
           onStrophenChanged={(strophen) => setSong({ ...song, strophen })}
           editing={editing}
+          showTranslations={showTranslations}
         />
       </div>
     </div>

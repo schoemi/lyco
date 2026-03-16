@@ -394,10 +394,16 @@ export async function translateSong(
     }
 
     // 9. Save translations line-by-line and build result
+    // Sort by stropheIndex to ensure correct positional mapping,
+    // then use the sorted index to look up the actual strophe.
+    const sortedStrophen = [...validated.strophen].sort(
+      (a, b) => a.stropheIndex - b.stropheIndex
+    );
     const strophenResult: StropheUebersetzungResult[] = [];
 
-    for (const stropheData of validated.strophen) {
-      const strophe = strophenWithZeilen[stropheData.stropheIndex];
+    for (let idx = 0; idx < sortedStrophen.length; idx++) {
+      const stropheData = sortedStrophen[idx];
+      const strophe = strophenWithZeilen[idx];
       if (!strophe) continue;
 
       const zeilenResult: ZeileUebersetzungResult[] = [];

@@ -11,6 +11,7 @@ import { NotesTab } from "@/components/emotional/notes-tab";
 import { ActionButtons } from "@/components/emotional/action-buttons";
 import type { SongDetail } from "@/types/song";
 import type { InterpretationResponse } from "@/types/interpretation";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function EmotionalPage() {
   const params = useParams();
@@ -23,6 +24,15 @@ export default function EmotionalPage() {
   const [revealedLines, setRevealedLines] = useState<Record<string, Set<string>>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    translating,
+    translateError,
+    translateSuccess,
+    zielsprache,
+    setZielsprache,
+    handleTranslate,
+  } = useTranslation({ songId: id, setSong });
 
   const handleRevealLine = useCallback((stropheId: string, zeileId: string) => {
     setRevealedLines((prev) => {
@@ -174,6 +184,12 @@ export default function EmotionalPage() {
             revealedLines={revealedLines}
             onRevealLine={handleRevealLine}
             onRevealAll={handleRevealAll}
+            translating={translating}
+            translateError={translateError}
+            translateSuccess={translateSuccess}
+            zielsprache={zielsprache}
+            setZielsprache={setZielsprache}
+            onTranslate={handleTranslate}
           />
         )}
         {activeTab === "Interpretation" && (

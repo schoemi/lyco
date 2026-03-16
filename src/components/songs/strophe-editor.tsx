@@ -9,9 +9,10 @@ interface StropheEditorProps {
   strophen: StropheDetail[];
   onStrophenChanged: (strophen: StropheDetail[]) => void;
   editing?: boolean;
+  showTranslations?: boolean;
 }
 
-export default function StropheEditor({ songId, strophen, onStrophenChanged, editing: isEditing = true }: StropheEditorProps) {
+export default function StropheEditor({ songId, strophen, onStrophenChanged, editing: isEditing = true, showTranslations = true }: StropheEditorProps) {
   const [statusMessage, setStatusMessage] = useState("");
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [addName, setAddName] = useState("");
@@ -281,7 +282,7 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
                     {sortedZeilen.map((zeile) => (
                       <div key={zeile.id}>
                         <p className="text-sm text-gray-900">{zeile.text}</p>
-                        {zeile.uebersetzung && (
+                        {showTranslations && zeile.uebersetzung && (
                           <p className="text-xs text-gray-500 italic">{zeile.uebersetzung}</p>
                         )}
                       </div>
@@ -409,6 +410,7 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
               songId={songId}
               stropheId={strophe.id}
               zeilen={strophe.zeilen}
+              showTranslations={showTranslations}
               onZeilenChanged={(updatedZeilen: ZeileDetail[]) => {
                 const updatedStrophen = strophen.map((s) =>
                   s.id === strophe.id ? { ...s, zeilen: updatedZeilen } : s
