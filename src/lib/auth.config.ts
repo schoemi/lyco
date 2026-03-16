@@ -5,6 +5,7 @@ import type { NextAuthConfig } from "next-auth";
  * Used by the middleware for JWT session checks.
  */
 export const authConfig: NextAuthConfig = {
+  trustHost: true,
   providers: [], // Credentials provider added in auth.ts (Node.js only)
   session: {
     strategy: "jwt",
@@ -31,8 +32,8 @@ export const authConfig: NextAuthConfig = {
     sessionToken: {
       options: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: process.env.AUTH_COOKIE_SECURE !== "false" && process.env.NODE_ENV === "production",
+        sameSite: "lax",
       },
     },
   },

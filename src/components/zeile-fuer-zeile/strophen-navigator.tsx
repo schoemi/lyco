@@ -8,6 +8,8 @@ interface StrophenNavigatorProps {
   canGoForward: boolean;
   onPrevious: () => void;
   onNext: () => void;
+  positionSuffix?: string;
+  showDirectionIcon?: boolean;
 }
 
 export function StrophenNavigator({
@@ -18,6 +20,8 @@ export function StrophenNavigator({
   canGoForward,
   onPrevious,
   onNext,
+  positionSuffix,
+  showDirectionIcon,
 }: StrophenNavigatorProps) {
   return (
     <div className="flex items-center justify-between">
@@ -33,7 +37,9 @@ export function StrophenNavigator({
       <div className="text-center">
         <p className="text-sm font-semibold text-gray-900">{currentStropheName}</p>
         <p className="text-xs text-gray-500">
+          {showDirectionIcon && <span className="mr-1">←</span>}
           Strophe {currentPosition} von {totalStrophen}
+          {positionSuffix && <span> {positionSuffix}</span>}
         </p>
       </div>
       <button

@@ -5,9 +5,10 @@ import Link from "next/link";
 interface ZeileFuerZeileNavbarProps {
   songId: string;
   songTitle: string;
+  label?: string;
 }
 
-export function ZeileFuerZeileNavbar({ songId, songTitle }: ZeileFuerZeileNavbarProps) {
+export function ZeileFuerZeileNavbar({ songId, songTitle, label = "Zeile für Zeile" }: ZeileFuerZeileNavbarProps) {
   return (
     <nav className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 shadow-sm">
       <Link
@@ -21,7 +22,7 @@ export function ZeileFuerZeileNavbar({ songId, songTitle }: ZeileFuerZeileNavbar
         {songTitle}
       </h1>
       <span className="text-sm font-medium text-purple-700 whitespace-nowrap">
-        Zeile für Zeile
+        {label}
       </span>
     </nav>
   );
