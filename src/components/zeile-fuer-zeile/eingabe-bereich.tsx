@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 interface EingabeBereichProps {
   eingabe: string;
   onEingabeChange: (value: string) => void;
@@ -21,7 +23,16 @@ export function EingabeBereich({
   disabled,
   istLetzteZeile,
 }: EingabeBereichProps) {
+  const weiterRef = useRef<HTMLButtonElement>(null);
   const istDeaktiviert = disabled || status === "korrekt" || status === "loesung";
+  const istWeiterAktiv = status === "korrekt" || status === "loesung";
+
+  // Focus the "Weiter" button when status changes to korrekt/loesung
+  useEffect(() => {
+    if (istWeiterAktiv) {
+      weiterRef.current?.focus();
+    }
+  }, [istWeiterAktiv]);
 
   const borderClass =
     status === "korrekt"
@@ -33,7 +44,9 @@ export function EingabeBereich({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if (!istDeaktiviert) {
+      if (istWeiterAktiv) {
+        onWeiter();
+      } else if (!istDeaktiviert) {
         onAbsenden();
       }
     }
@@ -77,6 +90,7 @@ export function EingabeBereich({
       </div>
 
       <button
+        ref={weiterRef}
         onClick={onWeiter}
         disabled={status === "eingabe"}
         className="min-h-[44px] w-full rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed"

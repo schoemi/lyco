@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { SessionView } from "@/components/spaced-repetition/session-view";
+import { dispatchStreakUpdate } from "@/lib/dispatch-streak-update";
 import type { FaelligeStrophe } from "@/lib/services/spaced-repetition-service";
 
 export default function SpacedRepetitionPage() {
@@ -54,6 +55,7 @@ export default function SpacedRepetitionPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ songId: id, lernmethode: "SPACED_REPETITION" }),
       });
+      dispatchStreakUpdate();
     } catch {
       // Silent – session tracking is non-critical
     }

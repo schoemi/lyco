@@ -21,7 +21,7 @@ export function EmotionalNavbar({ songId, songTitle }: EmotionalNavbarProps) {
         {songTitle}
       </h1>
       <span className="text-sm font-medium text-purple-700 whitespace-nowrap">
-        Emotionales Lernen
+        Inhalt und Bedeutung
       </span>
     </nav>
   );

@@ -11,7 +11,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import fc from "fast-check";
 
 // --- Hoisted mocks ---
-const { mockAuth, mockListSongs, mockGetAverageProgress, mockGetTotalSessionCount, mockSetFindMany, mockGetFaelligeAnzahl } = vi.hoisted(() => {
+const { mockAuth, mockListSongs, mockGetAverageProgress, mockGetTotalSessionCount, mockSetFindMany, mockGetFaelligeAnzahl, mockGetStreak } = vi.hoisted(() => {
   return {
     mockAuth: vi.fn(),
     mockListSongs: vi.fn(),
@@ -19,6 +19,7 @@ const { mockAuth, mockListSongs, mockGetAverageProgress, mockGetTotalSessionCoun
     mockGetTotalSessionCount: vi.fn(),
     mockSetFindMany: vi.fn(),
     mockGetFaelligeAnzahl: vi.fn(),
+    mockGetStreak: vi.fn(),
   };
 });
 
@@ -40,6 +41,10 @@ vi.mock("@/lib/services/session-service", () => ({
 
 vi.mock("@/lib/services/spaced-repetition-service", () => ({
   getFaelligeAnzahl: mockGetFaelligeAnzahl,
+}));
+
+vi.mock("@/lib/services/streak-service", () => ({
+  getStreak: mockGetStreak,
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -147,6 +152,7 @@ describe("Property 16: Dashboard-Aggregation", () => {
         mockGetAverageProgress.mockResolvedValue(expectedAverageProgress);
         mockGetTotalSessionCount.mockResolvedValue(expectedTotalSessions);
         mockGetFaelligeAnzahl.mockResolvedValue(3);
+        mockGetStreak.mockResolvedValue(5);
 
         // Call the dashboard GET handler
         const response = await dashboardGET();

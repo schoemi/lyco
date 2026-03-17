@@ -87,101 +87,101 @@ Schrittweise Implementierung der Benutzerkonto-Steuerung: Zuerst Datenmodell und
 - [x] 4. Checkpoint – Basis-Logik prüfen
   - Sicherstellen, dass alle bisherigen Tests bestehen, den Benutzer bei Fragen konsultieren.
 
-- [ ] 5. Middleware und Session-Invalidierung
-  - [-] 5.1 Middleware in `src/middleware.ts` erweitern
+- [x] 5. Middleware und Session-Invalidierung
+  - [x] 5.1 Middleware in `src/middleware.ts` erweitern
     - `accountStatus` aus dem JWT-Token lesen
     - Bei `accountStatus != ACTIVE`: Session löschen und Redirect auf `/login`
     - _Anforderungen: 3.4_
 
-  - [~] 5.2 Property-Test: Aktive Session-Invalidierung bei Sperrung
+  - [x] 5.2 Property-Test: Aktive Session-Invalidierung bei Sperrung
     - **Property 7: Aktive Session-Invalidierung bei Sperrung**
     - Datei: `__tests__/middleware/session-invalidation.property.test.ts`
     - **Validiert: Anforderung 3.4**
 
-  - [~] 5.3 Unit-Test: Middleware Status-Check
+  - [x] 5.3 Unit-Test: Middleware Status-Check
     - Datei: `__tests__/middleware/status-check.test.ts`
     - Testen: Session-Invalidierung bei gesperrtem Konto, Weiterleitung bei PENDING
     - _Anforderungen: 3.4_
 
-- [ ] 6. API-Routen implementieren
-  - [~] 6.1 `PATCH /api/users/[id]/status` Route erstellen
+- [x] 6. API-Routen implementieren
+  - [x] 6.1 `PATCH /api/users/[id]/status` Route erstellen
     - Admin-Auth prüfen, Selbstsperrung verhindern
     - `UserService.suspendUser()` oder `UserService.activateUser()` aufrufen
     - Fehlerbehandlung: 401, 403, 404, 400
     - _Anforderungen: 2.1, 2.2, 2.3, 2.5, 6.1, 6.3, 6.4_
 
-  - [~] 6.2 `POST /api/users/[id]/approve` und `POST /api/users/[id]/reject` Routen erstellen
+  - [x] 6.2 `POST /api/users/[id]/approve` und `POST /api/users/[id]/reject` Routen erstellen
     - Admin-Auth prüfen
     - `UserService.approveUser()` bzw. `UserService.rejectUser()` aufrufen
     - Fehlerbehandlung: 401, 403, 404
     - _Anforderungen: 5.2, 5.3, 6.1, 6.3_
 
-  - [~] 6.3 `GET /api/users/pending/count` Route erstellen
+  - [x] 6.3 `GET /api/users/pending/count` Route erstellen
     - Admin-Auth prüfen
     - `UserService.getPendingCount()` aufrufen
     - _Anforderungen: 5.1, 6.1, 6.3_
 
-  - [~] 6.4 `GET/PUT /api/settings/require-approval` Route erstellen
+  - [x] 6.4 `GET/PUT /api/settings/require-approval` Route erstellen
     - Admin-Auth prüfen
     - `SystemSettingService.getRequireApproval()` / `setRequireApproval()` aufrufen
     - Fehlerbehandlung: 401, 403, 400
     - _Anforderungen: 4.1, 4.3, 4.4, 6.2, 6.3_
 
-  - [~] 6.5 Property-Test: API-Zugriffskontrolle
+  - [x] 6.5 Property-Test: API-Zugriffskontrolle
     - **Property 11: API-Zugriffskontrolle für Kontostatus-Operationen**
     - Datei: `__tests__/admin/status-access-control.property.test.ts`
     - **Validiert: Anforderungen 6.1, 6.2, 6.3**
 
-  - [~] 6.6 Unit-Tests für API-Endpunkte
+  - [x] 6.6 Unit-Tests für API-Endpunkte
     - `__tests__/admin/account-status-api.test.ts`: Sperren, Entsperren, Bestätigen, Ablehnen
     - `__tests__/admin/settings-api.test.ts`: Bestätigungspflicht lesen/schreiben
     - `__tests__/admin/pending-count-api.test.ts`: Ausstehend-Zähler
     - `__tests__/auth/register-pending.test.ts`: Registrierung mit Bestätigungspflicht
     - _Anforderungen: 2.1, 2.2, 2.3, 4.3, 4.4, 4.5, 5.1, 5.2, 5.3_
 
-- [~] 7. Checkpoint – Backend komplett prüfen
+- [x] 7. Checkpoint – Backend komplett prüfen
   - Sicherstellen, dass alle bisherigen Tests bestehen, den Benutzer bei Fragen konsultieren.
 
-- [ ] 8. Frontend-Komponenten implementieren
-  - [~] 8.1 `StatusBadge`-Komponente in `src/components/admin/status-badge.tsx` erstellen
+- [x] 8. Frontend-Komponenten implementieren
+  - [x] 8.1 `StatusBadge`-Komponente in `src/components/admin/status-badge.tsx` erstellen
     - Farblich gekennzeichnetes Badge: ACTIVE=grün, SUSPENDED=rot, PENDING=gelb
     - Deutsche Labels: "Aktiv", "Gesperrt", "Ausstehend"
     - _Anforderungen: 2.4_
 
-  - [~] 8.2 Property-Test: StatusBadge-Rendering
+  - [x] 8.2 Property-Test: StatusBadge-Rendering
     - **Property 12: StatusBadge-Rendering**
     - Datei: `__tests__/admin/status-badge.property.test.ts`
     - **Validiert: Anforderung 2.4**
 
-  - [~] 8.3 `UserStatusActions`-Komponente in `src/components/admin/user-status-actions.tsx` erstellen
+  - [x] 8.3 `UserStatusActions`-Komponente in `src/components/admin/user-status-actions.tsx` erstellen
     - Sperren/Entsperren-Buttons für ACTIVE/SUSPENDED Benutzer
     - Bestätigen/Ablehnen-Buttons für PENDING Benutzer
     - Selbstsperrung visuell verhindern (Button deaktiviert für eigenen Account)
     - _Anforderungen: 2.1, 2.2, 2.3, 2.5, 5.2, 5.3, 5.4_
 
-  - [~] 8.4 `RejectUserDialog`-Komponente in `src/components/admin/reject-user-dialog.tsx` erstellen
+  - [x] 8.4 `RejectUserDialog`-Komponente in `src/components/admin/reject-user-dialog.tsx` erstellen
     - Bestätigungsdialog vor dem Ablehnen (Löschen) eines ausstehenden Benutzers
     - _Anforderungen: 5.3_
 
-  - [~] 8.5 `PendingCountBadge`-Komponente in `src/components/admin/pending-count-badge.tsx` erstellen
+  - [x] 8.5 `PendingCountBadge`-Komponente in `src/components/admin/pending-count-badge.tsx` erstellen
     - Badge mit Anzahl ausstehender Benutzer, Polling oder SWR für Aktualisierung
     - _Anforderungen: 5.1_
 
-  - [~] 8.6 `AdminUsersPage` in `src/app/(admin)/admin/users/page.tsx` erweitern
+  - [x] 8.6 `AdminUsersPage` in `src/app/(admin)/admin/users/page.tsx` erweitern
     - `StatusBadge` in der Benutzerliste anzeigen
     - `UserStatusActions` pro Benutzer einbinden
     - _Anforderungen: 2.4, 5.4_
 
-  - [~] 8.7 `AdminSettingsPage` in `src/app/(admin)/admin/settings/page.tsx` erstellen
+  - [x] 8.7 `AdminSettingsPage` in `src/app/(admin)/admin/settings/page.tsx` erstellen
     - Toggle für Bestätigungspflicht mit `GET/PUT /api/settings/require-approval`
     - _Anforderungen: 4.1_
 
-  - [~] 8.8 `AdminLayout` in `src/app/(admin)/layout.tsx` erweitern
+  - [x] 8.8 `AdminLayout` in `src/app/(admin)/layout.tsx` erweitern
     - "Einstellungen"-Link in der Navigation hinzufügen
     - `PendingCountBadge` neben "Benutzer"-Link einbinden
     - _Anforderungen: 5.1_
 
-- [~] 9. Abschluss-Checkpoint – Alle Tests bestehen
+- [x] 9. Abschluss-Checkpoint – Alle Tests bestehen
   - Sicherstellen, dass alle Tests bestehen, den Benutzer bei Fragen konsultieren.
 
 ## Hinweise

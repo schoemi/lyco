@@ -12,6 +12,7 @@ import { StrophenAuswahlDialog } from "@/components/cloze/strophen-auswahl-dialo
 import { ErklaerungTooltip } from "@/components/rueckwaerts/erklaerung-tooltip";
 import { SchwierigkeitsAuswahl } from "@/components/zeile-fuer-zeile/schwierigkeits-auswahl";
 import { HinweisAnzeige } from "@/components/zeile-fuer-zeile/hinweis-anzeige";
+import { dispatchStreakUpdate } from "@/lib/dispatch-streak-update";
 import { validateLine } from "@/lib/zeile-fuer-zeile/validate-line";
 import { calculateStropheProgress } from "@/lib/zeile-fuer-zeile/progress";
 import {
@@ -127,6 +128,7 @@ export default function RueckwaertsPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ songId: id, lernmethode: "RUECKWAERTS" }),
           });
+          dispatchStreakUpdate();
         } catch {
           // Silent – session tracking is non-critical
         }
@@ -295,7 +297,7 @@ export default function RueckwaertsPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ songId: id, lernmethode: "RUECKWAERTS" }),
-        }).catch(() => {
+        }).then(() => dispatchStreakUpdate()).catch(() => {
           // Silent error handling
         });
       }

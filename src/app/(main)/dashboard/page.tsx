@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SetCard } from "@/components/songs/set-card";
 import { SongRow } from "@/components/songs/song-row";
-import { ProgressBar } from "@/components/songs/progress-bar";
 import SongCreateDialog from "@/components/songs/song-create-dialog";
+import { MetrikKarte } from "@/components/gamification/metrik-karte";
+import { StreakPill } from "@/components/gamification/streak-pill";
 import { SpacedRepetitionWidget } from "@/components/spaced-repetition/spaced-repetition-widget";
 import type { DashboardData, SongWithProgress } from "../../../types/song";
 
@@ -76,29 +77,18 @@ export default function DashboardPage() {
       {/* Spaced Repetition Widget */}
       <SpacedRepetitionWidget faelligeAnzahl={data.faelligeStrophenAnzahl} />
 
+      {/* Streak */}
+      {data.streak > 0 && (
+        <div className="flex items-center">
+          <StreakPill streak={data.streak} />
+        </div>
+      )}
+
       {/* Aggregate stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
-          <p className="text-xs text-gray-500">Songs</p>
-          <p className="text-2xl font-semibold text-gray-900">
-            {data.totalSongs}
-          </p>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
-          <p className="text-xs text-gray-500">Sessions</p>
-          <p className="text-2xl font-semibold text-gray-900">
-            {data.totalSessions}
-          </p>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
-          <p className="text-xs text-gray-500">Fortschritt</p>
-          <div className="flex items-center gap-3">
-            <p className="text-2xl font-semibold text-gray-900">
-              {Math.round(data.averageProgress)}%
-            </p>
-            <ProgressBar value={data.averageProgress} className="flex-1" />
-          </div>
-        </div>
+        <MetrikKarte label="Songs aktiv" value={data.activeSongCount} />
+        <MetrikKarte label="Sessions gesamt" value={data.totalSessions} />
+        <MetrikKarte label="Ø Fortschritt" value={`${Math.round(data.averageProgress)}%`} fortschrittsbalken={data.averageProgress} />
       </div>
 
       {/* Alle Songs */}

@@ -5,6 +5,7 @@ import { listSongs } from "@/lib/services/song-service";
 import { getAverageProgress } from "@/lib/services/progress-service";
 import { getTotalSessionCount } from "@/lib/services/session-service";
 import { getFaelligeAnzahl } from "@/lib/services/spaced-repetition-service";
+import { getStreak } from "@/lib/services/streak-service";
 import type { DashboardData, DashboardSet, SongWithProgress } from "../../../types/song";
 
 export async function GET() {
@@ -51,11 +52,15 @@ export async function GET() {
     }));
 
     // Aggregate values
-    const [averageProgress, totalSessions, faelligeStrophenAnzahl] = await Promise.all([
+    const [averageProgress, totalSessions, faelligeStrophenAnzahl, streak] = await Promise.all([
       getAverageProgress(userId),
       getTotalSessionCount(userId),
       getFaelligeAnzahl(userId),
+      getStreak(userId),
     ]);
+
+    // Count songs with at least one session
+    const activeSongCount = allSongs.filter((s) => s.sessionCount > 0).length;
 
     const data: DashboardData = {
       sets: dashboardSets,
@@ -64,6 +69,8 @@ export async function GET() {
       totalSessions: totalSessions,
       averageProgress,
       faelligeStrophenAnzahl,
+      streak,
+      activeSongCount,
     };
 
     return NextResponse.json(data);

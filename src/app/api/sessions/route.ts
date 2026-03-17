@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import {
   createSession,
+  createSessionWithStreak,
   getSessionCount,
   getTotalSessionCount,
 } from "@/lib/services/session-service";
@@ -61,12 +62,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newSession = await createSession(
+    const { session: newSession, streak } = await createSessionWithStreak(
       session.user.id,
       songId,
       lernmethode as Parameters<typeof createSession>[2]
     );
-    return NextResponse.json({ session: newSession }, { status: 201 });
+    return NextResponse.json({ session: newSession, streak }, { status: 201 });
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === "Ungültige Lernmethode") {

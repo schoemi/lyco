@@ -6,6 +6,8 @@ import UserCreateDialog from "@/components/admin/user-create-dialog";
 import UserEditDialog from "@/components/admin/user-edit-dialog";
 import UserDeleteDialog from "@/components/admin/user-delete-dialog";
 import PasswordResetDialog from "@/components/admin/password-reset-dialog";
+import StatusBadge from "@/components/admin/status-badge";
+import UserStatusActions from "@/components/admin/user-status-actions";
 
 export default function AdminUsersPage() {
   const [currentUserId, setCurrentUserId] = useState<string | undefined>();
@@ -80,6 +82,7 @@ export default function AdminUsersPage() {
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">E-Mail</th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Name</th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Rolle</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Erstellt am</th>
                 <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Aktionen</th>
               </tr>
@@ -96,19 +99,33 @@ export default function AdminUsersPage() {
                       {user.role}
                     </span>
                   </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-sm">
+                    <StatusBadge status={user.accountStatus} />
+                  </td>
                   <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
                     {new Date(user.createdAt).toLocaleDateString("de-DE")}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-right text-sm">
-                    <button onClick={() => setEditUser(user)} className="mr-2 text-blue-600 hover:text-blue-800">Bearbeiten</button>
-                    <button onClick={() => setResetUser(user)} className="mr-2 text-yellow-600 hover:text-yellow-800">Passwort</button>
-                    <button onClick={() => setDeleteUser(user)} className="text-red-600 hover:text-red-800">Löschen</button>
+                    <div className="flex items-center justify-end gap-2">
+                      {currentUserId && (
+                        <UserStatusActions
+                          userId={user.id}
+                          userName={user.name}
+                          accountStatus={user.accountStatus}
+                          currentUserId={currentUserId}
+                          onStatusChanged={fetchUsers}
+                        />
+                      )}
+                      <button onClick={() => setEditUser(user)} className="text-blue-600 hover:text-blue-800">Bearbeiten</button>
+                      <button onClick={() => setResetUser(user)} className="text-yellow-600 hover:text-yellow-800">Passwort</button>
+                      <button onClick={() => setDeleteUser(user)} className="text-red-600 hover:text-red-800">Löschen</button>
+                    </div>
                   </td>
                 </tr>
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-6 text-center text-sm text-gray-500">Keine Benutzer vorhanden.</td>
+                  <td colSpan={6} className="px-4 py-6 text-center text-sm text-gray-500">Keine Benutzer vorhanden.</td>
                 </tr>
               )}
             </tbody>

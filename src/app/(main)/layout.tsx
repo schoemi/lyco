@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -11,6 +12,14 @@ export default function MainLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((r) => r.json())
+      .then((data) => setIsAdmin(data?.user?.role === "ADMIN"))
+      .catch(() => {});
+  }, []);
 
   async function handleLogout() {
     await signOut({ redirectTo: "/login" });
@@ -60,6 +69,14 @@ export default function MainLayout({
                 >
                   Profil
                 </Link>
+                {isAdmin && (
+                  <Link
+                    href="/admin/users"
+                    className="text-sm font-medium text-gray-600 hover:text-gray-900"
+                  >
+                    Admin
+                  </Link>
+                )}
               </div>
             </div>
             <button

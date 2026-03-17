@@ -10,6 +10,7 @@ import { DiktatCard } from "@/components/quiz/diktat-card";
 import { ScoreScreen } from "@/components/quiz/score-screen";
 import { StrophenAuswahlDialog } from "@/components/quiz/strophen-auswahl-dialog";
 import { ProgressBar } from "@/components/songs/progress-bar";
+import { dispatchStreakUpdate } from "@/lib/dispatch-streak-update";
 import {
   generateMCQuestions,
   generateReihenfolgeQuestions,
@@ -196,6 +197,7 @@ export default function QuizPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ songId: id, lernmethode: "QUIZ" }),
       });
+      dispatchStreakUpdate();
     } catch (err) {
       console.error("Session-Erstellung fehlgeschlagen:", err);
     }

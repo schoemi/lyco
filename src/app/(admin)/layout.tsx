@@ -3,6 +3,7 @@
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import PendingCountBadge from "@/components/admin/pending-count-badge";
 
 export default function AdminLayout({
   children,
@@ -36,6 +37,17 @@ export default function AdminLayout({
                 }`}
               >
                 Benutzer
+                <PendingCountBadge />
+              </Link>
+              <Link
+                href="/admin/settings"
+                className={`text-sm font-medium ${
+                  pathname?.startsWith("/admin/settings")
+                    ? "text-blue-600"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Einstellungen
               </Link>
             </div>
             <button

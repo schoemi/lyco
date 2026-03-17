@@ -29,19 +29,19 @@ export function FlipCard({ stropheName, zeilen, aufgedeckt, onFlip }: FlipCardPr
       }
     >
       <div
-        className={`relative w-full transition-transform duration-[400ms] [transform-style:preserve-3d] ${
+        className={`grid w-full transition-transform duration-[400ms] [transform-style:preserve-3d] ${
           aufgedeckt ? "[transform:rotateY(180deg)]" : ""
         }`}
       >
         {/* Vorderseite */}
-        <div className="flex min-h-[200px] flex-col items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-8 shadow-sm [backface-visibility:hidden]">
+        <div className="flex min-h-[200px] flex-col items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-8 shadow-sm [backface-visibility:hidden] [grid-area:1/1]">
           <p className="text-xl font-semibold text-gray-900">{stropheName}</p>
           <p className="mt-2 text-sm text-gray-400">Tippe zum Aufdecken</p>
         </div>
 
         {/* Rückseite */}
         <div
-          className="absolute inset-0 flex min-h-[200px] flex-col items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-6 py-8 shadow-sm [backface-visibility:hidden] [transform:rotateY(180deg)]"
+          className="flex min-h-[200px] flex-col items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-6 py-8 shadow-sm [backface-visibility:hidden] [transform:rotateY(180deg)] [grid-area:1/1]"
           aria-live="polite"
         >
           {aufgedeckt && (

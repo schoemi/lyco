@@ -12,6 +12,7 @@ import { ProgressBar } from "@/components/songs/progress-bar";
 import { generateGaps } from "@/lib/cloze/gap-generator";
 import { validateAnswer } from "@/lib/cloze/validate-answer";
 import { calculateProgress } from "@/lib/cloze/score";
+import { dispatchStreakUpdate } from "@/lib/dispatch-streak-update";
 import type { SongDetail } from "@/types/song";
 import type { DifficultyLevel, GapData } from "@/types/cloze";
 
@@ -87,6 +88,7 @@ export default function ClozePage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ songId: id, lernmethode: "LUECKENTEXT" }),
           });
+          dispatchStreakUpdate();
         } catch {
           // Silent – session tracking is non-critical
         }
@@ -234,6 +236,7 @@ export default function ClozePage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ songId: id, lernmethode: "LUECKENTEXT" }),
         });
+        dispatchStreakUpdate();
       } catch {
         // Silent error handling
       }

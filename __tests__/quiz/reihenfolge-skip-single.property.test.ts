@@ -104,6 +104,9 @@ describe("Property: Reihenfolge skips single-line strophes", () => {
           expect(lineCount).toBeDefined();
           // Req 4.7: strophes with ≤1 line must be skipped
           expect(lineCount).toBeGreaterThanOrEqual(2);
+
+          // Every question must have ≥2 shuffled lines
+          expect(q.shuffledZeilen.length).toBeGreaterThanOrEqual(2);
         }
       }),
       { numRuns: 100 },

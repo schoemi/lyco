@@ -11,6 +11,7 @@ import { NotesTab } from "@/components/emotional/notes-tab";
 import { ActionButtons } from "@/components/emotional/action-buttons";
 import type { SongDetail } from "@/types/song";
 import type { InterpretationResponse } from "@/types/interpretation";
+import { dispatchStreakUpdate } from "@/lib/dispatch-streak-update";
 import { useTranslation } from "@/hooks/use-translation";
 
 export default function EmotionalPage() {
@@ -135,6 +136,7 @@ export default function EmotionalPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ songId: id, lernmethode: "EMOTIONAL" }),
         });
+        dispatchStreakUpdate();
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Ein unbekannter Fehler ist aufgetreten"

@@ -12,6 +12,7 @@ import { StrophenAuswahlDialog } from "@/components/cloze/strophen-auswahl-dialo
 import { validateLine } from "@/lib/zeile-fuer-zeile/validate-line";
 import { calculateStropheProgress } from "@/lib/zeile-fuer-zeile/progress";
 import { SchwierigkeitsAuswahl } from "@/components/zeile-fuer-zeile/schwierigkeits-auswahl";
+import { dispatchStreakUpdate } from "@/lib/dispatch-streak-update";
 import { HinweisAnzeige } from "@/components/zeile-fuer-zeile/hinweis-anzeige";
 import {
   type Schwierigkeitsstufe,
@@ -112,6 +113,7 @@ export default function ZeileFuerZeilePage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ songId: id, lernmethode: "ZEILE_FUER_ZEILE" }),
           });
+          dispatchStreakUpdate();
         } catch {
           // Silent – session tracking is non-critical
         }
@@ -280,7 +282,7 @@ export default function ZeileFuerZeilePage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ songId: id, lernmethode: "ZEILE_FUER_ZEILE" }),
-        }).catch(() => {
+        }).then(() => dispatchStreakUpdate()).catch(() => {
           // Silent error handling
         });
       }

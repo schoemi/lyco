@@ -153,6 +153,8 @@ export interface DashboardData {
   totalSessions: number;
   averageProgress: number;
   faelligeStrophenAnzahl: number;
+  streak: number;
+  activeSongCount: number;
 }
 
 export interface DashboardSet {

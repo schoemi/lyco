@@ -30,6 +30,7 @@ export default function SongDetailPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [analyseError, setAnalyseError] = useState<string | null>(null);
+  const [enrolling, setEnrolling] = useState(false);
 
   const [showTranslations, setShowTranslations] = useState(true);
 
@@ -80,6 +81,28 @@ export default function SongDetailPage() {
       setAnalyzing(false);
     }
   }, [id, analyzing]);
+
+  const handleEnrollAndStart = useCallback(async () => {
+    if (!id || enrolling) return;
+    setEnrolling(true);
+    try {
+      const res = await fetch("/api/spaced-repetition/enroll", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ songId: id }),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => null);
+        throw new Error(json?.error ?? "Einschreibung fehlgeschlagen");
+      }
+      router.push(`/songs/${id}/spaced-repetition`);
+    } catch (err) {
+      setAnalyseError(
+        err instanceof Error ? err.message : "Ein Fehler ist aufgetreten"
+      );
+      setEnrolling(false);
+    }
+  }, [id, enrolling, router]);
 
   useEffect(() => {
     if (!id) return;
@@ -272,39 +295,53 @@ export default function SongDetailPage() {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <Link
             href={`/songs/${id}/emotional`}
-            className="flex min-h-[44px] items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            className="flex min-h-[44px] items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
           >
-            🎭 Emotionales Lernen
+            🎭 Inhalt und Bedeutung
+          </Link>
+          <Link
+            href={`/songs/${id}/coach`}
+            className="flex min-h-[44px] items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+          >
+            🎤 Gesangstechnik-Coach
+          </Link>
+          <button
+            type="button"
+            onClick={handleEnrollAndStart}
+            disabled={enrolling}
+            className="flex min-h-[44px] items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
+          >
+            {enrolling ? "Wird vorbereitet…" : "🧠 Spaced Repetition"}
+          </button>
+          <Link
+            href={`/songs/${id}/quiz`}
+            className="flex min-h-[44px] items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+          >
+            🧩 Quiz
           </Link>
           <Link
             href={`/songs/${id}/cloze`}
-            className="flex min-h-[44px] items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-purple-700"
+            className="flex min-h-[44px] items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
           >
             ✏️ Lückentext
           </Link>
           <Link
-            href={`/songs/${id}/coach`}
-            className="flex min-h-[44px] items-center justify-center rounded-lg border border-green-300 bg-white px-4 py-3 text-sm font-medium text-green-700 transition-colors hover:bg-green-50"
-          >
-            🎤 Gesangstechnik-Coach
-          </Link>
-          <Link
             href={`/songs/${id}/zeile-fuer-zeile`}
-            className="flex min-h-[44px] items-center justify-center rounded-lg border border-purple-300 bg-white px-4 py-3 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-50"
+            className="flex min-h-[44px] items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
           >
             📝 Zeile für Zeile
           </Link>
           <Link
             href={`/songs/${id}/rueckwaerts`}
-            className="flex min-h-[44px] items-center justify-center rounded-lg border border-purple-300 bg-white px-4 py-3 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-50"
+            className="flex min-h-[44px] items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
           >
             🔄 Rückwärts lernen
           </Link>
           <Link
-            href={`/songs/${id}/quiz`}
-            className="flex min-h-[44px] items-center justify-center rounded-lg border border-orange-300 bg-white px-4 py-3 text-sm font-medium text-orange-700 transition-colors hover:bg-orange-50"
+            href={`/songs/${id}/karaoke`}
+            className="flex min-h-[44px] items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
           >
-            🧩 Quiz
+            🎤 Karaoke-Lesemodus
           </Link>
         </div>
       </div>

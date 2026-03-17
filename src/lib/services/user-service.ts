@@ -9,6 +9,7 @@ const userSelectWithoutPassword = {
   email: true,
   name: true,
   role: true,
+  accountStatus: true,
   createdAt: true,
   updatedAt: true,
 } as const;
