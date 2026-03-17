@@ -69,8 +69,10 @@ export async function GET() {
     return NextResponse.json(data);
   } catch (error) {
     console.error("GET /api/dashboard error:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : undefined;
     return NextResponse.json(
-      { error: "Interner Serverfehler" },
+      { error: "Interner Serverfehler", debug: { message, stack } },
       { status: 500 }
     );
   }

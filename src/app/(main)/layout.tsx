@@ -3,6 +3,7 @@
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { APP_VERSION } from "@/lib/version";
 
 export default function MainLayout({
   children,
@@ -74,6 +75,9 @@ export default function MainLayout({
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {children}
       </main>
+      <footer className="py-4 text-center text-xs text-gray-400">
+        v{APP_VERSION}
+      </footer>
     </div>
   );
 }

@@ -300,6 +300,12 @@ export default function SongDetailPage() {
           >
             🔄 Rückwärts lernen
           </Link>
+          <Link
+            href={`/songs/${id}/quiz`}
+            className="flex min-h-[44px] items-center justify-center rounded-lg border border-orange-300 bg-white px-4 py-3 text-sm font-medium text-orange-700 transition-colors hover:bg-orange-50"
+          >
+            🧩 Quiz
+          </Link>
         </div>
       </div>
 
