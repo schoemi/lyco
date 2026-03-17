@@ -17,6 +17,7 @@ export const authConfig: NextAuthConfig = {
       if (user) {
         token.id = user.id;
         token.role = (user as { role: "ADMIN" | "USER" }).role;
+        token.accountStatus = (user as { accountStatus: string }).accountStatus;
       }
       return token;
     },
@@ -24,6 +25,7 @@ export const authConfig: NextAuthConfig = {
       if (token) {
         session.user.id = token.id as string;
         (session.user as { role: string }).role = token.role as string;
+        (session.user as { accountStatus: string }).accountStatus = token.accountStatus as string;
       }
       return session;
     },

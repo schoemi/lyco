@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateEmail, validatePassword, hashPassword } from "@/lib/services/auth-service";
 import { isEmailTaken, createUser } from "@/lib/services/user-service";
+import { getRequireApproval } from "@/lib/services/system-setting-service";
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,13 +34,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create user with role USER
+    // Check if approval is required for new registrations
+    const requireApproval = await getRequireApproval();
+
+    // Create user with role USER and appropriate account status
     const user = await createUser({
       email,
       name: name ?? undefined,
       password,
       role: "USER",
+      ...(requireApproval && { accountStatus: "PENDING" }),
     });
+
+    if (requireApproval) {
+      return NextResponse.json(
+        {
+          user,
+          message: "Ihre Registrierung war erfolgreich. Ihr Konto muss noch von einem Administrator bestätigt werden.",
+        },
+        { status: 201 }
+      );
+    }
 
     return NextResponse.json({ user }, { status: 201 });
   } catch (error) {

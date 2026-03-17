@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/services/auth-service";
+import { AccountStatus } from "@/generated/prisma/client";
 import type { CreateUserInput, UpdateUserInput } from "../../types/auth";
 
 const userSelectWithoutPassword = {
@@ -47,6 +48,7 @@ export async function createUser(data: CreateUserInput) {
       name: data.name ?? null,
       passwordHash,
       role: data.role,
+      ...(data.accountStatus !== undefined && { accountStatus: data.accountStatus }),
     },
     select: userSelectWithoutPassword,
   });
@@ -107,4 +109,65 @@ export async function resetPassword(id: string): Promise<string> {
   });
 
   return temporaryPassword;
+}
+
+export async function suspendUser(id: string, requestingUserId: string) {
+  if (id === requestingUserId) {
+    throw new Error("Eigenes Konto kann nicht gesperrt werden");
+  }
+
+  const existing = await prisma.user.findUnique({ where: { id } });
+  if (!existing) {
+    throw new Error("Benutzer nicht gefunden");
+  }
+
+  return prisma.user.update({
+    where: { id },
+    data: { accountStatus: AccountStatus.SUSPENDED },
+    select: userSelectWithoutPassword,
+  });
+}
+
+export async function activateUser(id: string) {
+  const existing = await prisma.user.findUnique({ where: { id } });
+  if (!existing) {
+    throw new Error("Benutzer nicht gefunden");
+  }
+
+  return prisma.user.update({
+    where: { id },
+    data: { accountStatus: AccountStatus.ACTIVE },
+    select: userSelectWithoutPassword,
+  });
+}
+
+export async function approveUser(id: string) {
+  return activateUser(id);
+}
+
+export async function rejectUser(id: string): Promise<void> {
+  const existing = await prisma.user.findUnique({ where: { id } });
+  if (!existing) {
+    throw new Error("Benutzer nicht gefunden");
+  }
+
+  if (existing.accountStatus !== AccountStatus.PENDING) {
+    throw new Error("Nur ausstehende Benutzer können abgelehnt werden");
+  }
+
+  await prisma.user.delete({ where: { id } });
+}
+
+export async function getPendingCount(): Promise<number> {
+  return prisma.user.count({
+    where: { accountStatus: AccountStatus.PENDING },
+  });
+}
+
+export async function getUserAccountStatus(id: string): Promise<AccountStatus | null> {
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: { accountStatus: true },
+  });
+  return user?.accountStatus ?? null;
 }

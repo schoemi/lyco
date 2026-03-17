@@ -46,6 +46,7 @@ export async function authorize(
   email: string;
   name: string | null;
   role: "ADMIN" | "USER";
+  accountStatus: "ACTIVE" | "SUSPENDED" | "PENDING";
 } | null> {
   // 1. Check rate limit
   const rateLimit = await checkRateLimit(email);
@@ -63,7 +64,20 @@ export async function authorize(
     return null;
   }
 
-  // 3. Verify password
+  // 3. Check account status before password verification
+  if (user.accountStatus === "SUSPENDED") {
+    throw new Error(
+      "Ihr Konto wurde gesperrt. Bitte wenden Sie sich an den Administrator."
+    );
+  }
+
+  if (user.accountStatus === "PENDING") {
+    throw new Error(
+      "Ihr Konto wartet auf Freigabe durch einen Administrator."
+    );
+  }
+
+  // 4. Verify password (only for ACTIVE accounts)
   const passwordValid = await verifyPassword(password, user.passwordHash);
 
   if (!passwordValid) {
@@ -71,7 +85,7 @@ export async function authorize(
     return null;
   }
 
-  // 4. Success: reset rate limit attempts, return user
+  // 5. Success: reset rate limit attempts, return user
   await resetAttempts(email);
 
   return {
@@ -79,5 +93,6 @@ export async function authorize(
     email: user.email,
     name: user.name,
     role: user.role,
+    accountStatus: user.accountStatus,
   };
 }

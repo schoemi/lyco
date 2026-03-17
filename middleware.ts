@@ -61,6 +61,26 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Kontostatus prüfen – bei nicht-aktivem Konto Session beenden (Anforderung 3.4)
+  const accountStatus = session.user?.accountStatus;
+  if (accountStatus && accountStatus !== "ACTIVE") {
+    if (isApiRoute(pathname)) {
+      return NextResponse.json(
+        { error: "Nicht authentifiziert" },
+        { status: 401 }
+      );
+    }
+
+    const loginUrl = new URL("/login", req.url);
+    const response = NextResponse.redirect(loginUrl);
+
+    // Session-Cookies löschen, um die Session zu invalidieren
+    response.cookies.delete("authjs.session-token");
+    response.cookies.delete("__Secure-authjs.session-token");
+
+    return response;
+  }
+
   // Admin-Routen: Rolle prüfen
   if (isAdminRoute(pathname)) {
     const role = session.user?.role;

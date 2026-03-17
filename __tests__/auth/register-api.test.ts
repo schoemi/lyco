@@ -7,6 +7,9 @@ vi.mock("@/lib/prisma", () => ({
       findUnique: vi.fn(),
       create: vi.fn(),
     },
+    systemSetting: {
+      findUnique: vi.fn(),
+    },
   },
 }));
 vi.mock("@/lib/services/rate-limiter", () => ({

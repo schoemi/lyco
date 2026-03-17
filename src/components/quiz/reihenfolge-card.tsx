@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import type { ReihenfolgeQuestion } from "@/types/quiz";
+import { validateReihenfolge } from "@/lib/quiz/validate-answer";
 
 interface ReihenfolgeCardProps {
   question: ReihenfolgeQuestion;
@@ -16,6 +17,7 @@ export function ReihenfolgeCard({
 }: ReihenfolgeCardProps) {
   const [items, setItems] = useState(question.shuffledZeilen);
   const [submitted, setSubmitted] = useState(false);
+  const [lineResults, setLineResults] = useState<('correct' | 'incorrect')[]>([]);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -88,15 +90,15 @@ export function ReihenfolgeCard({
 
   const handleConfirm = () => {
     const order = items.map((item) => item.zeileId);
+    const result = validateReihenfolge(order, question);
+    setLineResults(result.lineResults);
     setSubmitted(true);
     onSubmit(order);
   };
 
   const getLineStatus = (index: number): "correct" | "incorrect" | null => {
     if (!submitted) return null;
-    return items[index].zeileId === question.correctOrder[index]
-      ? "correct"
-      : "incorrect";
+    return lineResults[index] ?? null;
   };
 
   const getCardClasses = (index: number): string => {

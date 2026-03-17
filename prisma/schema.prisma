@@ -15,6 +15,12 @@ enum Role {
   USER
 }
 
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING
+}
+
 // Neue Enums
 enum Lernmethode {
   EMOTIONAL
@@ -61,6 +67,7 @@ model User {
   name            String?
   passwordHash    String
   role            Role             @default(USER)
+  accountStatus   AccountStatus    @default(ACTIVE)
   alter           Int?
   geschlecht      Geschlecht?
   erfahrungslevel Erfahrungslevel?
@@ -260,4 +267,13 @@ model Wiederholung {
   @@unique([userId, stropheId])
   @@index([userId, faelligAm])
   @@map("wiederholungen")
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("system_settings")
 }

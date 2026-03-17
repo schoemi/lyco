@@ -15,7 +15,7 @@ import {
   generateReihenfolgeQuestions,
   generateDiktatQuestions,
 } from "@/lib/quiz/quiz-generator";
-import { validateDiktat } from "@/lib/quiz/validate-answer";
+import { validateDiktat, validateReihenfolge } from "@/lib/quiz/validate-answer";
 import { calculateScore, calculateStropheScores } from "@/lib/quiz/score";
 import type { SongDetail } from "@/types/song";
 import type { QuizTyp, QuizQuestion, QuizAnswer } from "@/types/quiz";
@@ -297,9 +297,7 @@ export default function QuizPage() {
                 key={currentQuestion.id}
                 question={currentQuestion}
                 onSubmit={(order) => {
-                  const correct =
-                    JSON.stringify(order) ===
-                    JSON.stringify(currentQuestion.correctOrder);
+                  const { correct } = validateReihenfolge(order, currentQuestion);
                   handleAnswer({
                     questionId: currentQuestion.id,
                     stropheId: currentQuestion.stropheId,

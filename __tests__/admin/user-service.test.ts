@@ -9,6 +9,7 @@ vi.mock("@/lib/prisma", () => ({
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      count: vi.fn(),
     },
   },
 }));
@@ -26,6 +27,12 @@ import {
   updateUser,
   deleteUser,
   resetPassword,
+  suspendUser,
+  activateUser,
+  approveUser,
+  rejectUser,
+  getPendingCount,
+  getUserAccountStatus,
 } from "@/lib/services/user-service";
 
 const mockPrisma = vi.mocked(prisma);
@@ -222,6 +229,154 @@ describe("UserService", () => {
       await expect(resetPassword("non-existent")).rejects.toThrow(
         "Benutzer nicht gefunden"
       );
+    });
+  });
+
+  describe("suspendUser", () => {
+    it("suspends an existing user", async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        ...sampleUser,
+        passwordHash: "hash",
+        accountStatus: "ACTIVE",
+      });
+      mockPrisma.user.update.mockResolvedValue({
+        ...sampleUser,
+        accountStatus: "SUSPENDED",
+      });
+
+      const result = await suspendUser("user-1", "admin-1");
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+        where: { id: "user-1" },
+        data: { accountStatus: "SUSPENDED" },
+        select: expect.objectContaining({ id: true }),
+      });
+      expect(result.accountStatus).toBe("SUSPENDED");
+    });
+
+    it("throws error on self-suspension", async () => {
+      await expect(suspendUser("admin-1", "admin-1")).rejects.toThrow(
+        "Eigenes Konto kann nicht gesperrt werden"
+      );
+      expect(mockPrisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it("throws error when user not found", async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+      await expect(suspendUser("non-existent", "admin-1")).rejects.toThrow(
+        "Benutzer nicht gefunden"
+      );
+    });
+  });
+
+  describe("activateUser", () => {
+    it("activates a suspended user", async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        ...sampleUser,
+        passwordHash: "hash",
+        accountStatus: "SUSPENDED",
+      });
+      mockPrisma.user.update.mockResolvedValue({
+        ...sampleUser,
+        accountStatus: "ACTIVE",
+      });
+
+      const result = await activateUser("user-1");
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+        where: { id: "user-1" },
+        data: { accountStatus: "ACTIVE" },
+        select: expect.objectContaining({ id: true }),
+      });
+      expect(result.accountStatus).toBe("ACTIVE");
+    });
+
+    it("throws error when user not found", async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+      await expect(activateUser("non-existent")).rejects.toThrow(
+        "Benutzer nicht gefunden"
+      );
+    });
+  });
+
+  describe("approveUser", () => {
+    it("approves a pending user (delegates to activateUser)", async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        ...sampleUser,
+        passwordHash: "hash",
+        accountStatus: "PENDING",
+      });
+      mockPrisma.user.update.mockResolvedValue({
+        ...sampleUser,
+        accountStatus: "ACTIVE",
+      });
+
+      const result = await approveUser("user-1");
+      expect(result.accountStatus).toBe("ACTIVE");
+    });
+  });
+
+  describe("rejectUser", () => {
+    it("deletes a pending user", async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        ...sampleUser,
+        passwordHash: "hash",
+        accountStatus: "PENDING",
+      });
+      mockPrisma.user.delete.mockResolvedValue(sampleUser);
+
+      await expect(rejectUser("user-1")).resolves.toBeUndefined();
+      expect(mockPrisma.user.delete).toHaveBeenCalledWith({
+        where: { id: "user-1" },
+      });
+    });
+
+    it("throws error when user not found", async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+      await expect(rejectUser("non-existent")).rejects.toThrow(
+        "Benutzer nicht gefunden"
+      );
+    });
+
+    it("throws error when user is not PENDING", async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        ...sampleUser,
+        passwordHash: "hash",
+        accountStatus: "ACTIVE",
+      });
+
+      await expect(rejectUser("user-1")).rejects.toThrow(
+        "Nur ausstehende Benutzer können abgelehnt werden"
+      );
+      expect(mockPrisma.user.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getPendingCount", () => {
+    it("returns count of pending users", async () => {
+      mockPrisma.user.count.mockResolvedValue(3);
+
+      const count = await getPendingCount();
+      expect(count).toBe(3);
+      expect(mockPrisma.user.count).toHaveBeenCalledWith({
+        where: { accountStatus: "PENDING" },
+      });
+    });
+  });
+
+  describe("getUserAccountStatus", () => {
+    it("returns account status for existing user", async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        accountStatus: "SUSPENDED",
+      });
+
+      const status = await getUserAccountStatus("user-1");
+      expect(status).toBe("SUSPENDED");
+    });
+
+    it("returns null for non-existent user", async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+
+      const status = await getUserAccountStatus("non-existent");
+      expect(status).toBeNull();
     });
   });
 });
