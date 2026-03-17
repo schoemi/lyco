@@ -10,7 +10,7 @@ export function SpacedRepetitionWidget({ faelligeAnzahl }: SpacedRepetitionWidge
   const router = useRouter();
 
   function handleClick() {
-    router.push("/songs");
+    router.push("/spaced-repetition");
   }
 
   const hatFaellige = faelligeAnzahl > 0;

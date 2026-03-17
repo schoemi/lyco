@@ -49,6 +49,16 @@ export default function AdminLayout({
               >
                 Einstellungen
               </Link>
+              <Link
+                href="/admin/theming"
+                className={`text-sm font-medium ${
+                  pathname?.startsWith("/admin/theming")
+                    ? "text-blue-600"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Theming
+              </Link>
             </div>
             <button
               onClick={handleLogout}
