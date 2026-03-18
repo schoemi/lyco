@@ -29,43 +29,24 @@ const dashboardSource = fs.readFileSync(DASHBOARD_PATH, "utf-8");
 const songDetailSource = fs.readFileSync(SONG_DETAIL_PATH, "utf-8");
 
 // ============================================================
-// Dashboard — SongCreateDialog integration (Req 13.1, 13.3)
+// Dashboard — "+ Neuer Song" links to import page (Req 13.1, 13.3)
 // ============================================================
 
-describe("Dashboard — SongCreateDialog integration (Req 13.1, 13.3)", () => {
-  it("imports SongCreateDialog component", () => {
-    expect(dashboardSource).toContain("import SongCreateDialog");
-    expect(dashboardSource).toContain("song-create-dialog");
-  });
-
-  it("has createDialogOpen state", () => {
-    expect(dashboardSource).toContain("createDialogOpen");
-    expect(dashboardSource).toContain("setCreateDialogOpen");
-  });
-
-  it('has "+ Neuer Song" button that opens the dialog (Req 13.1)', () => {
+describe("Dashboard — '+ Neuer Song' links to import page (Req 13.1, 13.3)", () => {
+  it('has "+ Neuer Song" link pointing to /songs/import', () => {
     expect(dashboardSource).toContain("+ Neuer Song");
-    expect(dashboardSource).toContain("setCreateDialogOpen(true)");
+    expect(dashboardSource).toContain('href="/songs/import"');
   });
 
-  it('has "+ Neuer Song" button in empty state too (Req 13.2)', () => {
-    // The empty state block also has a "+ Neuer Song" button
+  it('has "+ Neuer Song" in both main and empty state', () => {
     const matches = dashboardSource.match(/\+ Neuer Song/g);
     expect(matches).not.toBeNull();
     expect(matches!.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("renders SongCreateDialog with open/onClose/onCreated props", () => {
-    expect(dashboardSource).toContain("<SongCreateDialog");
-    expect(dashboardSource).toContain("open={createDialogOpen}");
-    expect(dashboardSource).toContain("onClose={");
-    expect(dashboardSource).toContain("onCreated={handleSongCreated}");
-  });
-
-  it("handleSongCreated adds song to data.allSongs", () => {
-    expect(dashboardSource).toContain("handleSongCreated");
-    expect(dashboardSource).toContain("data.allSongs");
-    expect(dashboardSource).toContain("[...data.allSongs, song]");
+  it("does not use SongCreateDialog anymore", () => {
+    expect(dashboardSource).not.toContain("SongCreateDialog");
+    expect(dashboardSource).not.toContain("createDialogOpen");
   });
 });
 

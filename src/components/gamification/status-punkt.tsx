@@ -7,9 +7,9 @@ export interface StatusPunktProps {
 }
 
 const farbKlassen: Record<string, string> = {
-  grau: "bg-gray-300",
-  orange: "bg-orange-400",
-  gruen: "bg-green-500",
+  grau: "bg-neutral-300",
+  orange: "bg-warning-400",
+  gruen: "bg-success-500",
 };
 
 export function StatusPunkt({ fortschritt }: StatusPunktProps) {

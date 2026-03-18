@@ -30,13 +30,13 @@ export function StrophenNavigator({
         onClick={onPrevious}
         disabled={!canGoBack}
         aria-label="Vorherige Strophe"
-        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-lg font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-lg font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40 disabled:cursor-not-allowed"
       >
         ←
       </button>
       <div className="text-center">
-        <p className="text-sm font-semibold text-gray-900">{currentStropheName}</p>
-        <p className="text-xs text-gray-500">
+        <p className="text-sm font-semibold text-neutral-900">{currentStropheName}</p>
+        <p className="text-xs text-neutral-500">
           {showDirectionIcon && <span className="mr-1">←</span>}
           Strophe {currentPosition} von {totalStrophen}
           {positionSuffix && <span> {positionSuffix}</span>}
@@ -47,7 +47,7 @@ export function StrophenNavigator({
         onClick={onNext}
         disabled={!canGoForward}
         aria-label="Nächste Strophe"
-        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-lg font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-lg font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40 disabled:cursor-not-allowed"
       >
         →
       </button>

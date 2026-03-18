@@ -11,11 +11,12 @@ const tabs: { mode: ImportMode; label: string }[] = [
   { mode: "manuell", label: "Manuell" },
   { mode: "text", label: "Text einfügen" },
   { mode: "pdf", label: "PDF Upload" },
+  { mode: "genius", label: "Genius" },
 ];
 
 export function ImportTabs({ active, onChange }: ImportTabsProps) {
   return (
-    <div role="tablist" aria-label="Import-Methode" className="flex gap-1 border-b border-gray-200">
+    <div role="tablist" aria-label="Import-Methode" className="flex gap-1 border-b border-neutral-200">
       {tabs.map(({ mode, label }) => (
         <button
           key={mode}
@@ -25,8 +26,8 @@ export function ImportTabs({ active, onChange }: ImportTabsProps) {
           onClick={() => onChange(mode)}
           className={`min-h-[44px] px-4 py-2 text-sm font-medium transition-colors ${
             active === mode
-              ? "border-b-2 border-blue-600 bg-blue-50 text-blue-700"
-              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              ? "border-b-2 border-newsong-600 bg-newsong-50 text-newsong-700"
+              : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
           }`}
         >
           {label}

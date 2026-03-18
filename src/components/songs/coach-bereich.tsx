@@ -53,7 +53,7 @@ export default function CoachBereich({
 
   return (
     <div className="space-y-3">
-      <h2 className="text-lg font-semibold text-gray-900">
+      <h2 className="text-lg font-semibold text-neutral-900">
         Gesangstechnik-Coach
       </h2>
 
@@ -61,7 +61,7 @@ export default function CoachBereich({
         type="button"
         onClick={handleCoachClick}
         disabled={loading}
-        className="rounded-md border border-green-300 px-3 py-1.5 text-sm font-medium text-green-700 hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="rounded-md border border-success-300 px-3 py-1.5 text-sm font-medium text-success-700 hover:bg-success-50 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading
           ? "Coach analysiert…"
@@ -71,12 +71,12 @@ export default function CoachBereich({
       </button>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg border border-error-200 bg-error-50 px-4 py-3 text-sm text-error-700">
           <p>{error}</p>
           {showProfileLink && (
             <Link
               href="/profile"
-              className="mt-2 inline-block text-sm font-medium text-blue-600 hover:text-blue-800"
+              className="mt-2 inline-block text-sm font-medium text-newsong-600 hover:text-newsong-800"
             >
               → Profil vervollständigen
             </Link>
@@ -85,11 +85,11 @@ export default function CoachBereich({
       )}
 
       {coachTipp && (
-        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3">
-          <p className="text-xs font-medium text-green-600 mb-1">
+        <div className="rounded-lg border border-success-200 bg-success-50 px-4 py-3">
+          <p className="text-xs font-medium text-success-600 mb-1">
             Coach-Tipp
           </p>
-          <div className="prose prose-sm max-w-none text-gray-800 prose-headings:text-gray-900 prose-headings:text-base prose-headings:font-semibold prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5">
+          <div className="prose prose-sm max-w-none text-neutral-800 prose-headings:text-neutral-900 prose-headings:text-base prose-headings:font-semibold prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5">
             <ReactMarkdown>{coachTipp}</ReactMarkdown>
           </div>
         </div>

@@ -281,9 +281,9 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
       <div className="space-y-0.5">
         {sorted.map((zeile) => (
           <div key={zeile.id}>
-            <p className="text-sm text-gray-900">{zeile.text}</p>
+            <p className="text-sm text-neutral-900">{zeile.text}</p>
             {showTranslations && zeile.uebersetzung && (
-              <p className="text-xs text-gray-500 italic">{zeile.uebersetzung}</p>
+              <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
             )}
           </div>
         ))}
@@ -302,13 +302,13 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
       {sorted.map((zeile, idx) => (
         <div
           key={zeile.id}
-          className="rounded border border-gray-100 bg-gray-50 p-3"
+          className="rounded border border-neutral-100 bg-neutral-50 p-3"
         >
           {editingId === zeile.id ? (
             /* Inline edit form */
             <form onSubmit={handleEditSubmit} className="space-y-2" noValidate>
               <div>
-                <label htmlFor={`edit-zeile-text-${zeile.id}`} className="block text-sm font-medium text-gray-700">
+                <label htmlFor={`edit-zeile-text-${zeile.id}`} className="block text-sm font-medium text-neutral-700">
                   Text
                 </label>
                 <input
@@ -323,18 +323,18 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
                   aria-required="true"
                   aria-invalid={editValidationError !== null}
                   aria-describedby={editValidationError ? `edit-zeile-text-error-${zeile.id}` : undefined}
-                  className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    editValidationError ? "border-red-500" : "border-gray-300"
+                  className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500 ${
+                    editValidationError ? "border-error-500" : "border-neutral-300"
                   }`}
                 />
                 {editValidationError && (
-                  <p id={`edit-zeile-text-error-${zeile.id}`} className="mt-1 text-sm text-red-600" role="alert">
+                  <p id={`edit-zeile-text-error-${zeile.id}`} className="mt-1 text-sm text-error-600" role="alert">
                     {editValidationError}
                   </p>
                 )}
               </div>
               <div>
-                <label htmlFor={`edit-zeile-uebersetzung-${zeile.id}`} className="block text-sm font-medium text-gray-700">
+                <label htmlFor={`edit-zeile-uebersetzung-${zeile.id}`} className="block text-sm font-medium text-neutral-700">
                   Übersetzung
                 </label>
                 <input
@@ -342,11 +342,11 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
                   type="text"
                   value={editUebersetzung}
                   onChange={(e) => setEditUebersetzung(e.target.value)}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500"
                 />
               </div>
               {editError && (
-                <p className="text-sm text-red-600" role="alert">
+                <p className="text-sm text-error-600" role="alert">
                   {editError}
                 </p>
               )}
@@ -354,14 +354,14 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
                 <button
                   type="submit"
                   disabled={editLoading}
-                  className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="rounded-md bg-newsong-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-newsong-700 disabled:opacity-50"
                 >
                   {editLoading ? "Speichere..." : "Bestätigen"}
                 </button>
                 <button
                   type="button"
                   onClick={handleCancelEdit}
-                  className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
                 >
                   Abbrechen
                 </button>
@@ -371,9 +371,9 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
             /* Display mode */
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-gray-900">{zeile.text}</p>
+                <p className="text-sm text-neutral-900">{zeile.text}</p>
                 {showTranslations && zeile.uebersetzung && (
-                  <p className="text-xs text-gray-500 italic">{zeile.uebersetzung}</p>
+                  <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
                 )}
               </div>
               <div className="flex items-center gap-1 shrink-0">
@@ -382,7 +382,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
                   onClick={() => handleMove(zeile.id, "up")}
                   disabled={idx === 0 || reorderLoading}
                   aria-label={`Zeile ${idx + 1} nach oben verschieben`}
-                  className="rounded p-1 text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="rounded p-1 text-neutral-500 hover:bg-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   ↑
                 </button>
@@ -391,14 +391,14 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
                   onClick={() => handleMove(zeile.id, "down")}
                   disabled={idx === sorted.length - 1 || reorderLoading}
                   aria-label={`Zeile ${idx + 1} nach unten verschieben`}
-                  className="rounded p-1 text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="rounded p-1 text-neutral-500 hover:bg-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   ↓
                 </button>
                 <button
                   type="button"
                   onClick={() => startEdit(zeile)}
-                  className="rounded p-1 text-blue-600 hover:bg-blue-50"
+                  className="rounded p-1 text-newsong-600 hover:bg-newsong-50"
                   aria-label={`Zeile ${idx + 1} bearbeiten`}
                 >
                   ✏️
@@ -406,7 +406,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
                 <button
                   type="button"
                   onClick={(e) => startDelete(zeile.id, e.currentTarget)}
-                  className="rounded p-1 text-red-600 hover:bg-red-50"
+                  className="rounded p-1 text-error-600 hover:bg-error-50"
                   aria-label={`Zeile ${idx + 1} löschen`}
                 >
                   🗑️
@@ -419,9 +419,9 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
 
       {/* Add zeile form / button */}
       {addFormOpen ? (
-        <form onSubmit={handleAddSubmit} className="space-y-2 rounded border border-dashed border-gray-300 bg-white p-3" noValidate>
+        <form onSubmit={handleAddSubmit} className="space-y-2 rounded border border-dashed border-neutral-300 bg-white p-3" noValidate>
           <div>
-            <label htmlFor={`add-zeile-text-${stropheId}`} className="block text-sm font-medium text-gray-700">
+            <label htmlFor={`add-zeile-text-${stropheId}`} className="block text-sm font-medium text-neutral-700">
               Text
             </label>
             <input
@@ -437,18 +437,18 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
               aria-invalid={addValidationError !== null}
               aria-describedby={addValidationError ? `add-zeile-text-error-${stropheId}` : undefined}
               placeholder="Zeilentext eingeben"
-              className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                addValidationError ? "border-red-500" : "border-gray-300"
+              className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500 ${
+                addValidationError ? "border-error-500" : "border-neutral-300"
               }`}
             />
             {addValidationError && (
-              <p id={`add-zeile-text-error-${stropheId}`} className="mt-1 text-sm text-red-600" role="alert">
+              <p id={`add-zeile-text-error-${stropheId}`} className="mt-1 text-sm text-error-600" role="alert">
                 {addValidationError}
               </p>
             )}
           </div>
           <div>
-            <label htmlFor={`add-zeile-uebersetzung-${stropheId}`} className="block text-sm font-medium text-gray-700">
+            <label htmlFor={`add-zeile-uebersetzung-${stropheId}`} className="block text-sm font-medium text-neutral-700">
               Übersetzung
             </label>
             <input
@@ -457,11 +457,11 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
               value={addUebersetzung}
               onChange={(e) => setAddUebersetzung(e.target.value)}
               placeholder="Optionale Übersetzung"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500"
             />
           </div>
           {addError && (
-            <p className="text-sm text-red-600" role="alert">
+            <p className="text-sm text-error-600" role="alert">
               {addError}
             </p>
           )}
@@ -469,14 +469,14 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
             <button
               type="submit"
               disabled={addLoading}
-              className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-md bg-newsong-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-newsong-700 disabled:opacity-50"
             >
               {addLoading ? "Erstelle..." : "Hinzufügen"}
             </button>
             <button
               type="button"
               onClick={handleCancelAdd}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
             >
               Abbrechen
             </button>
@@ -486,7 +486,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
         <button
           type="button"
           onClick={() => setAddFormOpen(true)}
-          className="w-full rounded border border-dashed border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors"
+          className="w-full rounded border border-dashed border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-600 hover:border-newsong-400 hover:text-newsong-600 transition-colors"
         >
           + Zeile hinzufügen
         </button>
@@ -494,15 +494,15 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
 
       {/* Delete confirmation inline */}
       {deleteConfirmId && deleteZeile && (
-        <div className="rounded border border-red-200 bg-red-50 p-3">
-          <p className="mb-2 text-sm text-gray-700">
+        <div className="rounded border border-error-200 bg-error-50 p-3">
+          <p className="mb-2 text-sm text-neutral-700">
             Möchten Sie diese Zeile wirklich löschen?
           </p>
-          <p className="mb-2 text-xs text-gray-500 italic truncate">
+          <p className="mb-2 text-xs text-neutral-500 italic truncate">
             &quot;{deleteZeile.text}&quot;
           </p>
           {deleteError && (
-            <p className="mb-2 text-sm text-red-600" role="alert">
+            <p className="mb-2 text-sm text-error-600" role="alert">
               {deleteError}
             </p>
           )}
@@ -511,7 +511,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
               ref={cancelDeleteRef}
               type="button"
               onClick={handleCancelDelete}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
             >
               Abbrechen
             </button>
@@ -519,7 +519,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
               type="button"
               onClick={handleConfirmDelete}
               disabled={deleteLoading}
-              className="rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-md bg-error-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-error-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {deleteLoading ? "Lösche..." : "Löschen"}
             </button>

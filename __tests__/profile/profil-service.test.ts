@@ -15,11 +15,18 @@ vi.mock("@/lib/services/auth-service", () => ({
   hashPassword: vi.fn(async (pw: string) => `hashed_${pw}`),
 }));
 
+vi.mock("@/lib/genius/api-key-store", () => ({
+  encryptApiKey: vi.fn((key: string) => `encrypted_${key}`),
+  decryptApiKey: vi.fn((enc: string) => enc.replace("encrypted_", "")),
+  maskApiKey: vi.fn((key: string) => "••••" + key.slice(-4)),
+}));
+
 import { prisma } from "@/lib/prisma";
 import {
   verifyPassword,
   validatePassword,
 } from "@/lib/services/auth-service";
+import { encryptApiKey, decryptApiKey, maskApiKey } from "@/lib/genius/api-key-store";
 import {
   getProfile,
   updateProfile,
@@ -29,6 +36,9 @@ import {
 const mockPrisma = vi.mocked(prisma);
 const mockVerifyPassword = vi.mocked(verifyPassword);
 const mockValidatePassword = vi.mocked(validatePassword);
+const mockEncryptApiKey = vi.mocked(encryptApiKey);
+const mockDecryptApiKey = vi.mocked(decryptApiKey);
+const mockMaskApiKey = vi.mocked(maskApiKey);
 
 const sampleProfile = {
   id: "user-1",
@@ -39,6 +49,7 @@ const sampleProfile = {
   erfahrungslevel: "ANFAENGER" as const,
   stimmlage: "Tenor",
   genre: "Rock",
+  geniusApiKeyEncrypted: null as string | null,
 };
 
 describe("profil-service", () => {
@@ -50,7 +61,17 @@ describe("profil-service", () => {
     it("returns profile data without password hash", async () => {
       mockPrisma.user.findUnique.mockResolvedValue(sampleProfile);
       const result = await getProfile("user-1");
-      expect(result).toEqual(sampleProfile);
+      expect(result).toEqual({
+        id: "user-1",
+        name: "Test User",
+        email: "test@example.com",
+        alter: 30,
+        geschlecht: "MAENNLICH",
+        erfahrungslevel: "ANFAENGER",
+        stimmlage: "Tenor",
+        genre: "Rock",
+        geniusApiKeyMasked: null,
+      });
       const call = mockPrisma.user.findUnique.mock.calls[0][0] as any;
       expect(call.where).toEqual({ id: "user-1" });
       expect(call.select).not.toHaveProperty("passwordHash");
@@ -166,6 +187,73 @@ describe("profil-service", () => {
       expect(result.alter).toBeNull();
       expect(result.geschlecht).toBeNull();
       expect(result.erfahrungslevel).toBeNull();
+    });
+  });
+
+  describe("getProfile – Genius API Key", () => {
+    it("returns masked key when geniusApiKeyEncrypted is set", async () => {
+      const profileWithKey = {
+        ...sampleProfile,
+        geniusApiKeyEncrypted: "encrypted_mySecretKey1234",
+      };
+      mockPrisma.user.findUnique.mockResolvedValue(profileWithKey);
+
+      const result = await getProfile("user-1");
+
+      expect(mockDecryptApiKey).toHaveBeenCalledWith("encrypted_mySecretKey1234");
+      expect(mockMaskApiKey).toHaveBeenCalledWith("mySecretKey1234");
+      expect(result.geniusApiKeyMasked).toBe("••••1234");
+    });
+
+    it("returns null when geniusApiKeyEncrypted is null", async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(sampleProfile);
+
+      const result = await getProfile("user-1");
+
+      expect(mockDecryptApiKey).not.toHaveBeenCalled();
+      expect(result.geniusApiKeyMasked).toBeNull();
+    });
+  });
+
+  describe("updateProfile – Genius API Key", () => {
+    it("encrypts and saves non-empty geniusApiKey", async () => {
+      const updatedProfile = {
+        ...sampleProfile,
+        geniusApiKeyEncrypted: "encrypted_newApiKey9999",
+      };
+      mockPrisma.user.update.mockResolvedValue(updatedProfile);
+
+      const result = await updateProfile("user-1", { geniusApiKey: "newApiKey9999" });
+
+      expect(mockEncryptApiKey).toHaveBeenCalledWith("newApiKey9999");
+      const updateCall = mockPrisma.user.update.mock.calls[0][0] as any;
+      expect(updateCall.data.geniusApiKeyEncrypted).toBe("encrypted_newApiKey9999");
+      expect(result.geniusApiKeyMasked).toBe("••••9999");
+    });
+
+    it("sets geniusApiKeyEncrypted to null when geniusApiKey is empty", async () => {
+      const updatedProfile = {
+        ...sampleProfile,
+        geniusApiKeyEncrypted: null,
+      };
+      mockPrisma.user.update.mockResolvedValue(updatedProfile);
+
+      const result = await updateProfile("user-1", { geniusApiKey: "" });
+
+      expect(mockEncryptApiKey).not.toHaveBeenCalled();
+      const updateCall = mockPrisma.user.update.mock.calls[0][0] as any;
+      expect(updateCall.data.geniusApiKeyEncrypted).toBeNull();
+      expect(result.geniusApiKeyMasked).toBeNull();
+    });
+
+    it("does not touch geniusApiKeyEncrypted when geniusApiKey is not provided", async () => {
+      mockPrisma.user.update.mockResolvedValue(sampleProfile);
+
+      await updateProfile("user-1", { name: "New Name" });
+
+      expect(mockEncryptApiKey).not.toHaveBeenCalled();
+      const updateCall = mockPrisma.user.update.mock.calls[0][0] as any;
+      expect(updateCall.data).not.toHaveProperty("geniusApiKeyEncrypted");
     });
   });
 

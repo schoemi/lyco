@@ -1,4 +1,5 @@
 import { MarkupTyp, MarkupZiel } from "@/generated/prisma/client";
+import { AudioQuelleResponse } from "@/types/audio";
 
 // --- Eingabe-Typen ---
 
@@ -95,6 +96,7 @@ export interface SongDetail {
   analyse: string | null;
   coachTipp: string | null;
   strophen: StropheDetail[];
+  audioQuellen: AudioQuelleResponse[];
 }
 
 export interface StropheDetail {

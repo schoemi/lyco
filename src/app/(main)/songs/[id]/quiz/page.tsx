@@ -232,7 +232,7 @@ export default function QuizPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-sm text-gray-500">Song wird geladen…</div>
+        <div className="text-sm text-neutral-500">Song wird geladen…</div>
       </div>
     );
   }
@@ -240,13 +240,13 @@ export default function QuizPage() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-20">
-        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
+        <div className="rounded-lg border border-error-200 bg-error-50 px-6 py-4 text-sm text-error-700">
           {error}
         </div>
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+          className="rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
         >
           ← Zurück
         </button>
@@ -271,7 +271,7 @@ export default function QuizPage() {
             <button
               type="button"
               onClick={() => setDialogOpen(true)}
-              className="min-h-[44px] rounded bg-purple-100 px-4 py-2 text-sm font-medium text-purple-700 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+              className="min-h-[44px] rounded bg-primary-100 px-4 py-2 text-sm font-medium text-primary-700 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
               Strophen auswählen
             </button>
@@ -333,12 +333,12 @@ export default function QuizPage() {
         {phase === "score" && scoreResult && (
           <>
             {progressError && (
-              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center justify-between">
+              <div className="rounded-lg border border-error-200 bg-error-50 px-4 py-3 text-sm text-error-700 flex items-center justify-between">
                 <span>Fortschritt konnte nicht gespeichert werden.</span>
                 <button
                   type="button"
                   onClick={handleRetryProgress}
-                  className="ml-3 rounded bg-red-100 px-3 py-1 text-sm font-medium text-red-800 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                  className="ml-3 rounded bg-error-100 px-3 py-1 text-sm font-medium text-error-800 hover:bg-error-200 focus:outline-none focus:ring-2 focus:ring-error-500 focus:ring-offset-2"
                 >
                   Erneut versuchen
                 </button>

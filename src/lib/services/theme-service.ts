@@ -81,6 +81,8 @@ function validateThemeConfig(config: ThemeConfig): void {
     ["colors.secondaryButton", config.colors.secondaryButton],
     ["colors.newSongButton", config.colors.newSongButton],
     ["colors.translationToggle", config.colors.translationToggle],
+    ["colors.info", config.colors.info],
+    ["colors.neutral", config.colors.neutral],
   ];
 
   for (const [name, value] of hexFields) {

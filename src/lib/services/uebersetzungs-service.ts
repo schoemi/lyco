@@ -34,9 +34,9 @@ export class UebersetzungsError extends Error {
 
 // --- Prompt Builder ---
 
-const SYSTEM_PROMPT =
-  "Du bist ein professioneller Songtext-Übersetzer. Übersetze Songtexte zeilenweise und bewahre dabei den poetischen Charakter und die emotionale Bedeutung des Originals.\n" +
-  "Antworte ausschließlich als JSON-Objekt.";
+const SYSTEM_PROMPT_TEMPLATE = (sprache: string) =>
+  `Du bist ein professioneller Songtext-Übersetzer. Übersetze Songtexte zeilenweise und bewahre dabei den poetischen Charakter und die emotionale Bedeutung des Originals.\n` +
+  `Antworte ausschließlich als JSON-Objekt. Verwende ${sprache} für alle Anweisungstexte.`;
 
 const JSON_TEMPLATE = `Liefere ein JSON-Objekt mit folgender Struktur:
 {
@@ -56,7 +56,8 @@ Wichtig:
 
 export function buildUebersetzungPrompt(
   song: PromptSong,
-  zielsprache: string
+  zielsprache: string,
+  sprache: string = "Deutsch"
 ): LLMMessage[] {
   const nonEmptyStrophen = song.strophen.filter(
     (s) => s.zeilen && s.zeilen.length > 0
@@ -81,7 +82,7 @@ export function buildUebersetzungPrompt(
   userPrompt += JSON_TEMPLATE;
 
   return [
-    { role: "system", content: SYSTEM_PROMPT },
+    { role: "system", content: SYSTEM_PROMPT_TEMPLATE(sprache) },
     { role: "user", content: userPrompt },
   ];
 }
@@ -292,6 +293,13 @@ export async function translateSong(
     throw new UebersetzungsError("Zugriff verweigert", 403);
   }
 
+  // 3b. Load user sprache
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { sprache: true },
+  });
+  const userSprache = user?.sprache || "Deutsch";
+
   // 4. Check if song has strophen with zeilen
   const strophenWithZeilen = song.strophen.filter(
     (s) => s.zeilen && s.zeilen.length > 0
@@ -324,7 +332,8 @@ export async function translateSong(
           zeilen: s.zeilen.map((z) => ({ text: z.text })),
         })),
       },
-      resolvedZielsprache
+      resolvedZielsprache,
+      userSprache
     );
 
     // 7. Call LLM

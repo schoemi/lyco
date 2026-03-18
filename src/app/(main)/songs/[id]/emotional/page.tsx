@@ -152,7 +152,7 @@ export default function EmotionalPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-sm text-gray-500">Song wird geladen…</div>
+        <div className="text-sm text-neutral-500">Song wird geladen…</div>
       </div>
     );
   }
@@ -160,7 +160,7 @@ export default function EmotionalPage() {
   if (error) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
+        <div className="rounded-lg border border-error-200 bg-error-50 px-6 py-4 text-sm text-error-700">
           {error}
         </div>
       </div>

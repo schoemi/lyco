@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import type { SongDetail } from "@/types/song";
 import type { DisplayMode } from "@/types/karaoke";
@@ -16,6 +16,7 @@ import { useKaraokeWheel } from "@/lib/karaoke/use-karaoke-wheel";
 import { useKaraokeSwipe } from "@/lib/karaoke/use-karaoke-swipe";
 import { KaraokeView } from "@/components/karaoke/karaoke-view";
 import { EinstellungsDialog } from "@/components/karaoke/einstellungs-dialog";
+import type { AudioPlayButtonHandle } from "@/components/karaoke/audio-play-button";
 
 export default function KaraokePage() {
   const params = useParams();
@@ -29,6 +30,8 @@ export default function KaraokePage() {
   const [displayMode, setDisplayMode] = useState<DisplayMode>("strophe");
   const [scrollSpeed, setScrollSpeed] = useState(3);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [activeAudioQuelleId, setActiveAudioQuelleId] = useState<string | null>(null);
+  const audioRef = useRef<AudioPlayButtonHandle>(null);
 
   // Load persisted settings from localStorage on mount
   useEffect(() => {
@@ -57,6 +60,13 @@ export default function KaraokePage() {
         }
         const json = await res.json();
         setSong(json.song);
+        // Default to first MP3 source
+        const firstMp3 = (json.song as SongDetail).audioQuellen?.find(
+          (q: { typ: string }) => q.typ === "MP3"
+        );
+        if (firstMp3) {
+          setActiveAudioQuelleId(firstMp3.id);
+        }
       } catch (err) {
         setError(
           err instanceof Error
@@ -109,6 +119,68 @@ export default function KaraokePage() {
     pause();
   }, [pause]);
 
+  // Strophe navigation: jump to first line of next/prev strophe + seekTo timecode
+  const onNextStrophe = useCallback(() => {
+    const currentLine = flatLines[activeLineIndex];
+    if (!currentLine) return;
+    // Find first line of the next strophe
+    const nextStropheIdx = flatLines.findIndex(
+      (l, i) => i > activeLineIndex && l.stropheId !== currentLine.stropheId
+    );
+    if (nextStropheIdx < 0) return;
+    setActiveLineIndex(nextStropheIdx);
+    pause();
+    // Seek audio to strophe timecode if available
+    const targetStropheId = flatLines[nextStropheIdx].stropheId;
+    const strophe = song?.strophen.find((s) => s.id === targetStropheId);
+    const timecode = strophe?.markups.find(
+      (m) => m.typ === "TIMECODE" && m.ziel === "STROPHE" && m.timecodeMs != null
+    );
+    if (timecode?.timecodeMs != null) {
+      audioRef.current?.seekTo(timecode.timecodeMs);
+    }
+  }, [flatLines, activeLineIndex, pause, song]);
+
+  const onPrevStrophe = useCallback(() => {
+    const currentLine = flatLines[activeLineIndex];
+    if (!currentLine) return;
+    // Find the first line of the current strophe
+    const currentStropheFirstIdx = flatLines.findIndex(
+      (l) => l.stropheId === currentLine.stropheId
+    );
+    // If we're not at the first line of the current strophe, jump there
+    if (activeLineIndex > currentStropheFirstIdx) {
+      setActiveLineIndex(currentStropheFirstIdx);
+      pause();
+      const strophe = song?.strophen.find((s) => s.id === currentLine.stropheId);
+      const timecode = strophe?.markups.find(
+        (m) => m.typ === "TIMECODE" && m.ziel === "STROPHE" && m.timecodeMs != null
+      );
+      if (timecode?.timecodeMs != null) {
+        audioRef.current?.seekTo(timecode.timecodeMs);
+      }
+      return;
+    }
+    // Otherwise jump to the first line of the previous strophe
+    const prevLines = flatLines.filter(
+      (l, i) => i < currentStropheFirstIdx
+    );
+    if (prevLines.length === 0) return;
+    const prevStropheId = prevLines[prevLines.length - 1].stropheId;
+    const prevStropheFirstIdx = flatLines.findIndex(
+      (l) => l.stropheId === prevStropheId
+    );
+    setActiveLineIndex(prevStropheFirstIdx);
+    pause();
+    const strophe = song?.strophen.find((s) => s.id === prevStropheId);
+    const timecode = strophe?.markups.find(
+      (m) => m.typ === "TIMECODE" && m.ziel === "STROPHE" && m.timecodeMs != null
+    );
+    if (timecode?.timecodeMs != null) {
+      audioRef.current?.seekTo(timecode.timecodeMs);
+    }
+  }, [flatLines, activeLineIndex, pause, song]);
+
   // Mode change: persist to localStorage
   const handleModeChange = useCallback((mode: DisplayMode) => {
     setDisplayMode(mode);
@@ -145,7 +217,7 @@ export default function KaraokePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-sm text-gray-500">Song wird geladen…</div>
+        <div className="text-sm text-neutral-500">Song wird geladen…</div>
       </div>
     );
   }
@@ -153,7 +225,7 @@ export default function KaraokePage() {
   if (error) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
+        <div className="rounded-lg border border-error-200 bg-error-50 px-6 py-4 text-sm text-error-700">
           {error}
         </div>
       </div>
@@ -167,7 +239,7 @@ export default function KaraokePage() {
   if (song.strophen.length === 0) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-sm text-gray-500">Keine Texte vorhanden</div>
+        <div className="text-sm text-neutral-500">Keine Texte vorhanden</div>
       </div>
     );
   }
@@ -175,14 +247,18 @@ export default function KaraokePage() {
   return (
     <>
       <KaraokeView
+        ref={audioRef}
         song={song}
         flatLines={flatLines}
         activeLineIndex={activeLineIndex}
         displayMode={displayMode}
         isAutoScrolling={isPlaying}
         scrollSpeed={scrollSpeed}
+        activeAudioQuelleId={activeAudioQuelleId}
         onNext={onNext}
         onPrev={onPrev}
+        onNextStrophe={onNextStrophe}
+        onPrevStrophe={onPrevStrophe}
         onToggleAutoScroll={toggle}
         onModeChange={handleModeChange}
         onOpenSettings={() => setSettingsOpen(true)}
@@ -193,6 +269,9 @@ export default function KaraokePage() {
         onClose={() => setSettingsOpen(false)}
         scrollSpeed={scrollSpeed}
         onSpeedChange={handleSpeedChange}
+        audioQuellen={song.audioQuellen}
+        activeAudioQuelleId={activeAudioQuelleId}
+        onAudioQuelleChange={setActiveAudioQuelleId}
       />
     </>
   );

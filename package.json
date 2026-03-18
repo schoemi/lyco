@@ -16,6 +16,7 @@
     "@prisma/client": "^7.5.0",
     "@tailwindcss/typography": "^0.5.19",
     "bcrypt": "^6.0.0",
+    "genius-lyrics-api": "^3.2.1",
     "next": "^16.1.6",
     "next-auth": "^5.0.0-beta.30",
     "openai": "^6.29.0",

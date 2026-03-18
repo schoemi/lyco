@@ -121,7 +121,7 @@ export default function SetupPage() {
 
   if (checking) {
     return (
-      <div className="text-center text-sm text-gray-500">
+      <div className="text-center text-sm text-neutral-500">
         Lade…
       </div>
     );
@@ -129,17 +129,17 @@ export default function SetupPage() {
 
   return (
     <div>
-      <h1 className="mb-2 text-center text-2xl font-bold text-gray-900">
+      <h1 className="mb-2 text-center text-2xl font-bold text-neutral-900">
         Ersteinrichtung
       </h1>
-      <p className="mb-6 text-center text-sm text-gray-600">
+      <p className="mb-6 text-center text-sm text-neutral-600">
         Erstellen Sie den ersten Administrator-Account.
       </p>
 
       {generalError && (
         <div
           role="alert"
-          className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700"
+          className="mb-4 rounded-md bg-error-50 p-3 text-sm text-error-700"
         >
           {generalError}
         </div>
@@ -149,7 +149,7 @@ export default function SetupPage() {
         <div>
           <label
             htmlFor="setup-email"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-neutral-700"
           >
             E-Mail
           </label>
@@ -161,13 +161,13 @@ export default function SetupPage() {
             aria-describedby={emailError ? "setup-email-error" : undefined}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              emailError ? "border-red-500" : "border-gray-300"
+            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500 ${
+              emailError ? "border-error-500" : "border-neutral-300"
             }`}
             placeholder="admin@beispiel.de"
           />
           {emailError && (
-            <p id="setup-email-error" role="alert" className="mt-1 text-sm text-red-600">
+            <p id="setup-email-error" role="alert" className="mt-1 text-sm text-error-600">
               {emailError}
             </p>
           )}
@@ -176,7 +176,7 @@ export default function SetupPage() {
         <div>
           <label
             htmlFor="setup-name"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-neutral-700"
           >
             Name
           </label>
@@ -188,13 +188,13 @@ export default function SetupPage() {
             aria-describedby={nameError ? "setup-name-error" : undefined}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              nameError ? "border-red-500" : "border-gray-300"
+            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500 ${
+              nameError ? "border-error-500" : "border-neutral-300"
             }`}
             placeholder="Ihr Name"
           />
           {nameError && (
-            <p id="setup-name-error" role="alert" className="mt-1 text-sm text-red-600">
+            <p id="setup-name-error" role="alert" className="mt-1 text-sm text-error-600">
               {nameError}
             </p>
           )}
@@ -203,7 +203,7 @@ export default function SetupPage() {
         <div>
           <label
             htmlFor="setup-password"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-neutral-700"
           >
             Passwort
           </label>
@@ -215,13 +215,13 @@ export default function SetupPage() {
             aria-describedby={passwordError ? "setup-password-error" : undefined}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              passwordError ? "border-red-500" : "border-gray-300"
+            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500 ${
+              passwordError ? "border-error-500" : "border-neutral-300"
             }`}
             placeholder="Mindestens 8 Zeichen"
           />
           {passwordError && (
-            <p id="setup-password-error" role="alert" className="mt-1 text-sm text-red-600">
+            <p id="setup-password-error" role="alert" className="mt-1 text-sm text-error-600">
               {passwordError}
             </p>
           )}
@@ -230,7 +230,7 @@ export default function SetupPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-md bg-newsong-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-newsong-700 focus:outline-none focus:ring-2 focus:ring-newsong-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? "Erstelle Admin…" : "Admin-Account erstellen"}
         </button>

@@ -24,9 +24,9 @@ const source = fs.readFileSync(COMPONENT_PATH, "utf-8");
 /**
  * Simulate the component's dot-classification logic extracted from source.
  * For each index i in [0, totalZeilen):
- *   - if completedIndices.has(i) → "completed" (bg-green-500)
- *   - else if i === currentIndex → "active" (bg-purple-600)
- *   - else → "pending" (border-gray-300)
+ *   - if completedIndices.has(i) → "completed" (bg-success-500)
+ *   - else if i === currentIndex → "active" (bg-primary-600)
+ *   - else → "pending" (border-neutral-300)
  */
 function classifyDot(
   i: number,
@@ -73,7 +73,7 @@ describe("Property 6: Fortschritts-Dots spiegeln Zustand korrekt wider", () => {
     );
   });
 
-  it("active index always gets bg-purple-600 when not completed (Req 5.2)", () => {
+  it("active index always gets bg-primary-600 when not completed (Req 5.2)", () => {
     fc.assert(
       fc.property(arbDotsState, ([totalZeilen, currentIndex, completedIndices]) => {
         // When the current index is NOT in completedIndices, it must be classified as active
@@ -82,13 +82,13 @@ describe("Property 6: Fortschritts-Dots spiegeln Zustand korrekt wider", () => {
           expect(cls).toBe("active");
         }
         // Verify source contains the active class
-        expect(source).toContain("bg-purple-600");
+        expect(source).toContain("bg-primary-600");
       }),
       { numRuns: 100 },
     );
   });
 
-  it("completed indices always get bg-green-500 (Req 5.3)", () => {
+  it("completed indices always get bg-success-500 (Req 5.3)", () => {
     fc.assert(
       fc.property(arbDotsState, ([totalZeilen, currentIndex, completedIndices]) => {
         for (const idx of completedIndices) {
@@ -96,13 +96,13 @@ describe("Property 6: Fortschritts-Dots spiegeln Zustand korrekt wider", () => {
           expect(cls).toBe("completed");
         }
         // Verify source contains the completed class
-        expect(source).toContain("bg-green-500");
+        expect(source).toContain("bg-success-500");
       }),
       { numRuns: 100 },
     );
   });
 
-  it("pending indices (not completed, not active) get border-gray-300 (Req 5.4)", () => {
+  it("pending indices (not completed, not active) get border-neutral-300 (Req 5.4)", () => {
     fc.assert(
       fc.property(arbDotsState, ([totalZeilen, currentIndex, completedIndices]) => {
         for (let i = 0; i < totalZeilen; i++) {
@@ -112,7 +112,7 @@ describe("Property 6: Fortschritts-Dots spiegeln Zustand korrekt wider", () => {
           }
         }
         // Verify source contains the pending class
-        expect(source).toContain("border-gray-300");
+        expect(source).toContain("border-neutral-300");
       }),
       { numRuns: 100 },
     );

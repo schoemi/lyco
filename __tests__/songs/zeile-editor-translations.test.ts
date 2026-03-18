@@ -42,7 +42,7 @@ describe("ZeileEditor — Translation visible when showTranslations is true (Req
   });
 
   it("renders uebersetzung text in italic style when visible", () => {
-    expect(source).toContain("text-xs text-gray-500 italic");
+    expect(source).toContain("text-xs text-neutral-500 italic");
     expect(source).toContain("zeile.uebersetzung");
   });
 });

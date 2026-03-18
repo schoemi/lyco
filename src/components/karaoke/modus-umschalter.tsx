@@ -30,7 +30,7 @@ export function ModusUmschalter({ activeMode, onChange }: ModusUmschalterProps) 
             onClick={() => onChange(value)}
             className={`min-h-[44px] min-w-[44px] rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
               isActive
-                ? "bg-white text-gray-900 shadow-sm"
+                ? "bg-white text-neutral-900 shadow-sm"
                 : "text-white/80 hover:text-white"
             }`}
           >

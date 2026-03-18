@@ -12,7 +12,7 @@ export function KumulativeAnsicht({ zeilen }: KumulativeAnsichtProps) {
   return (
     <div>
       {zeilen.map((zeile) => (
-        <p key={zeile.id} className="text-sm text-gray-500">
+        <p key={zeile.id} className="text-sm text-neutral-500">
           {zeile.text}
         </p>
       ))}

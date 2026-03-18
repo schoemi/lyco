@@ -71,13 +71,13 @@ describe("MultipleChoiceCard component source", () => {
   });
 
   it("applies green styling for correct answer (Req 3.2)", () => {
-    expect(source).toContain("green-500");
-    expect(source).toContain("green-50");
+    expect(source).toContain("success-500");
+    expect(source).toContain("success-50");
   });
 
   it("applies red styling for wrong answer (Req 3.2)", () => {
-    expect(source).toContain("red-500");
-    expect(source).toContain("red-50");
+    expect(source).toContain("error-500");
+    expect(source).toContain("error-50");
   });
 
   it("marks correct answer green when wrong answer selected (Req 3.3)", () => {

@@ -93,15 +93,15 @@ export default function RegisterPage() {
   if (success) {
     return (
       <div>
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">
+        <h1 className="mb-6 text-center text-2xl font-bold text-neutral-900">
           Registrierung erfolgreich
         </h1>
-        <p className="mb-4 text-center text-sm text-gray-600">
+        <p className="mb-4 text-center text-sm text-neutral-600">
           Ihr Konto wurde erstellt. Sie können sich jetzt anmelden.
         </p>
         <Link
           href="/login"
-          className="block w-full rounded-md bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="block w-full rounded-md bg-newsong-600 px-4 py-2 text-center text-sm font-medium text-white shadow-sm hover:bg-newsong-700 focus:outline-none focus:ring-2 focus:ring-newsong-500 focus:ring-offset-2"
         >
           Zur Anmeldung
         </Link>
@@ -111,14 +111,14 @@ export default function RegisterPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">
+      <h1 className="mb-6 text-center text-2xl font-bold text-neutral-900">
         Registrieren
       </h1>
 
       {generalError && (
         <div
           role="alert"
-          className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700"
+          className="mb-4 rounded-md bg-error-50 p-3 text-sm text-error-700"
         >
           {generalError}
         </div>
@@ -128,7 +128,7 @@ export default function RegisterPage() {
         <div>
           <label
             htmlFor="email"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-neutral-700"
           >
             E-Mail
           </label>
@@ -140,13 +140,13 @@ export default function RegisterPage() {
             aria-describedby={emailError ? "email-error" : undefined}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              emailError ? "border-red-500" : "border-gray-300"
+            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500 ${
+              emailError ? "border-error-500" : "border-neutral-300"
             }`}
             placeholder="name@beispiel.de"
           />
           {emailError && (
-            <p id="email-error" role="alert" className="mt-1 text-sm text-red-600">
+            <p id="email-error" role="alert" className="mt-1 text-sm text-error-600">
               {emailError}
             </p>
           )}
@@ -155,7 +155,7 @@ export default function RegisterPage() {
         <div>
           <label
             htmlFor="name"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-neutral-700"
           >
             Name
           </label>
@@ -167,13 +167,13 @@ export default function RegisterPage() {
             aria-describedby={nameError ? "name-error" : undefined}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              nameError ? "border-red-500" : "border-gray-300"
+            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500 ${
+              nameError ? "border-error-500" : "border-neutral-300"
             }`}
             placeholder="Ihr Name"
           />
           {nameError && (
-            <p id="name-error" role="alert" className="mt-1 text-sm text-red-600">
+            <p id="name-error" role="alert" className="mt-1 text-sm text-error-600">
               {nameError}
             </p>
           )}
@@ -182,7 +182,7 @@ export default function RegisterPage() {
         <div>
           <label
             htmlFor="password"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-neutral-700"
           >
             Passwort
           </label>
@@ -194,13 +194,13 @@ export default function RegisterPage() {
             aria-describedby={passwordError ? "password-error" : undefined}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              passwordError ? "border-red-500" : "border-gray-300"
+            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500 ${
+              passwordError ? "border-error-500" : "border-neutral-300"
             }`}
             placeholder="Mindestens 8 Zeichen"
           />
           {passwordError && (
-            <p id="password-error" role="alert" className="mt-1 text-sm text-red-600">
+            <p id="password-error" role="alert" className="mt-1 text-sm text-error-600">
               {passwordError}
             </p>
           )}
@@ -209,17 +209,17 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-md bg-newsong-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-newsong-700 focus:outline-none focus:ring-2 focus:ring-newsong-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? "Registrieren…" : "Registrieren"}
         </button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-gray-600">
+      <p className="mt-4 text-center text-sm text-neutral-600">
         Bereits ein Konto?{" "}
         <Link
           href="/login"
-          className="font-medium text-blue-600 hover:text-blue-500"
+          className="font-medium text-newsong-600 hover:text-newsong-500"
         >
           Anmelden
         </Link>

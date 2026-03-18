@@ -66,7 +66,7 @@ export default function SpacedRepetitionPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-sm text-gray-500">Fällige Strophen werden geladen…</div>
+        <div className="text-sm text-neutral-500">Fällige Strophen werden geladen…</div>
       </div>
     );
   }
@@ -74,7 +74,7 @@ export default function SpacedRepetitionPage() {
   if (error) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
+        <div className="rounded-lg border border-error-200 bg-error-50 px-6 py-4 text-sm text-error-700">
           {error}
         </div>
       </div>
@@ -84,13 +84,13 @@ export default function SpacedRepetitionPage() {
   if (strophen.length === 0) {
     return (
       <div className="flex flex-col items-center gap-4 py-20">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-neutral-500">
           Keine fälligen Strophen für diesen Song
         </p>
         <button
           type="button"
           onClick={() => router.push(`/songs/${id}`)}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-lg bg-newsong-600 px-4 py-2 text-sm font-medium text-white hover:bg-newsong-700"
         >
           Zurück zum Song
         </button>

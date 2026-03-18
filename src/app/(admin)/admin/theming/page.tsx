@@ -10,7 +10,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import type { ThemeConfig } from "@/lib/theme/types";
-import { getDefaultTheme } from "@/lib/theme/serializer";
+import { getDefaultTheme, themeToCssVars } from "@/lib/theme/serializer";
 import ThemePreview from "@/components/admin/theme-preview";
 
 // ---------------------------------------------------------------------------
@@ -270,6 +270,14 @@ export default function ThemingEditorPage() {
       }
       setSavedTheme(cloneTheme(theme));
       setSuccess("Theme erfolgreich gespeichert.");
+
+      // Apply saved theme globally so all open tabs reflect the change
+      const cssVars = themeToCssVars(theme);
+      const regex = /(--.+?):\s*(.+?);/g;
+      let match: RegExpExecArray | null;
+      while ((match = regex.exec(cssVars)) !== null) {
+        document.documentElement.style.setProperty(match[1], match[2]);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fehler beim Speichern");
     } finally {
@@ -415,6 +423,16 @@ export default function ThemingEditorPage() {
               label="Fehler"
               value={theme.colors.error}
               onChange={(v) => updateColor("error", v)}
+            />
+            <ColorField
+              label="Info / Hinweis"
+              value={theme.colors.info}
+              onChange={(v) => updateColor("info", v)}
+            />
+            <ColorField
+              label="Neutral (Grautöne)"
+              value={theme.colors.neutral}
+              onChange={(v) => updateColor("neutral", v)}
             />
           </Section>
 

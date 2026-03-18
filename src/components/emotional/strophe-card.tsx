@@ -30,10 +30,10 @@ export function StropheCard({
     strophe.zeilen.every((z) => revealedLines.has(z.id));
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-900">{strophe.name}</h3>
+        <h3 className="text-sm font-semibold text-neutral-900">{strophe.name}</h3>
         {!twoColumnTranslation && !hideRevealLines && (
           <button
             type="button"
@@ -42,8 +42,8 @@ export function StropheCard({
             onClick={allRevealed && onHideAll ? onHideAll : onRevealAll}
             className={`inline-flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
               allRevealed
-                ? "border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100"
-                : "border-gray-300 text-gray-500 bg-white hover:bg-gray-50"
+                ? "border-primary-300 text-primary-700 bg-primary-50 hover:bg-primary-100"
+                : "border-neutral-300 text-neutral-500 bg-white hover:bg-neutral-50"
             }`}
             aria-label={
               allRevealed
@@ -54,7 +54,7 @@ export function StropheCard({
             <span
               aria-hidden="true"
               className={`relative inline-block h-4 w-7 shrink-0 rounded-full transition-colors ${
-                allRevealed ? "bg-purple-600" : "bg-gray-300"
+                allRevealed ? "bg-primary-600" : "bg-neutral-300"
               }`}
             >
               <span
@@ -73,11 +73,11 @@ export function StropheCard({
         <div className="space-y-2">
           {strophe.zeilen.map((zeile) => (
             <div key={zeile.id} className="grid grid-cols-2 gap-4">
-              <p className="text-gray-900" style={{ fontSize: "15px" }}>
+              <p className="text-neutral-900" style={{ fontSize: "15px" }}>
                 {zeile.text}
               </p>
               <p
-                className="text-gray-500 italic"
+                className="text-neutral-500 italic"
                 style={{ fontSize: "13px" }}
               >
                 {zeile.uebersetzung ?? ""}
@@ -88,7 +88,7 @@ export function StropheCard({
       ) : hideRevealLines ? (
         <div className="space-y-2">
           {strophe.zeilen.map((zeile) => (
-            <p key={zeile.id} className="text-gray-900" style={{ fontSize: "15px" }}>
+            <p key={zeile.id} className="text-neutral-900" style={{ fontSize: "15px" }}>
               {zeile.text}
             </p>
           ))}

@@ -52,7 +52,7 @@ export default function SpacedRepetitionUebersicht() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-sm text-gray-500">Fällige Strophen werden geladen…</div>
+        <div className="text-sm text-neutral-500">Fällige Strophen werden geladen…</div>
       </div>
     );
   }
@@ -60,7 +60,7 @@ export default function SpacedRepetitionUebersicht() {
   if (error) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
+        <div className="rounded-lg border border-error-200 bg-error-50 px-6 py-4 text-sm text-error-700">
           {error}
         </div>
       </div>
@@ -72,22 +72,22 @@ export default function SpacedRepetitionUebersicht() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900">Spaced Repetition</h1>
+        <h1 className="text-xl font-bold text-neutral-900">Spaced Repetition</h1>
         <Link
           href="/dashboard"
-          className="text-sm text-gray-500 hover:text-gray-700"
+          className="text-sm text-neutral-500 hover:text-neutral-700"
         >
           ← Dashboard
         </Link>
       </div>
 
       {gesamtAnzahl === 0 ? (
-        <div className="rounded-lg border border-dashed border-gray-300 px-4 py-12 text-center">
-          <p className="text-sm text-gray-400">Keine Strophen fällig — gut gemacht!</p>
+        <div className="rounded-lg border border-dashed border-neutral-300 px-4 py-12 text-center">
+          <p className="text-sm text-neutral-400">Keine Strophen fällig — gut gemacht!</p>
         </div>
       ) : (
         <>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-neutral-600">
             {gesamtAnzahl} {gesamtAnzahl === 1 ? "Strophe" : "Strophen"} heute fällig
           </p>
 
@@ -95,24 +95,24 @@ export default function SpacedRepetitionUebersicht() {
             {gruppen.map((gruppe) => (
               <div
                 key={gruppe.songId}
-                className="rounded-lg border border-gray-200 bg-white"
+                className="rounded-lg border border-neutral-200 bg-white"
               >
-                <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-                  <h2 className="text-sm font-semibold text-gray-900">
+                <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
+                  <h2 className="text-sm font-semibold text-neutral-900">
                     {gruppe.songTitel}
                   </h2>
                   <Link
                     href={`/songs/${gruppe.songId}/spaced-repetition`}
-                    className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
+                    className="rounded-md bg-newsong-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-newsong-700"
                   >
                     Üben ({gruppe.strophen.length})
                   </Link>
                 </div>
-                <ul className="divide-y divide-gray-50 px-4">
+                <ul className="divide-y divide-neutral-50 px-4">
                   {gruppe.strophen.map((s) => (
                     <li key={s.wiederholungId} className="flex items-center justify-between py-2.5">
-                      <span className="text-sm text-gray-700">{s.stropheName}</span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-sm text-neutral-700">{s.stropheName}</span>
+                      <span className="text-xs text-neutral-400">
                         {s.korrektZaehler === 0
                           ? "Neu"
                           : `${s.korrektZaehler}× korrekt`}

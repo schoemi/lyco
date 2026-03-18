@@ -36,10 +36,10 @@ export function EingabeBereich({
 
   const borderClass =
     status === "korrekt"
-      ? "border-green-500"
+      ? "border-success-500"
       : status === "eingabe" && fehlversuche > 0
-        ? "border-red-500"
-        : "border-gray-300";
+        ? "border-error-500"
+        : "border-neutral-300";
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -69,7 +69,7 @@ export function EingabeBereich({
         onKeyDown={handleKeyDown}
         disabled={istDeaktiviert}
         aria-label="Zeile aus dem Gedächtnis eingeben"
-        className={`w-full rounded-md border-2 ${borderClass} p-3 text-base focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-100 disabled:cursor-not-allowed`}
+        className={`w-full rounded-md border-2 ${borderClass} p-3 text-base focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-neutral-100 disabled:cursor-not-allowed`}
         rows={2}
       />
 
@@ -78,10 +78,10 @@ export function EingabeBereich({
           <span
             className={
               status === "korrekt"
-                ? "text-green-600 font-medium"
+                ? "text-success-600 font-medium"
                 : status === "loesung"
-                  ? "text-orange-600 font-medium"
-                  : "text-red-600 font-medium"
+                  ? "text-warning-600 font-medium"
+                  : "text-error-600 font-medium"
             }
           >
             {feedbackText}
@@ -93,7 +93,7 @@ export function EingabeBereich({
         ref={weiterRef}
         onClick={onWeiter}
         disabled={status === "eingabe"}
-        className="min-h-[44px] w-full rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+        className="min-h-[44px] w-full rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:bg-neutral-300 disabled:cursor-not-allowed"
       >
         {istLetzteZeile ? "Strophe abschließen" : "Weiter"}
       </button>

@@ -103,21 +103,21 @@ export function ReihenfolgeCard({
 
   const getCardClasses = (index: number): string => {
     const base =
-      "min-h-[44px] min-w-[44px] rounded-lg border px-4 py-3 text-sm font-medium transition-colors select-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2";
+      "min-h-[44px] min-w-[44px] rounded-lg border px-4 py-3 text-sm font-medium transition-colors select-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2";
 
     const status = getLineStatus(index);
     if (status === "correct") {
-      return `${base} border-green-500 bg-green-50 text-green-800`;
+      return `${base} border-success-500 bg-success-50 text-success-800`;
     }
     if (status === "incorrect") {
-      return `${base} border-red-500 bg-red-50 text-red-800`;
+      return `${base} border-error-500 bg-error-50 text-error-800`;
     }
 
     if (dragIndex === index) {
-      return `${base} border-purple-400 bg-purple-50 text-gray-900 opacity-50`;
+      return `${base} border-primary-400 bg-primary-50 text-neutral-900 opacity-50`;
     }
 
-    return `${base} border-gray-200 bg-white text-gray-900 hover:border-purple-400 hover:bg-purple-50 cursor-grab active:cursor-grabbing`;
+    return `${base} border-neutral-200 bg-white text-neutral-900 hover:border-primary-400 hover:bg-primary-50 cursor-grab active:cursor-grabbing`;
   };
 
   // Build the correct order text for display after submission
@@ -128,7 +128,7 @@ export function ReihenfolgeCard({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-[14px] text-gray-700">
+      <p className="text-[14px] text-neutral-700">
         Bringe die Zeilen von <span className="font-semibold">{question.stropheName}</span> in die richtige Reihenfolge:
       </p>
 
@@ -157,10 +157,10 @@ export function ReihenfolgeCard({
       <div aria-live="polite" className="min-h-[24px]">
         {submitted && (
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-gray-700">
+            <p className="text-sm font-medium text-neutral-700">
               Korrekte Reihenfolge:
             </p>
-            <ol className="list-decimal list-inside text-sm text-gray-600">
+            <ol className="list-decimal list-inside text-sm text-neutral-600">
               {correctOrderItems.map((text, i) => (
                 <li key={i}>{text}</li>
               ))}
@@ -173,7 +173,7 @@ export function ReihenfolgeCard({
         <button
           type="button"
           onClick={handleConfirm}
-          className="w-full rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+          className="w-full rounded-lg bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
         >
           Bestätigen
         </button>
@@ -183,7 +183,7 @@ export function ReihenfolgeCard({
         <button
           type="button"
           onClick={onWeiter}
-          className="w-full rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+          className="w-full rounded-lg bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
         >
           Weiter
         </button>

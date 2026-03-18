@@ -82,6 +82,7 @@ const arbSongDetail = fc
       analyse: null,
       coachTipp: null,
       strophen: r.strophen,
+      audioQuellen: [],
     }),
   );
 

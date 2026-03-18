@@ -41,14 +41,14 @@ describe("DifficultySelector component source", () => {
   });
 
   it("uses purple background for active button (Req 3.2)", () => {
-    expect(source).toContain("bg-purple-600");
+    expect(source).toContain("bg-primary-600");
     expect(source).toContain("text-white");
   });
 
   it("uses gray background for inactive buttons (Req 3.2)", () => {
-    expect(source).toContain("bg-gray-100");
-    expect(source).toContain("text-gray-700");
-    expect(source).toContain("hover:bg-gray-200");
+    expect(source).toContain("bg-neutral-100");
+    expect(source).toContain("text-neutral-700");
+    expect(source).toContain("hover:bg-neutral-200");
   });
 
   it('has role="radiogroup" with aria-label (Req 9.4)', () => {

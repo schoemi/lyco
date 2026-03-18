@@ -32,13 +32,13 @@ describe("AktiveZeile component source", () => {
     expect(source).toContain("text-lg");
   });
 
-  it("uses primary text color text-gray-900 (Req 2.2)", () => {
-    expect(source).toContain("text-gray-900");
+  it("uses primary text color text-neutral-900 (Req 2.2)", () => {
+    expect(source).toContain("text-neutral-900");
   });
 
   it("has purple left border accent (Req 2.2)", () => {
     expect(source).toContain("border-l-4");
-    expect(source).toContain("border-purple-600");
+    expect(source).toContain("border-primary-600");
   });
 
   it("renders the text prop", () => {

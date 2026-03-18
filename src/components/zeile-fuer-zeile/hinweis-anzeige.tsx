@@ -8,7 +8,7 @@ export function HinweisAnzeige({ hinweis }: HinweisAnzeigeProps) {
       aria-live="polite"
       aria-label={hinweis ? `Hinweis: ${hinweis}` : undefined}
     >
-      {hinweis && <p className="text-gray-400 italic">{hinweis}</p>}
+      {hinweis && <p className="text-neutral-400 italic">{hinweis}</p>}
     </div>
   );
 }

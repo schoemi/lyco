@@ -31,7 +31,8 @@ export function PlayPauseButton({ isPlaying, onToggle }: PlayPauseButtonProps) {
           fill="currentColor"
           aria-hidden="true"
         >
-          <polygon points="6,4 20,12 6,20" />
+          <polygon points="4,4 14,12 4,20" />
+          <polygon points="14,4 24,12 14,20" />
         </svg>
       )}
     </button>

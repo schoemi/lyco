@@ -87,6 +87,8 @@ const arbThemeColors: fc.Arbitrary<ThemeColors> = fc.record({
   secondaryButton: arbHexColor,
   newSongButton: arbHexColor,
   translationToggle: arbHexColor,
+  info: arbHexColor,
+  neutral: arbHexColor,
 });
 
 const arbThemeTypography: fc.Arbitrary<ThemeTypography> = fc.record({
@@ -128,6 +130,12 @@ const arbThemeConfig: fc.Arbitrary<ThemeConfig> = fc.record({
 const PALETTE_VAR_NAMES = PALETTE_STEPS.flatMap((step) => [
   `--color-primary-${step}`,
   `--color-accent-${step}`,
+  `--color-newsong-${step}`,
+  `--color-success-${step}`,
+  `--color-warning-${step}`,
+  `--color-error-${step}`,
+  `--color-info-${step}`,
+  `--color-neutral-${step}`,
 ]);
 
 const DIRECT_COLOR_VARS = [
@@ -140,6 +148,7 @@ const DIRECT_COLOR_VARS = [
   '--color-success',
   '--color-warning',
   '--color-error',
+  '--color-info',
   '--color-btn-primary',
   '--color-btn-secondary',
   '--color-btn-new-song',
@@ -218,6 +227,42 @@ describe('Property 2: CSS-Variablen-Vollständigkeit', () => {
           expect(parsed[`--color-accent-${step}`]).toBe(accentPalette[step]);
         }
 
+        // NewSong palette values
+        const newsongPalette = generatePalette(config.colors.newSongButton);
+        for (const step of PALETTE_STEPS) {
+          expect(parsed[`--color-newsong-${step}`]).toBe(newsongPalette[step]);
+        }
+
+        // Success palette values
+        const successPalette = generatePalette(config.colors.success);
+        for (const step of PALETTE_STEPS) {
+          expect(parsed[`--color-success-${step}`]).toBe(successPalette[step]);
+        }
+
+        // Warning palette values
+        const warningPalette = generatePalette(config.colors.warning);
+        for (const step of PALETTE_STEPS) {
+          expect(parsed[`--color-warning-${step}`]).toBe(warningPalette[step]);
+        }
+
+        // Error palette values
+        const errorPalette = generatePalette(config.colors.error);
+        for (const step of PALETTE_STEPS) {
+          expect(parsed[`--color-error-${step}`]).toBe(errorPalette[step]);
+        }
+
+        // Info palette values
+        const infoPalette = generatePalette(config.colors.info);
+        for (const step of PALETTE_STEPS) {
+          expect(parsed[`--color-info-${step}`]).toBe(infoPalette[step]);
+        }
+
+        // Neutral palette values
+        const neutralPalette = generatePalette(config.colors.neutral);
+        for (const step of PALETTE_STEPS) {
+          expect(parsed[`--color-neutral-${step}`]).toBe(neutralPalette[step]);
+        }
+
         // Direct colour values
         expect(parsed['--color-border']).toBe(config.colors.border);
         expect(parsed['--color-page-bg']).toBe(config.colors.pageBg);
@@ -228,6 +273,7 @@ describe('Property 2: CSS-Variablen-Vollständigkeit', () => {
         expect(parsed['--color-success']).toBe(config.colors.success);
         expect(parsed['--color-warning']).toBe(config.colors.warning);
         expect(parsed['--color-error']).toBe(config.colors.error);
+        expect(parsed['--color-info']).toBe(config.colors.info);
         expect(parsed['--color-btn-primary']).toBe(config.colors.primaryButton);
         expect(parsed['--color-btn-secondary']).toBe(config.colors.secondaryButton);
         expect(parsed['--color-btn-new-song']).toBe(config.colors.newSongButton);

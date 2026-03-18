@@ -144,7 +144,7 @@ describe("Middleware für Route-Schutz", () => {
       mockSession = null;
       const res = middleware(
         createRequest("/dashboard", {
-          "authjs.session-token": "expired-token",
+          "authjs.session-token": "expierror-token",
         })
       ) as NextResponse;
       expect(res.status).toBe(307);
@@ -157,7 +157,7 @@ describe("Middleware für Route-Schutz", () => {
       mockSession = null;
       const res = middleware(
         createRequest("/dashboard", {
-          "__Secure-authjs.session-token": "expired-token",
+          "__Secure-authjs.session-token": "expierror-token",
         })
       ) as NextResponse;
       expect(res.status).toBe(307);
@@ -166,7 +166,7 @@ describe("Middleware für Route-Schutz", () => {
       expect(location).toContain("expired=true");
     });
 
-    it("leitet auf /login ohne expired-Parameter um wenn kein Session-Cookie vorhanden", () => {
+    it("leitet auf /login ohne expierror-Parameter um wenn kein Session-Cookie vorhanden", () => {
       mockSession = null;
       const res = middleware(createRequest("/dashboard")) as NextResponse;
       expect(res.status).toBe(307);
@@ -179,7 +179,7 @@ describe("Middleware für Route-Schutz", () => {
       mockSession = null;
       const res = middleware(
         createRequest("/api/some-endpoint", {
-          "authjs.session-token": "expired-token",
+          "authjs.session-token": "expierror-token",
         })
       ) as NextResponse;
       expect(res.status).toBe(401);

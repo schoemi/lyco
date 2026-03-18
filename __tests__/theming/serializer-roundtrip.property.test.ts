@@ -89,6 +89,8 @@ const arbThemeColors: fc.Arbitrary<ThemeColors> = fc.record({
   secondaryButton: arbHexColor,
   newSongButton: arbHexColor,
   translationToggle: arbHexColor,
+  info: arbHexColor,
+  neutral: arbHexColor,
 });
 
 /** Generates a valid ThemeTypography object. */

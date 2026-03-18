@@ -91,6 +91,10 @@ export interface ThemeColors {
   newSongButton: string;
   /** Translation toggle colour (Anforderung 9.5) */
   translationToggle: string;
+  /** Info / hint colour for informational messages */
+  info: string;
+  /** Neutral base colour for text, borders, backgrounds (palette generated) */
+  neutral: string;
 }
 
 // ---------------------------------------------------------------------------

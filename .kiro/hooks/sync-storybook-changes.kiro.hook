@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Storybook → Code Sync",
+  "description": "Wenn eine Story-Datei geändert wird, analysiere die Änderungen und passe die zugehörige Komponente entsprechend an. Wenn z.B. Props in der Story geändert werden, aktualisiere die Komponente so, dass sie die neuen Props unterstützt.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.stories.tsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Eine Story-Datei wurde geändert. Lies die geänderte Story-Datei und die zugehörige Komponente (gleicher Dateiname ohne .stories). Analysiere, ob die Story-Änderungen Anpassungen an der Komponente erfordern (z.B. neue Props, geänderte Prop-Typen, neue Varianten). Falls ja, passe die Komponente entsprechend an. Falls die Änderungen nur Story-spezifisch sind (z.B. neue Story-Varianten mit bestehenden Props), ist keine Änderung an der Komponente nötig."
+  },
+  "workspaceFolderName": "lyco",
+  "shortName": "sync-storybook-changes"
+}

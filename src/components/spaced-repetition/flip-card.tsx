@@ -34,21 +34,21 @@ export function FlipCard({ stropheName, zeilen, aufgedeckt, onFlip }: FlipCardPr
         }`}
       >
         {/* Vorderseite */}
-        <div className="flex min-h-[200px] flex-col items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-8 shadow-sm [backface-visibility:hidden] [grid-area:1/1]">
-          <p className="text-xl font-semibold text-gray-900">{stropheName}</p>
-          <p className="mt-2 text-sm text-gray-400">Tippe zum Aufdecken</p>
+        <div className="flex min-h-[200px] flex-col items-center justify-center rounded-xl border border-neutral-200 bg-white px-6 py-8 shadow-sm [backface-visibility:hidden] [grid-area:1/1]">
+          <p className="text-xl font-semibold text-neutral-900">{stropheName}</p>
+          <p className="mt-2 text-sm text-neutral-400">Tippe zum Aufdecken</p>
         </div>
 
         {/* Rückseite */}
         <div
-          className="flex min-h-[200px] flex-col items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-6 py-8 shadow-sm [backface-visibility:hidden] [transform:rotateY(180deg)] [grid-area:1/1]"
+          className="flex min-h-[200px] flex-col items-center justify-center rounded-xl border border-newsong-200 bg-newsong-50 px-6 py-8 shadow-sm [backface-visibility:hidden] [transform:rotateY(180deg)] [grid-area:1/1]"
           aria-live="polite"
         >
           {aufgedeckt && (
             <div className="space-y-1 text-center">
-              <p className="mb-3 text-sm font-medium text-gray-500">{stropheName}</p>
+              <p className="mb-3 text-sm font-medium text-neutral-500">{stropheName}</p>
               {sortierteZeilen.map((zeile, idx) => (
-                <p key={idx} className="text-base text-gray-800">
+                <p key={idx} className="text-base text-neutral-800">
                   {zeile.text}
                 </p>
               ))}

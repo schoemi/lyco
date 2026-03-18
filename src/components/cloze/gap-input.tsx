@@ -33,16 +33,16 @@ export function GapInput({
   const size = Math.max(value.length, placeholder.length, 4);
 
   const borderColor = isCorrect
-    ? "border-green-500"
+    ? "border-success-500"
     : isIncorrect
-      ? "border-red-500"
-      : "border-purple-500";
+      ? "border-error-500"
+      : "border-primary-500";
 
   const textColor = isCorrect
-    ? "text-green-600"
+    ? "text-success-600"
     : isIncorrect
-      ? "text-red-600"
-      : "text-gray-900";
+      ? "text-error-600"
+      : "text-neutral-900";
 
   const feedbackText = isCorrect ? "Richtig" : isIncorrect ? "Falsch" : "";
 

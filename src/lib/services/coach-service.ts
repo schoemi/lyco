@@ -25,12 +25,13 @@ export class CoachError extends Error {
 
 // --- Prompt Builder ---
 
-const SYSTEM_PROMPT =
-  "Du bist ein erfahrener Gesangscoach. Du gibst personalisierte Tipps und Übungsempfehlungen " +
-  "basierend auf dem Profil des Sängers/der Sängerin und dem gewählten Song. " +
-  "Antworte auf Deutsch in einem zusammenhängenden Freitext.";
+const SYSTEM_PROMPT_TEMPLATE = (sprache: string) =>
+  `Du bist ein erfahrener Gesangscoach. Du gibst personalisierte Tipps und Übungsempfehlungen ` +
+  `basierend auf dem Profil des Sängers/der Sängerin und dem gewählten Song. ` +
+  `Antworte auf ${sprache} in einem zusammenhängenden Freitext.`;
 
 export function buildCoachPrompt(profile: ProfileData, song: CoachSongData): LLMMessage[] {
+  const sprache = profile.sprache || "Deutsch";
   let userPrompt = `Ich bin ${profile.geschlecht} und singe Songs im Genre ${profile.genre || "unbekannt"}.\n`;
   userPrompt += `Meine Stimmlage ist ${profile.stimmlage}, mein Niveau ist ${profile.erfahrungslevel}.\n`;
   userPrompt += `Ich möchte neue Songs lernen. Du bist mein Coach.\n\n`;
@@ -49,7 +50,7 @@ export function buildCoachPrompt(profile: ProfileData, song: CoachSongData): LLM
   userPrompt += `um bestimmte Passagen zu üben, wie kann ich die Charakteristik des Interpreten gut imitieren.)`;
 
   return [
-    { role: "system", content: SYSTEM_PROMPT },
+    { role: "system", content: SYSTEM_PROMPT_TEMPLATE(sprache) },
     { role: "user", content: userPrompt },
   ];
 }
@@ -95,6 +96,7 @@ export async function generateCoachTipp(
       erfahrungslevel: true,
       stimmlage: true,
       genre: true,
+      sprache: true,
     },
   });
 

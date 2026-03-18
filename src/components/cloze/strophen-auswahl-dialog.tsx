@@ -198,7 +198,7 @@ export function StrophenAuswahlDialog({
             ref={firstFocusableRef}
             type="button"
             onClick={onCancel}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded text-gray-500 hover:text-gray-700"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded text-neutral-500 hover:text-neutral-700"
             aria-label="Dialog schließen"
           >
             ✕
@@ -210,14 +210,14 @@ export function StrophenAuswahlDialog({
           <button
             type="button"
             onClick={handleSelectAll}
-            className="min-h-[44px] rounded bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+            className="min-h-[44px] rounded bg-neutral-100 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-200"
           >
             Alle auswählen
           </button>
           <button
             type="button"
             onClick={handleDeselectAll}
-            className="min-h-[44px] rounded bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+            className="min-h-[44px] rounded bg-neutral-100 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-200"
           >
             Alle abwählen
           </button>
@@ -226,7 +226,7 @@ export function StrophenAuswahlDialog({
             onClick={handlePracticeWeaknesses}
             disabled={!hasAnyWeakness}
             title={!hasAnyWeakness ? "Keine Schwächen vorhanden" : undefined}
-            className="min-h-[44px] rounded bg-orange-100 px-3 py-2 text-sm font-medium text-orange-700 hover:bg-orange-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="min-h-[44px] rounded bg-warning-100 px-3 py-2 text-sm font-medium text-warning-700 hover:bg-warning-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Schwächen üben
           </button>
@@ -235,7 +235,7 @@ export function StrophenAuswahlDialog({
         {/* Strophen list */}
         <div className="flex-1 overflow-y-auto px-4 py-2">
           {loadingProgress && (
-            <div className="py-4 text-center text-sm text-gray-500">
+            <div className="py-4 text-center text-sm text-neutral-500">
               Fortschritt wird geladen…
             </div>
           )}
@@ -248,20 +248,20 @@ export function StrophenAuswahlDialog({
 
               return (
                 <li key={strophe.id}>
-                  <label className="flex min-h-[44px] cursor-pointer items-center gap-3 rounded px-2 py-1 hover:bg-gray-50">
+                  <label className="flex min-h-[44px] cursor-pointer items-center gap-3 rounded px-2 py-1 hover:bg-neutral-50">
                     <input
                       type="checkbox"
                       checked={isChecked}
                       onChange={() => handleToggle(strophe.id)}
-                      className="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                      className="h-5 w-5 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
                     />
                     <span className="flex-1 text-sm">{strophe.name}</span>
                     {progress && (
-                      <span className="text-xs text-gray-500">{prozent}%</span>
+                      <span className="text-xs text-neutral-500">{prozent}%</span>
                     )}
                     {isWeak && (
                       <span
-                        className="rounded bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700"
+                        className="rounded bg-warning-100 px-2 py-0.5 text-xs font-medium text-warning-700"
                         aria-label="Schwäche – Fortschritt unter 80%"
                       >
                         Schwäche
@@ -277,7 +277,7 @@ export function StrophenAuswahlDialog({
         {/* Validation error */}
         {validationError && (
           <div
-            className="px-4 py-2 text-sm text-red-600"
+            className="px-4 py-2 text-sm text-error-600"
             role="alert"
           >
             {validationError}
@@ -289,14 +289,14 @@ export function StrophenAuswahlDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="min-h-[44px] rounded bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+            className="min-h-[44px] rounded bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-200"
           >
             Abbrechen
           </button>
           <button
             type="button"
             onClick={handleConfirm}
-            className="min-h-[44px] rounded bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700"
+            className="min-h-[44px] rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
           >
             Übung starten
           </button>

@@ -27,7 +27,7 @@ describe("GapInput component source", () => {
   });
 
   it("has purple border-bottom by default (Req 4.1)", () => {
-    expect(source).toContain("border-purple-500");
+    expect(source).toContain("border-primary-500");
   });
 
   it("uses border-b-2 with border-0 for bottom-only border (Req 4.1)", () => {
@@ -52,13 +52,13 @@ describe("GapInput component source", () => {
   });
 
   it("applies green styling for correct feedback (Req 4.4)", () => {
-    expect(source).toContain("border-green-500");
-    expect(source).toContain("text-green-600");
+    expect(source).toContain("border-success-500");
+    expect(source).toContain("text-success-600");
   });
 
   it("applies red styling for incorrect feedback (Req 4.5)", () => {
-    expect(source).toContain("border-red-500");
-    expect(source).toContain("text-red-600");
+    expect(source).toContain("border-error-500");
+    expect(source).toContain("text-error-600");
   });
 
   it("accepts ariaLabel prop and applies it (Req 9.1)", () => {

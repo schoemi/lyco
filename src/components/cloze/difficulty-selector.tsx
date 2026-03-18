@@ -33,8 +33,8 @@ export function DifficultySelector({ active, onChange }: DifficultySelectorProps
             className={[
               "rounded-md px-4 py-2 text-sm font-medium transition-colors",
               isActive
-                ? "bg-purple-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200",
+                ? "bg-primary-600 text-white"
+                : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200",
             ].join(" ")}
           >
             {label}

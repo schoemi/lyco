@@ -39,7 +39,7 @@ export function TranslationTab({
   if (!hasTranslations) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-neutral-500">
           Noch keine Übersetzungen vorhanden. Starte eine Übersetzung, um die Zeilen zu übersetzen.
         </p>
 
@@ -59,14 +59,14 @@ export function TranslationTab({
         {translateError && (
           <div
             role="alert"
-            className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700"
+            className="rounded-md border border-error-300 bg-error-50 p-3 text-sm text-error-700"
           >
             {translateError}
           </div>
         )}
 
         {translateSuccess && (
-          <div className="rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-700">
+          <div className="rounded-md border border-success-300 bg-success-50 p-3 text-sm text-success-700">
             Übersetzung erfolgreich abgeschlossen.
           </div>
         )}

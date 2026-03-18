@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "AudioTyp" ADD VALUE 'APPLE_MUSIC';

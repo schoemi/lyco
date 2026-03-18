@@ -14,7 +14,7 @@ export function EmotionsTags({ tags }: EmotionsTagsProps) {
       {tags.map((tag) => (
         <span
           key={tag}
-          className="rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700"
+          className="rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700"
         >
           {tag}
         </span>

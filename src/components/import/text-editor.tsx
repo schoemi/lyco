@@ -52,7 +52,7 @@ export function TextEditor({ value, onChange }: TextEditorProps) {
         {lines.map((line, i) => (
           <div key={i}>
             {SECTION_RE.test(line.trim()) ? (
-              <span className="text-purple-600 font-bold">{line}</span>
+              <span className="text-primary-600 font-bold">{line}</span>
             ) : (
               <span>{line}</span>
             )}
@@ -66,7 +66,7 @@ export function TextEditor({ value, onChange }: TextEditorProps) {
         onScroll={handleScroll}
         onPaste={handlePaste}
         aria-label="Songtext eingeben"
-        className="relative w-full min-h-[200px] resize-y bg-transparent text-transparent caret-black font-mono text-sm p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="relative w-full min-h-[200px] resize-y bg-transparent text-transparent caret-black font-mono text-sm p-3 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-newsong-500"
         spellCheck={false}
       />
     </div>

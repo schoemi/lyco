@@ -46,10 +46,10 @@ describe("Property 2: Sprachwarnung bei identischer Zielsprache", () => {
     );
   });
 
-  it("source renders the warning in a yellow-styled container", () => {
-    expect(source).toContain("border-yellow-200");
-    expect(source).toContain("bg-yellow-50");
-    expect(source).toContain("text-yellow-700");
+  it("source renders the warning in a info-styled container", () => {
+    expect(source).toContain("border-info-200");
+    expect(source).toContain("bg-info-50");
+    expect(source).toContain("text-info-700");
   });
 
   // --- Property-based logic tests ---

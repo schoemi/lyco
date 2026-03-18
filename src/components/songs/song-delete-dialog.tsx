@@ -88,15 +88,15 @@ export default function SongDeleteDialog({ open, song, onClose, onDeleted }: Son
       onClick={handleClose}
     >
       <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <h2 className="mb-2 text-lg font-semibold text-gray-900">Song löschen</h2>
-        <p className="mb-1 text-sm text-gray-600">
+        <h2 className="mb-2 text-lg font-semibold text-neutral-900">Song löschen</h2>
+        <p className="mb-1 text-sm text-neutral-600">
           Möchten Sie den Song <span className="font-medium">&quot;{song.titel}&quot;</span> wirklich löschen?
         </p>
-        <p className="mb-4 text-sm text-red-600">
+        <p className="mb-4 text-sm text-error-600">
           Alle zugehörigen Daten (Strophen, Zeilen, Fortschritt, Sessions) werden unwiderruflich gelöscht.
         </p>
         {error && (
-          <p className="mb-4 text-sm text-red-600" role="alert">
+          <p className="mb-4 text-sm text-error-600" role="alert">
             {error}
           </p>
         )}
@@ -105,7 +105,7 @@ export default function SongDeleteDialog({ open, song, onClose, onDeleted }: Son
             ref={cancelButtonRef}
             type="button"
             onClick={handleClose}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
           >
             Abbrechen
           </button>
@@ -113,7 +113,7 @@ export default function SongDeleteDialog({ open, song, onClose, onDeleted }: Son
             type="button"
             onClick={handleDelete}
             disabled={loading}
-            className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-md bg-error-600 px-4 py-2 text-sm font-medium text-white hover:bg-error-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Lösche..." : "Löschen"}
           </button>

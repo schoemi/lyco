@@ -14,14 +14,14 @@ export function RevealLine({ zeile, isRevealed, onReveal }: RevealLineProps) {
   return (
     <div className="space-y-1">
       {/* Original line */}
-      <p className="text-gray-900" style={{ fontSize: "15px" }}>
+      <p className="text-neutral-900" style={{ fontSize: "15px" }}>
         {zeile.text}
       </p>
 
       {/* Translation line – only rendered when translation exists and is revealed */}
       {hasTranslation && isRevealed && (
         <p
-          className="px-2 py-1 text-gray-500 italic"
+          className="px-2 py-1 text-neutral-500 italic"
           style={{ fontSize: "13px" }}
         >
           {zeile.uebersetzung}

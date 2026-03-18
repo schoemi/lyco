@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import { ImportTabs } from "@/components/import/import-tabs";
 import { TextEditor } from "@/components/import/text-editor";
 import { PdfUploader } from "@/components/import/pdf-uploader";
+import { GeniusSearchPanel } from "@/components/import/genius-search-panel";
 import { parseSongtext } from "@/lib/import/songtext-parser";
 import { toImportSongInput } from "@/lib/import/to-import-input";
 import type { ImportMode } from "@/types/import";
@@ -218,12 +219,12 @@ export default function SongImportPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Song importieren</h1>
+      <h1 className="mb-6 text-2xl font-bold text-neutral-900">Song importieren</h1>
 
       <ImportTabs active={activeTab} onChange={setActiveTab} />
 
       {error && (
-        <div role="alert" className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <div role="alert" className="mt-4 rounded-md bg-error-50 p-3 text-sm text-error-700">
           {error}
         </div>
       )}
@@ -234,7 +235,7 @@ export default function SongImportPage() {
           {/* Metadaten */}
           <div className="space-y-4">
             <div>
-              <label htmlFor="titel" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="titel" className="mb-1 block text-sm font-medium text-neutral-700">
                 Titel *
               </label>
               <input
@@ -246,20 +247,20 @@ export default function SongImportPage() {
                 aria-describedby={fieldErrors.titel ? "titel-error" : undefined}
                 value={titel}
                 onChange={(e) => setTitel(e.target.value)}
-                className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  fieldErrors.titel ? "border-red-500" : "border-gray-300"
+                className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500 ${
+                  fieldErrors.titel ? "border-error-500" : "border-neutral-300"
                 }`}
                 placeholder="z.B. Bohemian Rhapsody"
               />
               {fieldErrors.titel && (
-                <p id="titel-error" role="alert" className="mt-1 text-sm text-red-600">
+                <p id="titel-error" role="alert" className="mt-1 text-sm text-error-600">
                   {fieldErrors.titel}
                 </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="kuenstler" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="kuenstler" className="mb-1 block text-sm font-medium text-neutral-700">
                 Künstler
               </label>
               <input
@@ -268,13 +269,13 @@ export default function SongImportPage() {
                 aria-label="Künstler"
                 value={kuenstler}
                 onChange={(e) => setKuenstler(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500"
                 placeholder="z.B. Queen"
               />
             </div>
 
             <div>
-              <label htmlFor="sprache" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="sprache" className="mb-1 block text-sm font-medium text-neutral-700">
                 Sprache
               </label>
               <input
@@ -283,13 +284,13 @@ export default function SongImportPage() {
                 aria-label="Sprache"
                 value={sprache}
                 onChange={(e) => setSprache(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500"
                 placeholder="z.B. Englisch"
               />
             </div>
 
             <div>
-              <label htmlFor="emotionsTags" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="emotionsTags" className="mb-1 block text-sm font-medium text-neutral-700">
                 Emotions-Tags (kommagetrennt)
               </label>
               <input
@@ -298,7 +299,7 @@ export default function SongImportPage() {
                 aria-label="Emotions-Tags"
                 value={emotionsTags}
                 onChange={(e) => setEmotionsTags(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500"
                 placeholder="z.B. Melancholie, Sehnsucht"
               />
             </div>
@@ -307,30 +308,30 @@ export default function SongImportPage() {
           {/* Strophen */}
           <div>
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Strophen</h2>
+              <h2 className="text-lg font-semibold text-neutral-900">Strophen</h2>
               <button
                 type="button"
                 onClick={addStrophe}
                 aria-label="Strophe hinzufügen"
-                className="min-h-[44px] min-w-[44px] rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="min-h-[44px] min-w-[44px] rounded-md bg-newsong-600 px-3 py-2 text-sm font-medium text-white hover:bg-newsong-700 focus:outline-none focus:ring-2 focus:ring-newsong-500 focus:ring-offset-2"
               >
                 + Strophe
               </button>
             </div>
 
             {fieldErrors.strophen && (
-              <p role="alert" className="mb-2 text-sm text-red-600">
+              <p role="alert" className="mb-2 text-sm text-error-600">
                 {fieldErrors.strophen}
               </p>
             )}
 
             <div className="space-y-4">
               {strophen.map((strophe, si) => (
-                <div key={si} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                <div key={si} className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
                   <div className="mb-3 flex items-center justify-between">
                     <label
                       htmlFor={`strophe-name-${si}`}
-                      className="text-sm font-medium text-gray-700"
+                      className="text-sm font-medium text-neutral-700"
                     >
                       Strophe {si + 1} – Name
                     </label>
@@ -339,7 +340,7 @@ export default function SongImportPage() {
                         type="button"
                         onClick={() => removeStrophe(si)}
                         aria-label={`Strophe ${si + 1} entfernen`}
-                        className="min-h-[44px] min-w-[44px] rounded-md bg-red-50 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                        className="min-h-[44px] min-w-[44px] rounded-md bg-error-50 px-3 py-2 text-sm font-medium text-error-700 hover:bg-error-100 focus:outline-none focus:ring-2 focus:ring-error-500 focus:ring-offset-2"
                       >
                         Entfernen
                       </button>
@@ -352,12 +353,12 @@ export default function SongImportPage() {
                     aria-label={`Name der Strophe ${si + 1}`}
                     value={strophe.name}
                     onChange={(e) => updateStrophe(si, "name", e.target.value)}
-                    className="mb-3 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mb-3 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500"
                     placeholder="z.B. Verse 1, Chorus, Bridge"
                   />
 
                   {fieldErrors[`strophen_${si}_zeilen`] && (
-                    <p role="alert" className="mb-2 text-sm text-red-600">
+                    <p role="alert" className="mb-2 text-sm text-error-600">
                       {fieldErrors[`strophen_${si}_zeilen`]}
                     </p>
                   )}
@@ -371,7 +372,7 @@ export default function SongImportPage() {
                             aria-label={`Text der Zeile ${zi + 1} in Strophe ${si + 1}`}
                             value={zeile.text}
                             onChange={(e) => updateZeile(si, zi, "text", e.target.value)}
-                            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500"
                             placeholder="Zeilentext"
                           />
                           <input
@@ -379,7 +380,7 @@ export default function SongImportPage() {
                             aria-label={`Übersetzung der Zeile ${zi + 1} in Strophe ${si + 1}`}
                             value={zeile.uebersetzung}
                             onChange={(e) => updateZeile(si, zi, "uebersetzung", e.target.value)}
-                            className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full rounded-md border border-neutral-200 px-3 py-2 text-sm text-neutral-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500"
                             placeholder="Übersetzung (optional)"
                           />
                         </div>
@@ -388,7 +389,7 @@ export default function SongImportPage() {
                             type="button"
                             onClick={() => removeZeile(si, zi)}
                             aria-label={`Zeile ${zi + 1} aus Strophe ${si + 1} entfernen`}
-                            className="min-h-[44px] min-w-[44px] self-start rounded-md bg-gray-100 px-2 py-2 text-sm text-gray-600 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                            className="min-h-[44px] min-w-[44px] self-start rounded-md bg-neutral-100 px-2 py-2 text-sm text-neutral-600 hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2"
                           >
                             ✕
                           </button>
@@ -401,7 +402,7 @@ export default function SongImportPage() {
                     type="button"
                     onClick={() => addZeile(si)}
                     aria-label={`Zeile zu Strophe ${si + 1} hinzufügen`}
-                    className="mt-2 min-h-[44px] min-w-[44px] rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                    className="mt-2 min-h-[44px] min-w-[44px] rounded-md bg-neutral-100 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2"
                   >
                     + Zeile
                   </button>
@@ -415,7 +416,7 @@ export default function SongImportPage() {
             type="submit"
             disabled={loading}
             aria-label="Song importieren"
-            className="min-h-[44px] w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-h-[44px] w-full rounded-md bg-newsong-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-newsong-700 focus:outline-none focus:ring-2 focus:ring-newsong-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Importiere…" : "Song importieren"}
           </button>
@@ -426,7 +427,7 @@ export default function SongImportPage() {
       <div id="tabpanel-text" role="tabpanel" className={activeTab === "text" ? "" : "hidden"}>
         <div className="mt-6 space-y-4">
           <div>
-            <label htmlFor="text-titel" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="text-titel" className="mb-1 block text-sm font-medium text-neutral-700">
               Titel *
             </label>
             <input
@@ -436,13 +437,13 @@ export default function SongImportPage() {
               aria-required="true"
               value={textTitel}
               onChange={(e) => setTextTitel(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500"
               placeholder="z.B. Bohemian Rhapsody"
             />
           </div>
 
           <div>
-            <label htmlFor="text-kuenstler" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="text-kuenstler" className="mb-1 block text-sm font-medium text-neutral-700">
               Künstler
             </label>
             <input
@@ -451,13 +452,13 @@ export default function SongImportPage() {
               aria-label="Künstler"
               value={textKuenstler}
               onChange={(e) => setTextKuenstler(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500"
               placeholder="z.B. Queen"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1 block text-sm font-medium text-neutral-700">
               Songtext
             </label>
             <TextEditor value={songtext} onChange={setSongtext} />
@@ -468,7 +469,7 @@ export default function SongImportPage() {
             onClick={handleTextImport}
             disabled={loading}
             aria-label="Song importieren"
-            className="min-h-[44px] w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-h-[44px] w-full rounded-md bg-newsong-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-newsong-700 focus:outline-none focus:ring-2 focus:ring-newsong-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Importiere…" : "Song importieren"}
           </button>
@@ -478,7 +479,7 @@ export default function SongImportPage() {
       {/* Tab: PDF Upload */}
       <div id="tabpanel-pdf" role="tabpanel" className={activeTab === "pdf" ? "" : "hidden"}>
         <div className="mt-6 space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-neutral-600">
             Lade eine PDF-Datei mit einem Songtext hoch. Der Text wird automatisch extrahiert und zur Vorschau im Text-Editor angezeigt.
           </p>
           <PdfUploader
@@ -486,6 +487,14 @@ export default function SongImportPage() {
             onError={(msg) => setError(msg)}
           />
         </div>
+      </div>
+
+      {/* Tab: Genius */}
+      <div id="tabpanel-genius" role="tabpanel" className={activeTab === "genius" ? "" : "hidden"}>
+        <GeniusSearchPanel
+          onImportSuccess={(songId) => router.push(`/songs/${songId}`)}
+          onError={() => {}}
+        />
       </div>
     </div>
   );

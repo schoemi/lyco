@@ -23,14 +23,14 @@ export default function TranslationToggle({ checked, onChange }: TranslationTogg
       onKeyDown={handleKeyDown}
       className={`inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
         checked
-          ? "border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100"
-          : "border-gray-300 text-gray-500 bg-white hover:bg-gray-50"
+          ? "border-newsong-300 text-newsong-700 bg-newsong-50 hover:bg-newsong-100"
+          : "border-neutral-300 text-neutral-500 bg-white hover:bg-neutral-50"
       }`}
     >
       <span
         aria-hidden="true"
         className={`relative inline-block h-5 w-9 shrink-0 rounded-full transition-colors ${
-          checked ? "bg-blue-600" : "bg-gray-300"
+          checked ? "bg-newsong-600" : "bg-neutral-300"
         }`}
       >
         <span

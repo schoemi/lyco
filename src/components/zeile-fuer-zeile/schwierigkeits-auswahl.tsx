@@ -41,7 +41,7 @@ export function SchwierigkeitsAuswahl({
     <div
       role="radiogroup"
       aria-label="Schwierigkeitsstufe auswählen"
-      className="flex w-full rounded-lg border border-gray-300 overflow-hidden"
+      className="flex w-full rounded-lg border border-neutral-300 overflow-hidden"
     >
       {SCHWIERIGKEITS_STUFEN.map((stufe, index) => {
         const isActive = stufe === value;
@@ -54,10 +54,10 @@ export function SchwierigkeitsAuswahl({
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(stufe)}
             onKeyDown={(e) => handleKeyDown(e, index)}
-            className={`min-h-[44px] min-w-[44px] flex-1 px-2 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:z-10 ${
+            className={`min-h-[44px] min-w-[44px] flex-1 px-2 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:z-10 ${
               isActive
-                ? "bg-purple-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
+                ? "bg-primary-600 text-white"
+                : "bg-white text-neutral-700 hover:bg-neutral-100"
             }`}
           >
             {SCHWIERIGKEITS_LABELS[stufe]}

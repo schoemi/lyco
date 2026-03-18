@@ -77,11 +77,11 @@ export function InterpretationTab({
               className="mt-4 rounded-lg p-4"
               style={{ backgroundColor: "#EEEDFE" }}
             >
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-neutral-700">
                 Bedeutung dieser Strophe
               </label>
               <textarea
-                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 rows={3}
                 value={currentText}
                 onChange={(e) => handleChange(strophe.id, e.target.value)}

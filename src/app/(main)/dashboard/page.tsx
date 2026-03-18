@@ -4,28 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SetCard } from "@/components/songs/set-card";
 import { SongRow } from "@/components/songs/song-row";
-import SongCreateDialog from "@/components/songs/song-create-dialog";
 import { MetrikKarte } from "@/components/gamification/metrik-karte";
 import { StreakPill } from "@/components/gamification/streak-pill";
 import { SpacedRepetitionWidget } from "@/components/spaced-repetition/spaced-repetition-widget";
-import type { DashboardData, SongWithProgress } from "../../../types/song";
+import type { DashboardData } from "../../../types/song";
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-
-  function handleSongCreated(song: SongWithProgress) {
-    setCreateDialogOpen(false);
-    if (data) {
-      setData({
-        ...data,
-        allSongs: [...data.allSongs, song],
-        totalSongs: data.totalSongs + 1,
-      });
-    }
-  }
 
   useEffect(() => {
     async function fetchDashboard() {
@@ -51,7 +38,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-sm text-gray-500">Dashboard wird geladen…</div>
+        <div className="text-sm text-neutral-500">Dashboard wird geladen…</div>
       </div>
     );
   }
@@ -59,7 +46,7 @@ export default function DashboardPage() {
   if (error) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
+        <div className="rounded-lg border border-error-200 bg-error-50 px-6 py-4 text-sm text-error-700">
           {error}
         </div>
       </div>
@@ -72,7 +59,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
+      <h1 className="text-xl font-bold text-neutral-900">Dashboard</h1>
 
       {/* Spaced Repetition Widget */}
       <SpacedRepetitionWidget faelligeAnzahl={data.faelligeStrophenAnzahl} />
@@ -94,34 +81,28 @@ export default function DashboardPage() {
       {/* Alle Songs */}
       <section className="space-y-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-700">Alle Songs</h2>
-          <button
-            onClick={() => setCreateDialogOpen(true)}
-            className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+          <h2 className="text-sm font-semibold text-neutral-700">Alle Songs</h2>
+          <Link
+            href="/songs/import"
+            className="rounded-md bg-newsong-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-newsong-700"
           >
             + Neuer Song
-          </button>
+          </Link>
         </div>
         {data.allSongs.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-gray-300 px-4 py-8 text-center">
-            <p className="text-sm text-gray-400">Noch keine Songs vorhanden.</p>
-            <div className="mt-2 flex items-center justify-center gap-3">
+          <div className="rounded-lg border border-dashed border-neutral-300 px-4 py-8 text-center">
+            <p className="text-sm text-neutral-400">Noch keine Songs vorhanden.</p>
+            <div className="mt-2 flex items-center justify-center">
               <Link
                 href="/songs/import"
-                className="inline-block text-sm font-medium text-purple-600 hover:text-purple-700"
-              >
-                Song importieren →
-              </Link>
-              <button
-                onClick={() => setCreateDialogOpen(true)}
-                className="inline-block rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+                className="inline-block rounded-md bg-newsong-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-newsong-700"
               >
                 + Neuer Song
-              </button>
+              </Link>
             </div>
           </div>
         ) : (
-          <div className="rounded-lg border border-gray-200 bg-white divide-y divide-gray-100">
+          <div className="rounded-lg border border-neutral-200 bg-white divide-y divide-neutral-100">
             {data.allSongs.map((song) => (
               <SongRow key={song.id} song={song} />
             ))}
@@ -132,7 +113,7 @@ export default function DashboardPage() {
       {/* Sets */}
       {data.sets.length > 0 && (
         <section className="space-y-2">
-          <h2 className="text-sm font-semibold text-gray-700">Sets</h2>
+          <h2 className="text-sm font-semibold text-neutral-700">Sets</h2>
           <div className="space-y-3">
             {data.sets.map((set) => (
               <SetCard key={set.id} set={set} />
@@ -140,12 +121,6 @@ export default function DashboardPage() {
           </div>
         </section>
       )}
-      {/* Song-Erstellen-Dialog */}
-      <SongCreateDialog
-        open={createDialogOpen}
-        onClose={() => setCreateDialogOpen(false)}
-        onCreated={handleSongCreated}
-      />
     </div>
   );
 }

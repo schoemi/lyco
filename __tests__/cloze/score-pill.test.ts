@@ -37,8 +37,8 @@ describe("ScorePill component source", () => {
   });
 
   it("uses green pill styling (Req 1.5)", () => {
-    expect(source).toContain("bg-green-100");
-    expect(source).toContain("text-green-700");
+    expect(source).toContain("bg-success-100");
+    expect(source).toContain("text-success-700");
     expect(source).toContain("rounded-full");
   });
 

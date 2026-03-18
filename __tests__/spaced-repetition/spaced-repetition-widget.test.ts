@@ -41,7 +41,7 @@ describe("SpacedRepetitionWidget component source", () => {
   });
 
   it("uses muted color for zero-due state", () => {
-    expect(source).toContain("text-gray-400");
+    expect(source).toContain("text-neutral-400");
   });
 
   it("uses useRouter for navigation on click", () => {

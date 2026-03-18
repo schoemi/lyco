@@ -18,6 +18,8 @@ describe("buildCoachPrompt", () => {
     erfahrungslevel: "FORTGESCHRITTEN",
     stimmlage: "Tenor",
     genre: "Rock",
+    sprache: "Deutsch",
+    geniusApiKeyMasked: null,
   };
 
   const baseSong = {

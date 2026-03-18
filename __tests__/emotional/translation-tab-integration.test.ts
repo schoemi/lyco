@@ -99,9 +99,9 @@ describe("TranslationTab component source", () => {
   });
 
   it("error message uses red styling", () => {
-    expect(source).toContain("border-red-300");
-    expect(source).toContain("bg-red-50");
-    expect(source).toContain("text-red-700");
+    expect(source).toContain("border-error-300");
+    expect(source).toContain("bg-error-50");
+    expect(source).toContain("text-error-700");
   });
 
   it("displays translateError content", () => {

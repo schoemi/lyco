@@ -42,21 +42,21 @@ describe('StatusPunkt component', () => {
     const { container } = render(React.createElement(StatusPunkt, { fortschritt: 0 }));
     const dot = container.querySelector('span');
     expect(dot).not.toBeNull();
-    expect(dot!.className).toContain('bg-gray-300');
+    expect(dot!.className).toContain('bg-neutral-300');
     expect(dot!.getAttribute('aria-label')).toBe('Fortschritt: 0%');
   });
 
   it('renders an orange dot for 50% progress', () => {
     const { container } = render(React.createElement(StatusPunkt, { fortschritt: 50 }));
     const dot = container.querySelector('span');
-    expect(dot!.className).toContain('bg-orange-400');
+    expect(dot!.className).toContain('bg-warning-400');
     expect(dot!.getAttribute('aria-label')).toBe('Fortschritt: 50%');
   });
 
   it('renders a green dot for 100% progress', () => {
     const { container } = render(React.createElement(StatusPunkt, { fortschritt: 100 }));
     const dot = container.querySelector('span');
-    expect(dot!.className).toContain('bg-green-500');
+    expect(dot!.className).toContain('bg-success-500');
     expect(dot!.getAttribute('aria-label')).toBe('Fortschritt: 100%');
   });
 

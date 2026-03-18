@@ -84,23 +84,23 @@ describe("TranslationToggle component source", () => {
   // --- Visual state: activated (blue) vs deactivated (gray) (Req 5.1, 5.2, 5.3) ---
 
   it("uses blue styling for activated state (Req 5.2)", () => {
-    expect(source).toContain("border-blue-300");
-    expect(source).toContain("text-blue-700");
-    expect(source).toContain("bg-blue-50");
+    expect(source).toContain("border-newsong-300");
+    expect(source).toContain("text-newsong-700");
+    expect(source).toContain("bg-newsong-50");
   });
 
   it("uses gray styling for deactivated state (Req 5.3)", () => {
-    expect(source).toContain("border-gray-300");
-    expect(source).toContain("text-gray-500");
+    expect(source).toContain("border-neutral-300");
+    expect(source).toContain("text-neutral-500");
     expect(source).toContain("bg-white");
   });
 
-  it("uses blue-600 for the toggle track when activated", () => {
-    expect(source).toContain("bg-blue-600");
+  it("uses newsong-600 for the toggle track when activated", () => {
+    expect(source).toContain("bg-newsong-600");
   });
 
-  it("uses gray-300 for the toggle track when deactivated", () => {
-    expect(source).toContain("bg-gray-300");
+  it("uses neutral-300 for the toggle track when deactivated", () => {
+    expect(source).toContain("bg-neutral-300");
   });
 
   it("translates the toggle knob when checked (visual switch)", () => {

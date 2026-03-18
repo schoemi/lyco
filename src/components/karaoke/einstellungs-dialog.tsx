@@ -1,12 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
+import type { AudioQuelleResponse } from "@/types/audio";
 
 interface EinstellungsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   scrollSpeed: number;
   onSpeedChange: (speed: number) => void;
+  audioQuellen?: AudioQuelleResponse[];
+  activeAudioQuelleId?: string | null;
+  onAudioQuelleChange?: (quelleId: string | null) => void;
 }
 
 export function EinstellungsDialog({
@@ -14,6 +18,9 @@ export function EinstellungsDialog({
   onClose,
   scrollSpeed,
   onSpeedChange,
+  audioQuellen,
+  activeAudioQuelleId,
+  onAudioQuelleChange,
 }: EinstellungsDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -49,7 +56,7 @@ export function EinstellungsDialog({
         role="dialog"
         aria-modal="true"
         aria-label="Einstellungen"
-        className="fixed left-1/2 top-1/2 z-50 w-80 -translate-x-1/2 -translate-y-1/2 rounded-xl bg-gray-900 p-6 shadow-2xl"
+        className="fixed left-1/2 top-1/2 z-50 w-80 -translate-x-1/2 -translate-y-1/2 rounded-xl bg-neutral-900 p-6 shadow-2xl"
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-white">Einstellungen</h2>
@@ -91,6 +98,45 @@ export function EinstellungsDialog({
             {scrollSpeed}s
           </span>
         </div>
+
+        {/* Audio source selector */}
+        {audioQuellen && audioQuellen.length > 0 && onAudioQuelleChange && (
+          <div className="mt-5">
+            <label
+              htmlFor="karaoke-audio-quelle"
+              className="mb-2 block text-sm text-white/70"
+            >
+              Audio-Quelle
+            </label>
+            <select
+              id="karaoke-audio-quelle"
+              value={activeAudioQuelleId ?? ""}
+              onChange={(e) =>
+                onAudioQuelleChange(e.target.value || null)
+              }
+              className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/40"
+            >
+              <option value="" className="bg-neutral-900 text-white">
+                Keine
+              </option>
+              {audioQuellen.map((q) => (
+                <option
+                  key={q.id}
+                  value={q.id}
+                  className="bg-neutral-900 text-white"
+                  disabled={q.typ !== "MP3"}
+                >
+                  {q.label || q.typ}{q.typ !== "MP3" ? ` (${q.typ} – nur Embed)` : ""}
+                </option>
+              ))}
+            </select>
+            {activeAudioQuelleId && (
+              <p className="mt-1 text-xs text-white/50">
+                Nur MP3-Quellen können im Karaoke-Modus abgespielt werden.
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </>
   );

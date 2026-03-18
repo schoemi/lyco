@@ -52,7 +52,7 @@ export function StanzaBlock({
 
   return (
     <div className="rounded-lg border bg-white p-4">
-      <div className="mb-2 text-[11px] font-semibold uppercase text-gray-500">
+      <div className="mb-2 text-[11px] font-semibold uppercase text-neutral-500">
         {strophe.name}
       </div>
 

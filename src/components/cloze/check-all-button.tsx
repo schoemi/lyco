@@ -11,7 +11,7 @@ export function CheckAllButton({ disabled, onClick }: CheckAllButtonProps) {
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="w-full bg-purple-600 text-white py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+      className="w-full bg-primary-600 text-white py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
     >
       Alle prüfen
     </button>

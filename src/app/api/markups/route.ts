@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { typ, ziel, stropheId, zeileId, wortIndex, inhalt } = body;
+    const { typ, ziel, stropheId, zeileId, wortIndex, inhalt, timecodeMs } = body;
 
     // Validate typ
     if (!typ || !VALID_MARKUP_TYPEN.includes(typ)) {
@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
       zeileId,
       wortIndex,
       wert: inhalt,
+      timecodeMs,
     });
 
     return NextResponse.json({ markup }, { status: 201 });

@@ -18,10 +18,10 @@ interface PromptSong {
 
 // --- Prompt Builder ---
 
-const SYSTEM_PROMPT =
+const SYSTEM_PROMPT_TEMPLATE = (sprache: string) =>
   "Du bist ein erfahrener Songtext-Analyst mit Fokus auf emotionale Bedeutung.\n" +
   "Analysiere den folgenden Songtext und liefere deine Analyse als JSON-Objekt.\n" +
-  "Antworte in der Sprache des Songtextes.";
+  `Antworte auf ${sprache}.`;
 
 const JSON_TEMPLATE =
   `Liefere ein JSON-Objekt mit folgender Struktur:
@@ -34,7 +34,7 @@ const JSON_TEMPLATE =
   ]
 }`;
 
-export function buildAnalysePrompt(song: PromptSong): LLMMessage[] {
+export function buildAnalysePrompt(song: PromptSong, sprache: string = "Deutsch"): LLMMessage[] {
   const nonEmptyStrophen = song.strophen.filter(
     (s) => s.zeilen && s.zeilen.length > 0
   );
@@ -57,7 +57,7 @@ export function buildAnalysePrompt(song: PromptSong): LLMMessage[] {
   userPrompt += JSON_TEMPLATE;
 
   return [
-    { role: "system", content: SYSTEM_PROMPT },
+    { role: "system", content: SYSTEM_PROMPT_TEMPLATE(sprache) },
     { role: "user", content: userPrompt },
   ];
 }
@@ -208,6 +208,13 @@ export async function analyzeSong(
     throw new AnalyseError("Zugriff verweigert", 403);
   }
 
+  // 2b. Load user sprache
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { sprache: true },
+  });
+  const sprache = user?.sprache || "Deutsch";
+
   // 3. Check if song has strophen with zeilen
   const strophenWithZeilen = song.strophen.filter(
     (s) => s.zeilen && s.zeilen.length > 0
@@ -238,7 +245,7 @@ export async function analyzeSong(
         name: s.name,
         zeilen: s.zeilen.map((z) => ({ text: z.text })),
       })),
-    });
+    }, sprache);
 
     // 6. Call LLM
     const llmClient = createLLMClient();

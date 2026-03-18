@@ -48,11 +48,11 @@ describe("EingabeBereich component source", () => {
   });
 
   it("shows green border when correct (Req 3.5)", () => {
-    expect(source).toContain("border-green-500");
+    expect(source).toContain("border-success-500");
   });
 
   it("shows red border when wrong (Req 3.6)", () => {
-    expect(source).toContain("border-red-500");
+    expect(source).toContain("border-error-500");
   });
 
   it("disables textarea when disabled or status is korrekt/loesung", () => {

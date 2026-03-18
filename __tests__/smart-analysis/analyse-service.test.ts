@@ -31,7 +31,7 @@ describe("buildAnalysePrompt", () => {
 
     expect(system.content).toContain("Songtext-Analyst");
     expect(system.content).toContain("emotionale Bedeutung");
-    expect(system.content).toContain("Sprache des Songtextes");
+    expect(system.content).toContain("Antworte auf Deutsch");
   });
 
   it("user prompt contains title and artist", () => {

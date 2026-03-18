@@ -175,6 +175,9 @@ export async function getSongDetail(
   const song = await prisma.song.findUnique({
     where: { id: songId },
     include: {
+      audioQuellen: {
+        orderBy: { orderIndex: "asc" },
+      },
       strophen: {
         orderBy: { orderIndex: "asc" },
         include: {
@@ -267,6 +270,13 @@ export async function getSongDetail(
     analyse: song.analyse ?? null,
     coachTipp: song.coachTipp ?? null,
     strophen,
+    audioQuellen: song.audioQuellen.map((aq) => ({
+      id: aq.id,
+      url: aq.url,
+      typ: aq.typ,
+      label: aq.label,
+      orderIndex: aq.orderIndex,
+    })),
   };
 }
 

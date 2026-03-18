@@ -17,10 +17,10 @@ export function ScoreScreen({ correct, total, songId, onRepeat }: ScoreScreenPro
   return (
     <div className="flex flex-col items-center gap-6 py-8">
       <div aria-live="polite" className="flex flex-col items-center gap-3 text-center">
-        <p className="text-3xl font-bold text-gray-900">
+        <p className="text-3xl font-bold text-neutral-900">
           {correct} / {total} korrekt
         </p>
-        <p className="text-lg text-gray-600">
+        <p className="text-lg text-neutral-600">
           {empfehlung === "nochmal"
             ? "Nochmal üben"
             : "Weiter zur nächsten Methode"}
@@ -31,13 +31,13 @@ export function ScoreScreen({ correct, total, songId, onRepeat }: ScoreScreenPro
         <button
           type="button"
           onClick={onRepeat}
-          className="w-full rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+          className="w-full rounded-lg bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
         >
           Quiz wiederholen
         </button>
         <Link
           href={`/songs/${songId}`}
-          className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+          className="w-full rounded-lg border border-neutral-200 bg-white px-4 py-3 text-center text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
         >
           Zurück zur Song-Seite
         </Link>

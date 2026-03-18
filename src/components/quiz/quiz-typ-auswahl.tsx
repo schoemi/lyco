@@ -32,10 +32,10 @@ export function QuizTypAuswahl({ onSelect }: QuizTypAuswahlProps) {
           key={typ}
           type="button"
           onClick={() => onSelect(typ)}
-          className="flex flex-col items-center gap-2 rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm transition-colors hover:border-purple-400 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+          className="flex flex-col items-center gap-2 rounded-lg border border-neutral-200 bg-white p-6 text-center shadow-sm transition-colors hover:border-primary-400 hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
         >
-          <span className="text-lg font-semibold text-gray-900">{name}</span>
-          <span className="text-sm text-gray-600">{beschreibung}</span>
+          <span className="text-lg font-semibold text-neutral-900">{name}</span>
+          <span className="text-sm text-neutral-600">{beschreibung}</span>
         </button>
       ))}
     </div>

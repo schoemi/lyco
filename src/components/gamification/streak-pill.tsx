@@ -11,7 +11,7 @@ export function StreakPill({ streak }: StreakPillProps) {
 
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-3 py-1 text-sm font-medium text-orange-700"
+      className="inline-flex items-center gap-1 rounded-full bg-warning-100 px-3 py-1 text-sm font-medium text-warning-700"
       aria-label={text}
       role="status"
     >

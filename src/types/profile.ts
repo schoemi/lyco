@@ -7,6 +7,8 @@ export interface ProfileData {
   erfahrungslevel: "ANFAENGER" | "FORTGESCHRITTEN" | "ERFAHREN" | "PROFI" | null;
   stimmlage: string | null;
   genre: string | null;
+  sprache: string;
+  geniusApiKeyMasked: string | null;
 }
 
 export interface UpdateProfileInput {
@@ -16,6 +18,8 @@ export interface UpdateProfileInput {
   erfahrungslevel?: "ANFAENGER" | "FORTGESCHRITTEN" | "ERFAHREN" | "PROFI" | null;
   stimmlage?: string | null;
   genre?: string | null;
+  sprache?: string;
+  geniusApiKey?: string;
 }
 
 export interface ChangePasswordInput {

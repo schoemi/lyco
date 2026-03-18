@@ -4,6 +4,7 @@ import {
   validatePassword,
   hashPassword,
 } from "@/lib/services/auth-service";
+import { encryptApiKey, decryptApiKey, maskApiKey } from "@/lib/genius/api-key-store";
 import type {
   ProfileData,
   UpdateProfileInput,
@@ -27,6 +28,8 @@ const profileSelect = {
   erfahrungslevel: true,
   stimmlage: true,
   genre: true,
+  sprache: true,
+  geniusApiKeyEncrypted: true,
 } as const;
 
 export async function getProfile(userId: string): Promise<ProfileData> {
@@ -39,7 +42,19 @@ export async function getProfile(userId: string): Promise<ProfileData> {
     throw new Error("Benutzer nicht gefunden");
   }
 
-  return user as ProfileData;
+  let geniusApiKeyMasked: string | null = null;
+  if (user.geniusApiKeyEncrypted) {
+    try {
+      const plaintext = decryptApiKey(user.geniusApiKeyEncrypted);
+      geniusApiKeyMasked = maskApiKey(plaintext);
+    } catch {
+      // If decryption fails (corrupted data), treat as no key
+      geniusApiKeyMasked = null;
+    }
+  }
+
+  const { geniusApiKeyEncrypted: _, ...rest } = user;
+  return { ...rest, geniusApiKeyMasked } as ProfileData;
 }
 
 export async function updateProfile(
@@ -89,6 +104,18 @@ export async function updateProfile(
     }
   }
 
+  // Handle geniusApiKey: encrypt non-empty, null for empty
+  let geniusApiKeyData: { geniusApiKeyEncrypted: string | null } | undefined;
+  if (data.geniusApiKey !== undefined) {
+    if (data.geniusApiKey.trim().length > 0) {
+      geniusApiKeyData = {
+        geniusApiKeyEncrypted: encryptApiKey(data.geniusApiKey),
+      };
+    } else {
+      geniusApiKeyData = { geniusApiKeyEncrypted: null };
+    }
+  }
+
   const user = await prisma.user.update({
     where: { id: userId },
     data: {
@@ -100,11 +127,24 @@ export async function updateProfile(
       }),
       ...(data.stimmlage !== undefined && { stimmlage: data.stimmlage }),
       ...(data.genre !== undefined && { genre: data.genre }),
+      ...(data.sprache !== undefined && { sprache: data.sprache }),
+      ...geniusApiKeyData,
     },
     select: profileSelect,
   });
 
-  return user as ProfileData;
+  let geniusApiKeyMasked: string | null = null;
+  if (user.geniusApiKeyEncrypted) {
+    try {
+      const plaintext = decryptApiKey(user.geniusApiKeyEncrypted);
+      geniusApiKeyMasked = maskApiKey(plaintext);
+    } catch {
+      geniusApiKeyMasked = null;
+    }
+  }
+
+  const { geniusApiKeyEncrypted: _, ...rest } = user;
+  return { ...rest, geniusApiKeyMasked } as ProfileData;
 }
 
 export async function changePassword(

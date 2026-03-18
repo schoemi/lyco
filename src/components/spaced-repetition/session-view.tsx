@@ -67,8 +67,8 @@ export function SessionView({ strophen, songTitel, onComplete }: SessionViewProp
   if (sessionAbgeschlossen) {
     return (
       <div className="flex flex-col items-center gap-4 py-12 text-center">
-        <p className="text-2xl font-semibold text-gray-900">Session abgeschlossen!</p>
-        <p className="text-lg text-gray-600">
+        <p className="text-2xl font-semibold text-neutral-900">Session abgeschlossen!</p>
+        <p className="text-lg text-neutral-600">
           {gewusstAnzahl} von {gesamt} gewusst
         </p>
       </div>
@@ -79,8 +79,8 @@ export function SessionView({ strophen, songTitel, onComplete }: SessionViewProp
     <div className="flex flex-col gap-6">
       {/* Header mit Fortschritt */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">{songTitel}</h2>
-        <span className="text-sm text-gray-500">
+        <h2 className="text-lg font-semibold text-neutral-900">{songTitel}</h2>
+        <span className="text-sm text-neutral-500">
           {erledigt} / {gesamt} erledigt
         </span>
       </div>
@@ -102,7 +102,7 @@ export function SessionView({ strophen, songTitel, onComplete }: SessionViewProp
             type="button"
             disabled={bewertungLaedt}
             onClick={() => handleBewertung(true)}
-            className="flex-1 rounded-lg bg-green-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+            className="flex-1 rounded-lg bg-success-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-success-700 disabled:opacity-50"
           >
             Gewusst
           </button>
@@ -110,7 +110,7 @@ export function SessionView({ strophen, songTitel, onComplete }: SessionViewProp
             type="button"
             disabled={bewertungLaedt}
             onClick={() => handleBewertung(false)}
-            className="flex-1 rounded-lg bg-red-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+            className="flex-1 rounded-lg bg-error-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-error-700 disabled:opacity-50"
           >
             Nicht gewusst
           </button>
@@ -120,14 +120,14 @@ export function SessionView({ strophen, songTitel, onComplete }: SessionViewProp
       {/* Ergebnis nach Bewertung */}
       {bewertet && intervallTage !== null && (
         <div className="flex flex-col items-center gap-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-neutral-600">
             Nächste Wiederholung in {intervallTage}{" "}
             {intervallTage === 1 ? "Tag" : "Tagen"}
           </p>
           <button
             type="button"
             onClick={handleWeiter}
-            className="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+            className="rounded-lg bg-newsong-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-newsong-700"
           >
             {aktuellerIndex + 1 < gesamt ? "Weiter" : "Abschließen"}
           </button>

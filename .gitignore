@@ -37,3 +37,6 @@ storybook-static/
 
 # planning files
 /.planning
+
+# Uploaded audio files
+data/uploads/

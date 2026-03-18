@@ -14,6 +14,7 @@ interface SongActionMenuProps {
   onAnalyze: () => void;
   onTranslate: () => void;
   onEdit: () => void;
+  onEditText: () => void;
   onDelete: () => void;
   onZielspracheChange: (sprache: string) => void;
   onShowTranslationsChange: (show: boolean) => void;
@@ -28,6 +29,7 @@ export default function SongActionMenu({
   onAnalyze,
   onTranslate,
   onEdit,
+  onEditText,
   onDelete,
   onZielspracheChange,
   onShowTranslationsChange,
@@ -72,7 +74,7 @@ export default function SongActionMenu({
         aria-expanded={open}
         aria-haspopup="true"
         aria-label="Aktionen"
-        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md border border-gray-300 bg-white px-2 py-1.5 text-gray-700 hover:bg-gray-50"
+        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-neutral-700 hover:bg-neutral-50"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -92,7 +94,7 @@ export default function SongActionMenu({
         <div
           ref={menuRef}
           role="menu"
-          className="absolute right-0 top-full z-50 mt-1 w-64 rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+          className="absolute right-0 top-full z-50 mt-1 w-64 rounded-lg border border-neutral-200 bg-white py-1 shadow-lg"
         >
           {/* Analysieren */}
           <button
@@ -103,12 +105,12 @@ export default function SongActionMenu({
               setOpen(false);
             }}
             disabled={analyzing}
-            className="flex w-full items-center px-4 py-2.5 text-sm text-purple-700 hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex w-full items-center px-4 py-2.5 text-sm text-primary-700 hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {analyzing ? "Analysiert…" : "🔍 Analysieren"}
           </button>
 
-          <div className="border-t border-gray-100 my-1" />
+          <div className="border-t border-neutral-100 my-1" />
 
           {/* Zielsprache + Übersetzen */}
           <div className="px-4 py-2.5 space-y-2">
@@ -123,7 +125,7 @@ export default function SongActionMenu({
             }} />
           </div>
 
-          <div className="border-t border-gray-100 my-1" />
+          <div className="border-t border-neutral-100 my-1" />
 
           {/* Bearbeiten */}
           <button
@@ -133,9 +135,22 @@ export default function SongActionMenu({
               onEdit();
               setOpen(false);
             }}
-            className="flex w-full items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+            className="flex w-full items-center px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50"
           >
             ✏️ Bearbeiten
+          </button>
+
+          {/* Volltext bearbeiten */}
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              onEditText();
+              setOpen(false);
+            }}
+            className="flex w-full items-center px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50"
+          >
+            📝 Text bearbeiten
           </button>
 
           {/* Löschen */}
@@ -146,7 +161,7 @@ export default function SongActionMenu({
               onDelete();
               setOpen(false);
             }}
-            className="flex w-full items-center px-4 py-2.5 text-sm text-red-700 hover:bg-red-50"
+            className="flex w-full items-center px-4 py-2.5 text-sm text-error-700 hover:bg-error-50"
           >
             🗑️ Löschen
           </button>
@@ -154,7 +169,7 @@ export default function SongActionMenu({
           {/* Übersetzung Toggle */}
           {hasTranslations && (
             <>
-              <div className="border-t border-gray-100 my-1" />
+              <div className="border-t border-neutral-100 my-1" />
               <div className="px-4 py-2.5">
                 <TranslationToggle
                   checked={showTranslations}

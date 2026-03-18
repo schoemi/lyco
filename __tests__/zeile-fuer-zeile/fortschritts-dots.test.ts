@@ -49,16 +49,16 @@ describe("FortschrittsDots component source", () => {
     expect(source).toMatch(/Array\.from\(\{.*length:\s*totalZeilen/s);
   });
 
-  it("uses bg-purple-600 for the active/current dot (Req 5.2)", () => {
-    expect(source).toContain("bg-purple-600");
+  it("uses bg-primary-600 for the active/current dot (Req 5.2)", () => {
+    expect(source).toContain("bg-primary-600");
   });
 
-  it("uses bg-green-500 for completed dots (Req 5.3)", () => {
-    expect(source).toContain("bg-green-500");
+  it("uses bg-success-500 for completed dots (Req 5.3)", () => {
+    expect(source).toContain("bg-success-500");
   });
 
-  it("uses border-gray-300 for pending dots (Req 5.4)", () => {
-    expect(source).toContain("border-gray-300");
+  it("uses border-neutral-300 for pending dots (Req 5.4)", () => {
+    expect(source).toContain("border-neutral-300");
   });
 
   it("checks completedIndices.has(i) for completed state", () => {

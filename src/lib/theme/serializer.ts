@@ -42,6 +42,8 @@ export function getDefaultTheme(): ThemeConfig {
       secondaryButton: '#3b82f6',
       newSongButton: '#7c3aed',
       translationToggle: '#3b82f6',
+      info: '#eab308',
+      neutral: '#6b7280',
     },
     typography: {
       headlineFont: DEFAULT_FONT,
@@ -172,6 +174,8 @@ function validateColors(raw: unknown, defaults: ThemeColors): ThemeColors {
     secondaryButton: hexField('secondaryButton'),
     newSongButton: hexField('newSongButton'),
     translationToggle: hexField('translationToggle'),
+    info: hexField('info'),
+    neutral: hexField('neutral'),
   };
 }
 
@@ -266,6 +270,42 @@ export function themeToCssVars(config: ThemeConfig): string {
     lines.push(`--color-accent-${step}: ${accentPalette[step]};`);
   }
 
+  // Generate newSongButton palette (used for general action buttons / links)
+  const newSongPalette = generatePalette(config.colors.newSongButton);
+  for (const step of PALETTE_STEPS) {
+    lines.push(`--color-newsong-${step}: ${newSongPalette[step]};`);
+  }
+
+  // Generate success palette
+  const successPalette = generatePalette(config.colors.success);
+  for (const step of PALETTE_STEPS) {
+    lines.push(`--color-success-${step}: ${successPalette[step]};`);
+  }
+
+  // Generate warning palette
+  const warningPalette = generatePalette(config.colors.warning);
+  for (const step of PALETTE_STEPS) {
+    lines.push(`--color-warning-${step}: ${warningPalette[step]};`);
+  }
+
+  // Generate error palette
+  const errorPalette = generatePalette(config.colors.error);
+  for (const step of PALETTE_STEPS) {
+    lines.push(`--color-error-${step}: ${errorPalette[step]};`);
+  }
+
+  // Generate info palette
+  const infoPalette = generatePalette(config.colors.info);
+  for (const step of PALETTE_STEPS) {
+    lines.push(`--color-info-${step}: ${infoPalette[step]};`);
+  }
+
+  // Generate neutral palette
+  const neutralPalette = generatePalette(config.colors.neutral);
+  for (const step of PALETTE_STEPS) {
+    lines.push(`--color-neutral-${step}: ${neutralPalette[step]};`);
+  }
+
   // Direct colour values
   lines.push(`--color-border: ${config.colors.border};`);
   lines.push(`--color-page-bg: ${config.colors.pageBg};`);
@@ -276,6 +316,7 @@ export function themeToCssVars(config: ThemeConfig): string {
   lines.push(`--color-success: ${config.colors.success};`);
   lines.push(`--color-warning: ${config.colors.warning};`);
   lines.push(`--color-error: ${config.colors.error};`);
+  lines.push(`--color-info: ${config.colors.info};`);
   lines.push(`--color-btn-primary: ${config.colors.primaryButton};`);
   lines.push(`--color-btn-secondary: ${config.colors.secondaryButton};`);
   lines.push(`--color-btn-new-song: ${config.colors.newSongButton};`);

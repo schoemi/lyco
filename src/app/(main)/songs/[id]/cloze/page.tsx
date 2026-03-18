@@ -255,7 +255,7 @@ export default function ClozePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-sm text-gray-500">Song wird geladen…</div>
+        <div className="text-sm text-neutral-500">Song wird geladen…</div>
       </div>
     );
   }
@@ -263,7 +263,7 @@ export default function ClozePage() {
   if (error) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
+        <div className="rounded-lg border border-error-200 bg-error-50 px-6 py-4 text-sm text-error-700">
           {error}
         </div>
       </div>
@@ -278,7 +278,7 @@ export default function ClozePage() {
     return (
       <div className="space-y-4">
         <ClozeNavbar songId={id} songTitle={song.titel} />
-        <div className="px-4 py-10 text-center text-sm text-gray-500">
+        <div className="px-4 py-10 text-center text-sm text-neutral-500">
           Dieser Song hat noch keine Strophen
         </div>
       </div>
@@ -305,7 +305,7 @@ export default function ClozePage() {
         <button
           type="button"
           onClick={() => setDialogOpen(true)}
-          className="min-h-[44px] rounded bg-purple-100 px-4 py-2 text-sm font-medium text-purple-700 hover:bg-purple-200"
+          className="min-h-[44px] rounded bg-primary-100 px-4 py-2 text-sm font-medium text-primary-700 hover:bg-primary-200"
         >
           Strophen auswählen
         </button>

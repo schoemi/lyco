@@ -44,7 +44,7 @@ describe("TextEditor", () => {
   });
 
   it("contains highlighting logic for [Section] markers", () => {
-    expect(source).toContain("text-purple-600");
+    expect(source).toContain("text-primary-600");
     expect(source).toContain("font-bold");
   });
 

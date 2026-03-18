@@ -13,12 +13,12 @@ export function MetrikKarte({ label, value, fortschrittsbalken }: MetrikKartePro
       : undefined;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-gray-900">{value}</p>
+    <div className="rounded-lg border border-neutral-200 bg-white p-4">
+      <p className="text-sm text-neutral-500">{label}</p>
+      <p className="mt-1 text-2xl font-semibold text-neutral-900">{value}</p>
       {clampedProgress != null && (
         <div
-          className="mt-2 h-2 w-full rounded-full bg-gray-200"
+          className="mt-2 h-2 w-full rounded-full bg-neutral-200"
           role="progressbar"
           aria-valuenow={clampedProgress}
           aria-valuemin={0}
@@ -26,7 +26,7 @@ export function MetrikKarte({ label, value, fortschrittsbalken }: MetrikKartePro
           aria-label={`${label}: ${clampedProgress}%`}
         >
           <div
-            className="h-2 rounded-full bg-blue-500 transition-all"
+            className="h-2 rounded-full bg-newsong-500 transition-all"
             style={{ width: `${clampedProgress}%` }}
           />
         </div>

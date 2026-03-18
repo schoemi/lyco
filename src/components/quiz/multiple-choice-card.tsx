@@ -24,21 +24,21 @@ export function MultipleChoiceCard({
 
   const getButtonClasses = (index: number): string => {
     const base =
-      "w-full rounded-lg border px-4 py-3 text-left text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed";
+      "w-full rounded-lg border px-4 py-3 text-left text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed";
 
     if (selected === null) {
-      return `${base} border-gray-200 bg-white text-gray-900 hover:border-purple-400 hover:bg-purple-50`;
+      return `${base} border-neutral-200 bg-white text-neutral-900 hover:border-primary-400 hover:bg-primary-50`;
     }
 
     if (index === question.correctIndex) {
-      return `${base} border-green-500 bg-green-50 text-green-800`;
+      return `${base} border-success-500 bg-success-50 text-success-800`;
     }
 
     if (index === selected && selected !== question.correctIndex) {
-      return `${base} border-red-500 bg-red-50 text-red-800`;
+      return `${base} border-error-500 bg-error-50 text-error-800`;
     }
 
-    return `${base} border-gray-200 bg-gray-50 text-gray-400`;
+    return `${base} border-neutral-200 bg-neutral-50 text-neutral-400`;
   };
 
   const feedbackText =
@@ -51,9 +51,9 @@ export function MultipleChoiceCard({
   return (
     <div className="flex flex-col gap-4">
       {question.contextHint && (
-        <p className="text-xs text-gray-400 italic">{question.contextHint}</p>
+        <p className="text-xs text-neutral-400 italic">{question.contextHint}</p>
       )}
-      <p className="text-[14px] text-gray-900">{question.prompt}</p>
+      <p className="text-[14px] text-neutral-900">{question.prompt}</p>
 
       <div role="radiogroup" aria-label="Antwortoptionen" className="flex flex-col gap-2">
         {question.options.map((option, index) => (
@@ -76,8 +76,8 @@ export function MultipleChoiceCard({
           <p
             className={`text-sm font-medium ${
               selected === question.correctIndex
-                ? "text-green-700"
-                : "text-red-700"
+                ? "text-success-700"
+                : "text-error-700"
             }`}
           >
             {feedbackText}
@@ -89,7 +89,7 @@ export function MultipleChoiceCard({
         <button
           type="button"
           onClick={onWeiter}
-          className="w-full rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+          className="w-full rounded-lg bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
         >
           Weiter
         </button>

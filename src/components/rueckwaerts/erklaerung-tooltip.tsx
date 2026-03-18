@@ -74,12 +74,12 @@ export function ErklaerungTooltip({ visible, onClose }: ErklaerungTooltipProps) 
       >
         <h2
           id="erklaerung-tooltip-title"
-          className="mb-3 text-lg font-semibold text-gray-900"
+          className="mb-3 text-lg font-semibold text-neutral-900"
         >
           Warum von hinten?
         </h2>
 
-        <p className="mb-5 text-sm leading-relaxed text-gray-600">
+        <p className="mb-5 text-sm leading-relaxed text-neutral-600">
           Beim normalen Lernen kennt man den Anfang eines Songs oft auswendig,
           wird aber zur Mitte hin unsicher – das ist der sogenannte
           Primacy-Effekt. Indem du mit der letzten Strophe beginnst, baust du
@@ -93,7 +93,7 @@ export function ErklaerungTooltip({ visible, onClose }: ErklaerungTooltipProps) 
             type="button"
             onClick={onClose}
             aria-label="Erklärung schließen"
-            className="min-h-[44px] min-w-[44px] rounded bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700"
+            className="min-h-[44px] min-w-[44px] rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
           >
             Verstanden
           </button>

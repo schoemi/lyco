@@ -37,7 +37,7 @@ describe("CheckAllButton component source", () => {
 
   it("uses primary purple styling with full width (Req 6.1)", () => {
     expect(source).toContain("w-full");
-    expect(source).toContain("bg-purple-600");
+    expect(source).toContain("bg-primary-600");
     expect(source).toContain("text-white");
     expect(source).toContain("py-3");
     expect(source).toContain("rounded-lg");
