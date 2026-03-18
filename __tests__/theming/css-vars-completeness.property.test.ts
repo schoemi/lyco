@@ -111,6 +111,9 @@ const arbKaraokeTheme: fc.Arbitrary<KaraokeTheme> = fc.record({
   activeLineSize: arbKaraokeActiveSize,
   readLineSize: arbPxSize,
   unreadLineSize: arbPxSize,
+  bgFrom: arbHexColor,
+  bgVia: arbHexColor,
+  bgTo: arbHexColor,
 });
 
 const arbThemeConfig: fc.Arbitrary<ThemeConfig> = fc.record({
@@ -150,6 +153,9 @@ const KARAOKE_VARS = [
   '--karaoke-active-size',
   '--karaoke-read-size',
   '--karaoke-unread-size',
+  '--karaoke-bg-from',
+  '--karaoke-bg-via',
+  '--karaoke-bg-to',
 ];
 
 const TYPOGRAPHY_VARS = [
@@ -234,6 +240,9 @@ describe('Property 2: CSS-Variablen-Vollständigkeit', () => {
         expect(parsed['--karaoke-active-size']).toBe(config.karaoke.activeLineSize);
         expect(parsed['--karaoke-read-size']).toBe(config.karaoke.readLineSize);
         expect(parsed['--karaoke-unread-size']).toBe(config.karaoke.unreadLineSize);
+        expect(parsed['--karaoke-bg-from']).toBe(config.karaoke.bgFrom);
+        expect(parsed['--karaoke-bg-via']).toBe(config.karaoke.bgVia);
+        expect(parsed['--karaoke-bg-to']).toBe(config.karaoke.bgTo);
 
         // Typography values
         expect(parsed['--font-headline']).toBe(config.typography.headlineFont);

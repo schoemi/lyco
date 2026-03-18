@@ -14,7 +14,7 @@ export function NavigationsButtons({
   isLastLine,
 }: NavigationsButtonsProps) {
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex items-center gap-1">
       <button
         onClick={onPrev}
         disabled={isFirstLine}

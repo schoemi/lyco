@@ -459,6 +459,21 @@ export default function ThemingEditorPage() {
               value={theme.karaoke.unreadLineColor}
               onChange={(v) => updateKaraoke("unreadLineColor", v)}
             />
+            <ColorField
+              label="Hintergrund Von"
+              value={theme.karaoke.bgFrom}
+              onChange={(v) => updateKaraoke("bgFrom", v)}
+            />
+            <ColorField
+              label="Hintergrund Mitte"
+              value={theme.karaoke.bgVia}
+              onChange={(v) => updateKaraoke("bgVia", v)}
+            />
+            <ColorField
+              label="Hintergrund Bis"
+              value={theme.karaoke.bgTo}
+              onChange={(v) => updateKaraoke("bgTo", v)}
+            />
           </Section>
 
           {/* Typography: Headline, Copy, Label */}

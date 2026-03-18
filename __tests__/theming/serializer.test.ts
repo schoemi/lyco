@@ -223,6 +223,9 @@ describe('themeToCssVars', () => {
     expect(css).toContain('--karaoke-active-size:');
     expect(css).toContain('--karaoke-read-size:');
     expect(css).toContain('--karaoke-unread-size:');
+    expect(css).toContain('--karaoke-bg-from:');
+    expect(css).toContain('--karaoke-bg-via:');
+    expect(css).toContain('--karaoke-bg-to:');
 
     // Typography
     expect(css).toContain('--font-headline:');

@@ -131,6 +131,12 @@ export interface KaraokeTheme {
   readLineSize: string;
   /** Font size of unread lines */
   unreadLineSize: string;
+  /** Gradient start colour (top-left) for karaoke background */
+  bgFrom: string;
+  /** Gradient middle colour for karaoke background */
+  bgVia: string;
+  /** Gradient end colour (bottom-right) for karaoke background */
+  bgTo: string;
 }
 
 // ---------------------------------------------------------------------------

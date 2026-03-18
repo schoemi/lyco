@@ -122,6 +122,9 @@ const arbThemeConfigWithDistinctKaraokeColors: fc.Arbitrary<ThemeConfig> = fc
     arbKaraokeActiveSize,
     arbPxSize, // readLineSize
     arbPxSize, // unreadLineSize
+    arbHexColor, // bgFrom
+    arbHexColor, // bgVia
+    arbHexColor, // bgTo
   )
   .map(([
     appName, primary, accent, border, pageBg, cardBg,
@@ -129,6 +132,7 @@ const arbThemeConfigWithDistinctKaraokeColors: fc.Arbitrary<ThemeConfig> = fc
     success, warning, error,
     primaryButton, secondaryButton, newSongButton, translationToggle,
     typography, karaokeColors, activeLineSize, readLineSize, unreadLineSize,
+    bgFrom, bgVia, bgTo,
   ]) => {
     const colors: ThemeColors = {
       primary,
@@ -154,6 +158,9 @@ const arbThemeConfigWithDistinctKaraokeColors: fc.Arbitrary<ThemeConfig> = fc
       activeLineSize,
       readLineSize,
       unreadLineSize,
+      bgFrom,
+      bgVia,
+      bgTo,
     };
     return { appName, colors, typography, karaoke } as ThemeConfig;
   });

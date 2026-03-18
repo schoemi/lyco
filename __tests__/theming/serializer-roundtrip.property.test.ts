@@ -115,6 +115,9 @@ const arbKaraokeTheme: fc.Arbitrary<KaraokeTheme> = fc.record({
   activeLineSize: arbKaraokeActiveSize,
   readLineSize: arbPxSize,
   unreadLineSize: arbPxSize,
+  bgFrom: arbHexColor,
+  bgVia: arbHexColor,
+  bgTo: arbHexColor,
 });
 
 /** Generates a valid ThemeConfig object. */

@@ -64,6 +64,9 @@ export function getDefaultTheme(): ThemeConfig {
       activeLineSize: '28px',
       readLineSize: '20px',
       unreadLineSize: '18px',
+      bgFrom: '#312e81',
+      bgVia: '#581c87',
+      bgTo: '#0f172a',
     },
   };
 }
@@ -233,6 +236,9 @@ function validateKaraoke(raw: unknown, defaults: KaraokeTheme): KaraokeTheme {
     activeLineSize: sizeField('activeLineSize'),
     readLineSize: sizeField('readLineSize'),
     unreadLineSize: sizeField('unreadLineSize'),
+    bgFrom: colorField('bgFrom'),
+    bgVia: colorField('bgVia'),
+    bgTo: colorField('bgTo'),
   };
 }
 
@@ -282,6 +288,9 @@ export function themeToCssVars(config: ThemeConfig): string {
   lines.push(`--karaoke-active-size: ${config.karaoke.activeLineSize};`);
   lines.push(`--karaoke-read-size: ${config.karaoke.readLineSize};`);
   lines.push(`--karaoke-unread-size: ${config.karaoke.unreadLineSize};`);
+  lines.push(`--karaoke-bg-from: ${config.karaoke.bgFrom};`);
+  lines.push(`--karaoke-bg-via: ${config.karaoke.bgVia};`);
+  lines.push(`--karaoke-bg-to: ${config.karaoke.bgTo};`);
 
   // Typography
   lines.push(`--font-headline: ${config.typography.headlineFont};`);

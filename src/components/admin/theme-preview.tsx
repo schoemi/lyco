@@ -218,7 +218,9 @@ export default function ThemePreview({ themeConfig }: ThemePreviewProps) {
         </h3>
         <div
           className="rounded-lg p-4 space-y-1"
-          style={{ backgroundColor: "#1f2937" }}
+          style={{
+            background: `linear-gradient(to bottom right, var(--karaoke-bg-from, #312e81), var(--karaoke-bg-via, #581c87), var(--karaoke-bg-to, #0f172a))`,
+          }}
         >
           <p
             style={{
