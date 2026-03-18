@@ -224,7 +224,7 @@ export default function ThemingEditorPage() {
     (key: keyof ThemeConfig["colors"], value: string) => {
       setTheme((prev) => {
         const next = cloneTheme(prev);
-        (next.colors as Record<string, unknown>)[key] = value;
+        (next.colors as unknown as Record<string, unknown>)[key] = value;
         return next;
       });
     },

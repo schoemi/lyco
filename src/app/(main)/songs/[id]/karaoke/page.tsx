@@ -12,6 +12,8 @@ import {
 } from "@/lib/karaoke/storage";
 import { useAutoScroll } from "@/lib/karaoke/use-auto-scroll";
 import { useKaraokeKeyboard } from "@/lib/karaoke/use-karaoke-keyboard";
+import { useKaraokeWheel } from "@/lib/karaoke/use-karaoke-wheel";
+import { useKaraokeSwipe } from "@/lib/karaoke/use-karaoke-swipe";
 import { KaraokeView } from "@/components/karaoke/karaoke-view";
 import { EinstellungsDialog } from "@/components/karaoke/einstellungs-dialog";
 
@@ -131,6 +133,12 @@ export default function KaraokePage() {
     onToggleAutoScroll: toggle,
     onEscape: onBack,
   });
+
+  // Scroll navigation (mouse wheel / touchpad)
+  useKaraokeWheel({ onNext, onPrev });
+
+  // Swipe navigation (mobile touch)
+  useKaraokeSwipe({ onNext, onPrev });
 
   // --- Render states ---
 
