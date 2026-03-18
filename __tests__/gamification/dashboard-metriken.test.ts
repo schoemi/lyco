@@ -48,6 +48,7 @@ function makeSong(overrides: Partial<SongWithProgress> & { id: string }): SongWi
     kuenstler: null,
     sprache: null,
     emotionsTags: [],
+    coverUrl: null,
     progress: 0,
     sessionCount: 0,
     status: "neu",

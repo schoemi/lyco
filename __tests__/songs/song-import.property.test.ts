@@ -266,6 +266,7 @@ function setupMocks() {
     return {
       ...song,
       strophen: songStrophen,
+      audioQuellen: [],
     } as any;
   });
 }

@@ -15,4 +15,5 @@ export interface GeniusImportRequest {
   title: string;
   artist: string;
   geniusUrl: string;
+  albumArt?: string;
 }

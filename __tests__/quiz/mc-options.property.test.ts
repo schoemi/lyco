@@ -74,6 +74,7 @@ const arbSongDetail = fc
       kuenstler: null,
       sprache: null,
       emotionsTags: [],
+      coverUrl: null,
       progress: 0,
       sessionCount: 0,
       analyse: null,

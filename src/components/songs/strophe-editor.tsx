@@ -5,17 +5,21 @@ import type { StropheDetail, ZeileDetail } from "../../types/song";
 import ZeileEditor from "./zeile-editor";
 import TimecodeEingabe from "@/components/songs/timecode-eingabe";
 import { formatTimecode } from "@/lib/audio/timecode";
+import type { StrophenViewMode } from "./strophen-view-toggle";
+import { ZeileMarkupView } from "./zeile-markup-view";
+import { stripChordPro } from "@/lib/vocal-tag/chordpro-parser";
+import type { TagDefinitionData } from "@/types/vocal-tag";
 
 interface StropheEditorProps {
   songId: string;
   strophen: StropheDetail[];
   onStrophenChanged: (strophen: StropheDetail[]) => void;
   editing?: boolean;
-  showTranslations?: boolean;
+  viewMode?: StrophenViewMode;
   onSeekTo?: (timecodeMs: number) => void;
 }
 
-export default function StropheEditor({ songId, strophen, onStrophenChanged, editing: isEditing = true, showTranslations = true, onSeekTo }: StropheEditorProps) {
+export default function StropheEditor({ songId, strophen, onStrophenChanged, editing: isEditing = true, viewMode = "normal", onSeekTo }: StropheEditorProps) {
   const [statusMessage, setStatusMessage] = useState("");
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [addName, setAddName] = useState("");
@@ -31,6 +35,7 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [reorderLoading, setReorderLoading] = useState(false);
+  const [tagDefinitions, setTagDefinitions] = useState<TagDefinitionData[]>([]);
 
   const addNameInputRef = useRef<HTMLInputElement>(null);
   const editNameInputRef = useRef<HTMLInputElement>(null);
@@ -71,6 +76,23 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   });
+
+  // Fetch tag definitions for markup view
+  useEffect(() => {
+    if (viewMode !== "markup") return;
+    let cancelled = false;
+    async function fetchTags() {
+      try {
+        const res = await fetch("/api/tag-definitions");
+        if (!res.ok) return;
+        const data = await res.json();
+        const defs: TagDefinitionData[] = Array.isArray(data) ? data : data.definitions ?? [];
+        if (!cancelled) setTagDefinitions(defs);
+      } catch { /* ignore */ }
+    }
+    if (tagDefinitions.length === 0) fetchTags();
+    return () => { cancelled = true; };
+  }, [viewMode]);
 
   function showStatus(msg: string) {
     setStatusMessage(msg);
@@ -299,8 +321,14 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
                   <div className="space-y-0.5">
                     {sortedZeilen.map((zeile) => (
                       <div key={zeile.id}>
-                        <p className="text-sm text-neutral-900">{zeile.text}</p>
-                        {showTranslations && zeile.uebersetzung && (
+                        {viewMode === "markup" && tagDefinitions.length > 0 ? (
+                          <p className="text-sm text-neutral-900">
+                            <ZeileMarkupView text={zeile.text} tagDefinitions={tagDefinitions} />
+                          </p>
+                        ) : (
+                          <p className="text-sm text-neutral-900">{stripChordPro(zeile.text)}</p>
+                        )}
+                        {viewMode === "translation" && zeile.uebersetzung && (
                           <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
                         )}
                       </div>
@@ -338,8 +366,37 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
                 <TimecodeEingabe
                   stropheId={strophe.id}
                   initialTimecodeMs={timecodeMarkup?.timecodeMs ?? null}
-                  onTimecodeChanged={() => {
-                    // Refresh handled by parent via onStrophenChanged if needed
+                  existingMarkupId={timecodeMarkup?.id ?? null}
+                  onTimecodeChanged={(timecodeMs, markupId) => {
+                    const updatedStrophen = strophen.map((s) => {
+                      if (s.id !== strophe.id) return s;
+                      const existingIdx = s.markups.findIndex(
+                        (m) => m.typ === "TIMECODE" && m.ziel === "STROPHE"
+                      );
+                      let updatedMarkups = [...s.markups];
+                      if (timecodeMs === null) {
+                        // Timecode cleared — remove markup from local state
+                        if (existingIdx >= 0) updatedMarkups.splice(existingIdx, 1);
+                      } else if (existingIdx >= 0) {
+                        // Update existing markup
+                        updatedMarkups[existingIdx] = {
+                          ...updatedMarkups[existingIdx],
+                          timecodeMs,
+                        };
+                      } else if (markupId) {
+                        // New markup created
+                        updatedMarkups.push({
+                          id: markupId,
+                          typ: "TIMECODE",
+                          ziel: "STROPHE",
+                          wert: null,
+                          timecodeMs,
+                          wortIndex: null,
+                        });
+                      }
+                      return { ...s, markups: updatedMarkups };
+                    });
+                    onStrophenChanged(updatedStrophen);
                   }}
                 />
               </div>
@@ -464,7 +521,7 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
               songId={songId}
               stropheId={strophe.id}
               zeilen={strophe.zeilen}
-              showTranslations={showTranslations}
+              viewMode={viewMode}
               onZeilenChanged={(updatedZeilen: ZeileDetail[]) => {
                 const updatedStrophen = strophen.map((s) =>
                   s.id === strophe.id ? { ...s, zeilen: updatedZeilen } : s

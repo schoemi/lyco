@@ -52,6 +52,7 @@ export async function listSongs(userId: string): Promise<SongWithProgress[]> {
       kuenstler: song.kuenstler,
       sprache: song.sprache,
       emotionsTags: song.emotionsTags,
+      coverUrl: song.coverUrl ?? null,
       progress,
       sessionCount: song._count.sessions,
       status: deriveSongStatus(progress),
@@ -101,6 +102,7 @@ export async function importSong(
         kuenstler: data.kuenstler ?? null,
         sprache: data.sprache ?? null,
         emotionsTags: data.emotionsTags ?? [],
+        coverUrl: data.coverUrl ?? null,
         userId,
       },
     });
@@ -265,6 +267,7 @@ export async function getSongDetail(
     kuenstler: song.kuenstler,
     sprache: song.sprache,
     emotionsTags: song.emotionsTags,
+    coverUrl: song.coverUrl ?? null,
     progress,
     sessionCount,
     analyse: song.analyse ?? null,
@@ -303,6 +306,7 @@ export async function updateSong(
   if (data.sprache !== undefined) updateData.sprache = data.sprache;
   if (data.emotionsTags !== undefined)
     updateData.emotionsTags = data.emotionsTags;
+  if (data.coverUrl !== undefined) updateData.coverUrl = data.coverUrl;
 
   return prisma.song.update({
     where: { id: songId },

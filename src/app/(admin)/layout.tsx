@@ -66,6 +66,16 @@ export default function AdminLayout({
               >
                 Theming
               </Link>
+              <Link
+                href="/admin/vocal-tags"
+                className={`text-sm font-medium ${
+                  pathname?.startsWith("/admin/vocal-tags")
+                    ? "text-newsong-600"
+                    : "text-neutral-600 hover:text-neutral-900"
+                }`}
+              >
+                Vocal Tags
+              </Link>
             </div>
             <UserMenu userName={userName} isAdmin />
           </div>

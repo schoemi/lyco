@@ -2,6 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ZeileDetail } from "../../types/song";
+import type { TagDefinitionData } from "@/types/vocal-tag";
+import type { StrophenViewMode } from "./strophen-view-toggle";
+import { ZeileTagInput } from "./zeile-tag-input";
+import { ZeileMarkupView } from "./zeile-markup-view";
+import { stripChordPro } from "@/lib/vocal-tag/chordpro-parser";
 
 interface ZeileEditorProps {
   songId: string;
@@ -9,10 +14,10 @@ interface ZeileEditorProps {
   zeilen: ZeileDetail[];
   onZeilenChanged: (zeilen: ZeileDetail[]) => void;
   editing?: boolean;
-  showTranslations?: boolean;
+  viewMode?: StrophenViewMode;
 }
 
-export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged, editing: isEditing = true, showTranslations = true }: ZeileEditorProps) {
+export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged, editing: isEditing = true, viewMode = "normal" }: ZeileEditorProps) {
   const [statusMessage, setStatusMessage] = useState("");
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [addText, setAddText] = useState("");
@@ -30,6 +35,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [reorderLoading, setReorderLoading] = useState(false);
+  const [tagDefinitions, setTagDefinitions] = useState<TagDefinitionData[]>([]);
 
   const addTextInputRef = useRef<HTMLInputElement>(null);
   const editTextInputRef = useRef<HTMLInputElement>(null);
@@ -70,6 +76,24 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   });
+
+  // Fetch tag definitions for vocal tag support
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchTags() {
+      try {
+        const res = await fetch("/api/tag-definitions");
+        if (!res.ok) return;
+        const data = await res.json();
+        const defs: TagDefinitionData[] = Array.isArray(data) ? data : data.definitions ?? [];
+        if (!cancelled) setTagDefinitions(defs);
+      } catch {
+        // silently ignore – tag toolbar just won't show
+      }
+    }
+    fetchTags();
+    return () => { cancelled = true; };
+  }, []);
 
   function showStatus(msg: string) {
     setStatusMessage(msg);
@@ -281,8 +305,14 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
       <div className="space-y-0.5">
         {sorted.map((zeile) => (
           <div key={zeile.id}>
-            <p className="text-sm text-neutral-900">{zeile.text}</p>
-            {showTranslations && zeile.uebersetzung && (
+            {viewMode === "markup" && tagDefinitions.length > 0 ? (
+              <p className="text-sm text-neutral-900">
+                <ZeileMarkupView text={zeile.text} tagDefinitions={tagDefinitions} />
+              </p>
+            ) : (
+              <p className="text-sm text-neutral-900">{stripChordPro(zeile.text)}</p>
+            )}
+            {viewMode === "translation" && zeile.uebersetzung && (
               <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
             )}
           </div>
@@ -311,22 +341,38 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
                 <label htmlFor={`edit-zeile-text-${zeile.id}`} className="block text-sm font-medium text-neutral-700">
                   Text
                 </label>
-                <input
-                  ref={editTextInputRef}
-                  id={`edit-zeile-text-${zeile.id}`}
-                  type="text"
-                  value={editText}
-                  onChange={(e) => {
-                    setEditText(e.target.value);
-                    if (editValidationError) setEditValidationError(null);
-                  }}
-                  aria-required="true"
-                  aria-invalid={editValidationError !== null}
-                  aria-describedby={editValidationError ? `edit-zeile-text-error-${zeile.id}` : undefined}
-                  className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500 ${
-                    editValidationError ? "border-error-500" : "border-neutral-300"
-                  }`}
-                />
+                {tagDefinitions.length > 0 ? (
+                  <ZeileTagInput
+                    id={`edit-zeile-text-${zeile.id}`}
+                    value={editText}
+                    onChange={(text) => {
+                      setEditText(text);
+                      if (editValidationError) setEditValidationError(null);
+                    }}
+                    tagDefinitions={tagDefinitions}
+                    ariaRequired
+                    ariaInvalid={editValidationError !== null}
+                    ariaDescribedBy={editValidationError ? `edit-zeile-text-error-${zeile.id}` : undefined}
+                    ariaLabel={`Zeile ${idx + 1} Text bearbeiten`}
+                  />
+                ) : (
+                  <input
+                    ref={editTextInputRef}
+                    id={`edit-zeile-text-${zeile.id}`}
+                    type="text"
+                    value={editText}
+                    onChange={(e) => {
+                      setEditText(e.target.value);
+                      if (editValidationError) setEditValidationError(null);
+                    }}
+                    aria-required="true"
+                    aria-invalid={editValidationError !== null}
+                    aria-describedby={editValidationError ? `edit-zeile-text-error-${zeile.id}` : undefined}
+                    className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500 ${
+                      editValidationError ? "border-error-500" : "border-neutral-300"
+                    }`}
+                  />
+                )}
                 {editValidationError && (
                   <p id={`edit-zeile-text-error-${zeile.id}`} className="mt-1 text-sm text-error-600" role="alert">
                     {editValidationError}
@@ -371,8 +417,8 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
             /* Display mode */
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-neutral-900">{zeile.text}</p>
-                {showTranslations && zeile.uebersetzung && (
+                <p className="text-sm text-neutral-900">{stripChordPro(zeile.text)}</p>
+                {viewMode === "translation" && zeile.uebersetzung && (
                   <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
                 )}
               </div>
@@ -424,23 +470,39 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
             <label htmlFor={`add-zeile-text-${stropheId}`} className="block text-sm font-medium text-neutral-700">
               Text
             </label>
-            <input
-              ref={addTextInputRef}
-              id={`add-zeile-text-${stropheId}`}
-              type="text"
-              value={addText}
-              onChange={(e) => {
-                setAddText(e.target.value);
-                if (addValidationError) setAddValidationError(null);
-              }}
-              aria-required="true"
-              aria-invalid={addValidationError !== null}
-              aria-describedby={addValidationError ? `add-zeile-text-error-${stropheId}` : undefined}
-              placeholder="Zeilentext eingeben"
-              className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500 ${
-                addValidationError ? "border-error-500" : "border-neutral-300"
-              }`}
-            />
+            {tagDefinitions.length > 0 ? (
+              <ZeileTagInput
+                id={`add-zeile-text-${stropheId}`}
+                value={addText}
+                onChange={(text) => {
+                  setAddText(text);
+                  if (addValidationError) setAddValidationError(null);
+                }}
+                tagDefinitions={tagDefinitions}
+                ariaRequired
+                ariaInvalid={addValidationError !== null}
+                ariaDescribedBy={addValidationError ? `add-zeile-text-error-${stropheId}` : undefined}
+                ariaLabel="Neue Zeile Text"
+              />
+            ) : (
+              <input
+                ref={addTextInputRef}
+                id={`add-zeile-text-${stropheId}`}
+                type="text"
+                value={addText}
+                onChange={(e) => {
+                  setAddText(e.target.value);
+                  if (addValidationError) setAddValidationError(null);
+                }}
+                aria-required="true"
+                aria-invalid={addValidationError !== null}
+                aria-describedby={addValidationError ? `add-zeile-text-error-${stropheId}` : undefined}
+                placeholder="Zeilentext eingeben"
+                className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500 ${
+                  addValidationError ? "border-error-500" : "border-neutral-300"
+                }`}
+              />
+            )}
             {addValidationError && (
               <p id={`add-zeile-text-error-${stropheId}`} className="mt-1 text-sm text-error-600" role="alert">
                 {addValidationError}

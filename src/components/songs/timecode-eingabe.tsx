@@ -6,18 +6,20 @@ import { parseTimecode, formatTimecode, isValidTimecode } from "@/lib/audio/time
 interface TimecodeEingabeProps {
   stropheId: string;
   initialTimecodeMs: number | null;
-  onTimecodeChanged: (timecodeMs: number | null) => void;
+  existingMarkupId?: string | null;
+  onTimecodeChanged: (timecodeMs: number | null, markupId?: string) => void;
 }
 
 export default function TimecodeEingabe({
   stropheId,
   initialTimecodeMs,
+  existingMarkupId = null,
   onTimecodeChanged,
 }: TimecodeEingabeProps) {
   const [inputValue, setInputValue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [markupId, setMarkupId] = useState<string | null>(null);
+  const [markupId, setMarkupId] = useState<string | null>(existingMarkupId);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Initialize input value from initialTimecodeMs
@@ -28,6 +30,11 @@ export default function TimecodeEingabe({
       setInputValue("");
     }
   }, [initialTimecodeMs]);
+
+  // Sync markupId when prop changes (e.g. after parent re-fetches)
+  useEffect(() => {
+    setMarkupId(existingMarkupId);
+  }, [existingMarkupId]);
 
   async function saveTimecode() {
     setError(null);
@@ -42,13 +49,13 @@ export default function TimecodeEingabe({
 
     // Validate format
     if (!isValidTimecode(trimmed)) {
-      setError("Ungültiges Format. Erwartet: [mm:ss]");
+      setError("Ungültiges Format. Erwartet: mm:ss oder Sekunden");
       return;
     }
 
     const timecodeMs = parseTimecode(trimmed);
     if (timecodeMs === null) {
-      setError("Ungültiges Format. Erwartet: [mm:ss]");
+      setError("Ungültiges Format. Erwartet: mm:ss oder Sekunden");
       return;
     }
 
@@ -89,7 +96,9 @@ export default function TimecodeEingabe({
         setMarkupId(data.markup.id);
       }
 
-      onTimecodeChanged(timecodeMs);
+      onTimecodeChanged(timecodeMs, data.markup?.id ?? markupId ?? undefined);
+      // Normalize display to [mm:ss] format
+      setInputValue(formatTimecode(timecodeMs));
     } catch {
       setError("Netzwerkfehler");
     } finally {
@@ -124,7 +133,7 @@ export default function TimecodeEingabe({
         }}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        placeholder="[mm:ss]"
+        placeholder="mm:ss"
         disabled={saving}
         aria-invalid={error !== null}
         aria-describedby={error ? `timecode-error-${stropheId}` : undefined}

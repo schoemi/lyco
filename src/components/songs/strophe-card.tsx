@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ProgressBar } from "@/components/songs/progress-bar";
 import { formatTimecode } from "@/lib/audio/timecode";
+import { stripChordPro } from "@/lib/vocal-tag/chordpro-parser";
 import type { StropheDetail } from "../../types/song";
 
 interface StropheCardProps {
@@ -75,7 +76,7 @@ export function StropheCard({ strophe, onSeekTo }: StropheCardProps) {
       <div className="space-y-1">
         {strophe.zeilen.map((zeile) => (
           <div key={zeile.id} className="text-sm">
-            <p className="text-neutral-800">{zeile.text}</p>
+            <p className="text-neutral-800">{stripChordPro(zeile.text)}</p>
             {zeile.uebersetzung && (
               <p className="text-xs text-neutral-400 italic">
                 {zeile.uebersetzung}

@@ -14,8 +14,10 @@ import type { AudioPlayerHandle } from "@/components/songs/audio-player";
 import StickyPlayerBar from "@/components/songs/sticky-player-bar";
 import { SharedAudioProvider } from "@/components/songs/shared-audio-provider";
 import AudioQuellenManager from "@/components/songs/audio-quellen-manager";
+import CoverManager from "@/components/songs/cover-manager";
 import { usePlayerVisibility } from "@/hooks/use-player-visibility";
 import { useTranslation } from "@/hooks/use-translation";
+import { StrophenViewToggle, type StrophenViewMode } from "@/components/songs/strophen-view-toggle";
 import type { SongDetail, StropheDetail } from "../../../../types/song";
 import type { SongAnalyseResult } from "@/types/song";
 
@@ -40,7 +42,7 @@ export default function SongDetailPage() {
   const [analyseError, setAnalyseError] = useState<string | null>(null);
   const [enrolling, setEnrolling] = useState(false);
 
-  const [showTranslations, setShowTranslations] = useState(true);
+  const [viewMode, setViewMode] = useState<StrophenViewMode>("normal");
 
   const playerRef = useRef<AudioPlayerHandle>(null);
   const { ref: playerContainerRef, isVisible: isPlayerVisible } = usePlayerVisibility<HTMLDivElement>();
@@ -205,14 +207,14 @@ export default function SongDetailPage() {
               translating={translating}
               zielsprache={zielsprache}
               hasTranslations={hasTranslations}
-              showTranslations={showTranslations}
+              showTranslations={viewMode === "translation"}
               onAnalyze={handleAnalyze}
               onTranslate={handleTranslate}
               onEdit={() => setEditing(true)}
               onEditText={() => setEditingText(true)}
               onDelete={() => setDeleteDialogOpen(true)}
               onZielspracheChange={setZielsprache}
-              onShowTranslationsChange={setShowTranslations}
+              onShowTranslationsChange={(show) => setViewMode(show ? "translation" : "normal")}
             />
           )}
         </div>
@@ -401,7 +403,16 @@ export default function SongDetailPage() {
 
       {/* Strophes */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-neutral-900">Strophen</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold text-neutral-900">Strophen</h2>
+          {!editing && !editingText && (
+            <StrophenViewToggle
+              mode={viewMode}
+              onChange={setViewMode}
+              hasTranslations={hasTranslations}
+            />
+          )}
+        </div>
         {editingText ? (
           <SongTextEditor
             song={song}
@@ -417,10 +428,20 @@ export default function SongDetailPage() {
             strophen={song.strophen}
             onStrophenChanged={(strophen) => setSong({ ...song, strophen })}
             editing={editing}
-            showTranslations={showTranslations}
+            viewMode={viewMode}
             onSeekTo={handleSeekTo}
           />
         )}
+      </div>
+
+      {/* Cover-Bild */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-neutral-900">Cover-Bild</h2>
+        <CoverManager
+          songId={id}
+          coverUrl={song.coverUrl}
+          onCoverChanged={refreshSong}
+        />
       </div>
 
       {/* Audio-Quellen-Manager */}

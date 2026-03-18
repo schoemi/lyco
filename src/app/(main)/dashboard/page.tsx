@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SetCard } from "@/components/songs/set-card";
-import { SongRow } from "@/components/songs/song-row";
+import { SongCardGrid } from "@/components/songs/song-card-grid";
 import { MetrikKarte } from "@/components/gamification/metrik-karte";
 import { StreakPill } from "@/components/gamification/streak-pill";
 import { SpacedRepetitionWidget } from "@/components/spaced-repetition/spaced-repetition-widget";
@@ -102,11 +102,7 @@ export default function DashboardPage() {
             </div>
           </div>
         ) : (
-          <div className="rounded-lg border border-neutral-200 bg-white divide-y divide-neutral-100">
-            {data.allSongs.map((song) => (
-              <SongRow key={song.id} song={song} />
-            ))}
-          </div>
+          <SongCardGrid songs={data.allSongs} />
         )}
       </section>
 

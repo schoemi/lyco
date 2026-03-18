@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = (await request.json()) as GeniusImportRequest;
-    const { geniusId, title, artist, geniusUrl } = body;
+    const { geniusId, title, artist, geniusUrl, albumArt } = body;
 
     let apiKey: string;
     try {
@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
     const song = await importSong(session.user.id, {
       titel: title,
       kuenstler: artist,
+      coverUrl: albumArt,
       strophen: parsed.strophen.map((s) => ({
         name: s.name,
         zeilen: s.zeilen.map((z) => ({ text: z })),

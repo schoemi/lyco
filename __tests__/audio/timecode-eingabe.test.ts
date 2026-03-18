@@ -43,28 +43,28 @@ function renderEingabe(
 }
 
 describe("TimecodeEingabe Unit-Tests", () => {
-  it("renders input with placeholder [mm:ss]", () => {
+  it("renders input with placeholder mm:ss", () => {
     renderEingabe();
-    const input = screen.getByPlaceholderText("[mm:ss]");
+    const input = screen.getByPlaceholderText("mm:ss");
     expect(input).toBeDefined();
   });
 
   it("displays formatted initialTimecodeMs", () => {
     // 90 seconds = 1:30 = [01:30]
     renderEingabe({ initialTimecodeMs: 90000 });
-    const input = screen.getByPlaceholderText("[mm:ss]") as HTMLInputElement;
+    const input = screen.getByPlaceholderText("mm:ss") as HTMLInputElement;
     expect(input.value).toBe("[01:30]");
   });
 
   it("displays empty input when initialTimecodeMs is null", () => {
     renderEingabe({ initialTimecodeMs: null });
-    const input = screen.getByPlaceholderText("[mm:ss]") as HTMLInputElement;
+    const input = screen.getByPlaceholderText("mm:ss") as HTMLInputElement;
     expect(input.value).toBe("");
   });
 
   it("shows validation error for invalid timecode on blur", async () => {
     renderEingabe();
-    const input = screen.getByPlaceholderText("[mm:ss]");
+    const input = screen.getByPlaceholderText("mm:ss");
 
     fireEvent.change(input, { target: { value: "invalid" } });
     fireEvent.blur(input);
@@ -77,7 +77,7 @@ describe("TimecodeEingabe Unit-Tests", () => {
 
   it("shows validation error for invalid timecode on Enter", async () => {
     renderEingabe();
-    const input = screen.getByPlaceholderText("[mm:ss]");
+    const input = screen.getByPlaceholderText("mm:ss");
 
     fireEvent.change(input, { target: { value: "[99:60]" } });
     fireEvent.keyDown(input, { key: "Enter" });
@@ -96,7 +96,7 @@ describe("TimecodeEingabe Unit-Tests", () => {
     global.fetch = mockFetch;
 
     renderEingabe({ onTimecodeChanged });
-    const input = screen.getByPlaceholderText("[mm:ss]");
+    const input = screen.getByPlaceholderText("mm:ss");
 
     fireEvent.change(input, { target: { value: "[01:30]" } });
     fireEvent.keyDown(input, { key: "Enter" });
@@ -112,7 +112,7 @@ describe("TimecodeEingabe Unit-Tests", () => {
           timecodeMs: 90000,
         }),
       });
-      expect(onTimecodeChanged).toHaveBeenCalledWith(90000);
+      expect(onTimecodeChanged).toHaveBeenCalledWith(90000, "markup-1");
     });
   });
 
@@ -130,14 +130,14 @@ describe("TimecodeEingabe Unit-Tests", () => {
     global.fetch = mockFetch;
 
     renderEingabe({ onTimecodeChanged });
-    const input = screen.getByPlaceholderText("[mm:ss]");
+    const input = screen.getByPlaceholderText("mm:ss");
 
     // First save: creates markup
     fireEvent.change(input, { target: { value: "[01:30]" } });
     fireEvent.keyDown(input, { key: "Enter" });
 
     await waitFor(() => {
-      expect(onTimecodeChanged).toHaveBeenCalledWith(90000);
+      expect(onTimecodeChanged).toHaveBeenCalledWith(90000, "markup-1");
     });
 
     // Second save: updates markup
@@ -150,14 +150,14 @@ describe("TimecodeEingabe Unit-Tests", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ timecodeMs: 120000 }),
       });
-      expect(onTimecodeChanged).toHaveBeenCalledWith(120000);
+      expect(onTimecodeChanged).toHaveBeenCalledWith(120000, "markup-1");
     });
   });
 
   it("calls onTimecodeChanged(null) when input is cleared", async () => {
     const onTimecodeChanged = vi.fn();
     renderEingabe({ initialTimecodeMs: 90000, onTimecodeChanged });
-    const input = screen.getByPlaceholderText("[mm:ss]");
+    const input = screen.getByPlaceholderText("mm:ss");
 
     fireEvent.change(input, { target: { value: "" } });
     fireEvent.blur(input);
@@ -175,7 +175,7 @@ describe("TimecodeEingabe Unit-Tests", () => {
     global.fetch = mockFetch;
 
     renderEingabe();
-    const input = screen.getByPlaceholderText("[mm:ss]");
+    const input = screen.getByPlaceholderText("mm:ss");
 
     fireEvent.change(input, { target: { value: "[01:30]" } });
     fireEvent.keyDown(input, { key: "Enter" });
@@ -190,7 +190,7 @@ describe("TimecodeEingabe Unit-Tests", () => {
     global.fetch = mockFetch;
 
     renderEingabe();
-    const input = screen.getByPlaceholderText("[mm:ss]");
+    const input = screen.getByPlaceholderText("mm:ss");
 
     fireEvent.change(input, { target: { value: "[01:30]" } });
     fireEvent.blur(input);
@@ -202,7 +202,7 @@ describe("TimecodeEingabe Unit-Tests", () => {
 
   it("clears error when user types again", async () => {
     renderEingabe();
-    const input = screen.getByPlaceholderText("[mm:ss]");
+    const input = screen.getByPlaceholderText("mm:ss");
 
     // Trigger error
     fireEvent.change(input, { target: { value: "invalid" } });

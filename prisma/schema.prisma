@@ -146,6 +146,7 @@ model Song {
   emotionsTags String[] @default([])
   analyse      String?
   coachTipp    String?
+  coverUrl     String?
   userId       String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -313,4 +314,18 @@ model AudioQuelle {
   song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
 
   @@map("audio_quellen")
+}
+
+model TagDefinition {
+  id       String @id @default(cuid())
+  tag      String @unique
+  label    String
+  icon     String
+  color    String
+  indexNr  Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tag_definitions")
 }

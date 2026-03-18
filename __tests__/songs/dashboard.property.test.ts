@@ -123,6 +123,7 @@ describe("Property 16: Dashboard-Aggregation", () => {
             kuenstler: s.kuenstler,
             sprache: s.sprache,
             emotionsTags: s.emotionsTags,
+            coverUrl: null,
             progress: s.progress,
             sessionCount: s.sessionCount,
             status,

@@ -19,6 +19,7 @@ export interface UpdateSongInput {
   kuenstler?: string;
   sprache?: string;
   emotionsTags?: string[];
+  coverUrl?: string | null;
 }
 
 export interface ImportStropheInput {
@@ -46,6 +47,7 @@ export interface ImportSongInput {
   kuenstler?: string;
   sprache?: string;
   emotionsTags?: string[];
+  coverUrl?: string;
   strophen: ImportStropheInput[];
 }
 
@@ -80,6 +82,7 @@ export interface SongWithProgress {
   kuenstler: string | null;
   sprache: string | null;
   emotionsTags: string[];
+  coverUrl: string | null;
   progress: number;
   sessionCount: number;
   status: "neu" | "aktiv" | "gelernt";
@@ -91,6 +94,7 @@ export interface SongDetail {
   kuenstler: string | null;
   sprache: string | null;
   emotionsTags: string[];
+  coverUrl: string | null;
   progress: number;
   sessionCount: number;
   analyse: string | null;
