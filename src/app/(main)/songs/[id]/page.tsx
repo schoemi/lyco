@@ -11,7 +11,10 @@ import SongActionMenu from "@/components/songs/song-action-menu";
 import SongTextEditor from "@/components/songs/song-text-editor";
 import AudioPlayer from "@/components/songs/audio-player";
 import type { AudioPlayerHandle } from "@/components/songs/audio-player";
+import StickyPlayerBar from "@/components/songs/sticky-player-bar";
+import { SharedAudioProvider } from "@/components/songs/shared-audio-provider";
 import AudioQuellenManager from "@/components/songs/audio-quellen-manager";
+import { usePlayerVisibility } from "@/hooks/use-player-visibility";
 import { useTranslation } from "@/hooks/use-translation";
 import type { SongDetail, StropheDetail } from "../../../../types/song";
 import type { SongAnalyseResult } from "@/types/song";
@@ -40,6 +43,7 @@ export default function SongDetailPage() {
   const [showTranslations, setShowTranslations] = useState(true);
 
   const playerRef = useRef<AudioPlayerHandle>(null);
+  const { ref: playerContainerRef, isVisible: isPlayerVisible } = usePlayerVisibility<HTMLDivElement>();
 
   const {
     translating,
@@ -315,10 +319,17 @@ export default function SongDetailPage() {
 
       {/* Audio Player */}
       {song.audioQuellen.length > 0 && (
-        <AudioPlayer
-          ref={playerRef}
-          audioQuellen={song.audioQuellen}
-        />
+        <SharedAudioProvider audioQuellen={song.audioQuellen}>
+          <div ref={playerContainerRef}>
+            <AudioPlayer
+              ref={playerRef}
+              audioQuellen={song.audioQuellen}
+            />
+          </div>
+
+          {/* Sticky bottom player when scrolled past */}
+          <StickyPlayerBar visible={!isPlayerVisible} />
+        </SharedAudioProvider>
       )}
 
       {/* Learning modes */}

@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_VERSION } from "@/lib/version";
 import { useAppName } from "@/hooks/use-app-name";
+import UserMenu from "@/components/user-menu";
 
 export default function MainLayout({
   children,
@@ -14,18 +14,18 @@ export default function MainLayout({
 }>) {
   const pathname = usePathname();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userName, setUserName] = useState("");
   const appName = useAppName();
 
   useEffect(() => {
     fetch("/api/auth/session")
       .then((r) => r.json())
-      .then((data) => setIsAdmin(data?.user?.role === "ADMIN"))
+      .then((data) => {
+        setIsAdmin(data?.user?.role === "ADMIN");
+        setUserName(data?.user?.name ?? "");
+      })
       .catch(() => {});
   }, []);
-
-  async function handleLogout() {
-    await signOut({ redirectTo: "/login" });
-  }
 
   return (
     <div className="min-h-screen bg-page-bg">
@@ -40,44 +40,18 @@ export default function MainLayout({
               >
                 {appName}
               </Link>
-              <div className="flex items-center gap-3 sm:gap-4">
-                <Link
-                  href="/dashboard"
-                  className={`text-sm font-medium ${
-                    pathname === "/dashboard"
-                      ? "text-newsong-600"
-                      : "text-neutral-600 hover:text-neutral-900"
-                  }`}
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/profile"
-                  className={`text-sm font-medium ${
-                    pathname === "/profile"
-                      ? "text-newsong-600"
-                      : "text-neutral-600 hover:text-neutral-900"
-                  }`}
-                >
-                  Profil
-                </Link>
-                {isAdmin && (
-                  <Link
-                    href="/admin/users"
-                    className="text-sm font-medium text-neutral-600 hover:text-neutral-900"
-                  >
-                    Admin
-                  </Link>
-                )}
-              </div>
+              <Link
+                href="/dashboard"
+                className={`text-sm font-medium ${
+                  pathname === "/dashboard"
+                    ? "text-newsong-600"
+                    : "text-neutral-600 hover:text-neutral-900"
+                }`}
+              >
+                Dashboard
+              </Link>
             </div>
-            <button
-              onClick={handleLogout}
-              aria-label="Abmelden"
-              className="rounded-md bg-neutral-100 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-newsong-500 focus:ring-offset-2"
-            >
-              Abmelden
-            </button>
+            <UserMenu userName={userName} isAdmin={isAdmin} />
           </div>
         </div>
       </nav>
