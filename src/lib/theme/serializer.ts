@@ -409,3 +409,217 @@ export function deriveButtonStates(baseHex: string): { hover: string; focus: str
 
   return { hover, focus };
 }
+
+// ---------------------------------------------------------------------------
+// Theme_JSON deserialization and validation (Anforderungen: 9.2, 9.3, 9.5, 10.4, 11.2)
+// ---------------------------------------------------------------------------
+
+/** The currently supported Theme_JSON format version. */
+const THEME_JSON_VERSION = 1;
+
+/**
+ * Extracts the plain value from an annotated value or a plain value.
+ * Handles both `{ value: "...", description: "..." }` and plain `"..."` formats.
+ */
+function extractValue(raw: unknown): unknown {
+  if (typeof raw === 'object' && raw !== null && 'value' in raw) {
+    return (raw as Record<string, unknown>).value;
+  }
+  return raw;
+}
+
+/**
+ * Extracts a flat record of plain values from an annotated section object.
+ * Each key's value is unwrapped from AnnotatedValue format if needed.
+ */
+function extractSection(raw: unknown): Record<string, unknown> {
+  if (typeof raw !== 'object' || raw === null) return {};
+  const obj = raw as Record<string, unknown>;
+  const result: Record<string, unknown> = {};
+  for (const key of Object.keys(obj)) {
+    if (key === 'description') continue;
+    result[key] = extractValue(obj[key]);
+  }
+  return result;
+}
+
+/**
+ * Converts an annotated variant section (light/dark from Theme_JSON) into
+ * a plain ThemeConfig by unwrapping AnnotatedValue wrappers and ignoring
+ * description fields.
+ */
+function variantToThemeConfig(variant: unknown): ThemeConfig {
+  if (typeof variant !== 'object' || variant === null) {
+    return getDefaultTheme();
+  }
+
+  const obj = variant as Record<string, unknown>;
+  const defaults = getDefaultTheme();
+
+  // Extract appName (may be annotated or plain)
+  const rawAppName = extractValue(obj.appName);
+  const appName = typeof rawAppName === 'string'
+    ? (rawAppName === '' ? defaults.appName : rawAppName.slice(0, APP_NAME_MAX_LENGTH))
+    : defaults.appName;
+
+  // Extract sub-sections
+  const colorsRaw = extractSection(obj.colors);
+  const typographyRaw = extractSection(obj.typography);
+  const karaokeRaw = extractSection(obj.karaoke);
+
+  // Reuse existing validation helpers
+  const colors = validateColors(colorsRaw, defaults.colors);
+  const typography = validateTypography(typographyRaw, defaults.typography);
+  const karaoke = validateKaraoke(karaokeRaw, defaults.karaoke);
+
+  return { appName, colors, typography, karaoke };
+}
+
+/**
+ * Deserializes a Theme_JSON string (the export format with version, name,
+ * light, dark sections). Ignores `description` fields and extracts only
+ * the `value` fields from the AnnotatedValue format.
+ *
+ * @returns `{ name, lightConfig, darkConfig }` with fully validated ThemeConfig objects.
+ * @throws Error if the JSON string cannot be parsed.
+ */
+export function deserializeThemeJson(json: string): {
+  name: string;
+  lightConfig: ThemeConfig;
+  darkConfig: ThemeConfig;
+} {
+  const parsed = JSON.parse(json);
+
+  if (typeof parsed !== 'object' || parsed === null) {
+    throw new Error('Theme_JSON muss ein Objekt sein');
+  }
+
+  const obj = parsed as Record<string, unknown>;
+
+  const name = typeof obj.name === 'string' ? obj.name : '';
+  const lightConfig = variantToThemeConfig(obj.light);
+  const darkConfig = variantToThemeConfig(obj.dark);
+
+  return { name, lightConfig, darkConfig };
+}
+
+// ---------------------------------------------------------------------------
+// Color keys that must contain valid hex values
+// ---------------------------------------------------------------------------
+
+/** Color fields that require valid hex (#RRGGBB) values. */
+const HEX_COLOR_KEYS: (keyof ThemeColors)[] = [
+  'primary', 'border', 'pageBg', 'cardBg', 'tabActiveBg', 'tabInactiveBg',
+  'controlBg', 'success', 'warning', 'error', 'primaryButton',
+  'secondaryButton', 'newSongButton', 'translationToggle', 'info', 'neutral',
+];
+
+/**
+ * Validates hex colors within an annotated variant section.
+ * Returns an array of error strings for invalid colors.
+ */
+function validateVariantColors(variant: unknown, variantLabel: string): string[] {
+  const errors: string[] = [];
+  if (typeof variant !== 'object' || variant === null) return errors;
+
+  const obj = variant as Record<string, unknown>;
+  const colorsRaw = obj.colors;
+  if (typeof colorsRaw !== 'object' || colorsRaw === null) return errors;
+
+  const colors = colorsRaw as Record<string, unknown>;
+  for (const key of HEX_COLOR_KEYS) {
+    const raw = colors[key];
+    if (raw === undefined) continue;
+    const val = extractValue(raw);
+    if (typeof val === 'string' && val.length > 0 && !isValidHex(val)) {
+      errors.push(`${variantLabel}.colors.${key}: Ungültiger Hex-Farbwert "${val}"`);
+    }
+  }
+
+  // Check accent separately (can be null)
+  const accentRaw = colors.accent;
+  if (accentRaw !== undefined) {
+    const accentVal = extractValue(accentRaw);
+    if (accentVal !== null && typeof accentVal === 'string' && accentVal.length > 0 && !isValidHex(accentVal)) {
+      errors.push(`${variantLabel}.colors.accent: Ungültiger Hex-Farbwert "${accentVal}"`);
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * Validates a Theme_JSON string. Checks for required fields (version, name,
+ * light, dark), validates hex colors, and checks version number compatibility.
+ *
+ * @returns `{ valid, errors }` where `errors` contains descriptive messages
+ *          for each validation failure.
+ */
+export function validateThemeJson(json: string): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    return { valid: false, errors: ['Ungültiges JSON-Format'] };
+  }
+
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    return { valid: false, errors: ['Theme_JSON muss ein Objekt sein'] };
+  }
+
+  const obj = parsed as Record<string, unknown>;
+
+  // Check required fields
+  if (!('version' in obj)) {
+    errors.push('Pflichtfeld "version" fehlt');
+  }
+  if (!('name' in obj)) {
+    errors.push('Pflichtfeld "name" fehlt');
+  }
+  if (!('light' in obj)) {
+    errors.push('Pflichtfeld "light" fehlt');
+  }
+  if (!('dark' in obj)) {
+    errors.push('Pflichtfeld "dark" fehlt');
+  }
+
+  // Validate version
+  if ('version' in obj) {
+    if (typeof obj.version !== 'number') {
+      errors.push('Feld "version" muss eine Zahl sein');
+    } else if (obj.version !== THEME_JSON_VERSION) {
+      errors.push(`Inkompatible Theme-JSON-Version: ${obj.version} (erwartet: ${THEME_JSON_VERSION})`);
+    }
+  }
+
+  // Validate name
+  if ('name' in obj) {
+    if (typeof obj.name !== 'string') {
+      errors.push('Feld "name" muss ein String sein');
+    } else if (obj.name.trim().length === 0) {
+      errors.push('Feld "name" darf nicht leer sein');
+    }
+  }
+
+  // Validate light section
+  if ('light' in obj) {
+    if (typeof obj.light !== 'object' || obj.light === null) {
+      errors.push('Feld "light" muss ein Objekt sein');
+    } else {
+      errors.push(...validateVariantColors(obj.light, 'light'));
+    }
+  }
+
+  // Validate dark section
+  if ('dark' in obj) {
+    if (typeof obj.dark !== 'object' || obj.dark === null) {
+      errors.push('Feld "dark" muss ein Objekt sein');
+    } else {
+      errors.push(...validateVariantColors(obj.dark, 'dark'));
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}

@@ -13,25 +13,348 @@ import type { ThemeConfig } from "@/lib/theme/types";
 
 const THEME_CONFIG_KEY = "theme-config";
 
+// ---------------------------------------------------------------------------
+// Default variant configs (matching prisma/seed.ts)
+// ---------------------------------------------------------------------------
+
+const DEFAULT_FONT = "'Inter', system-ui, sans-serif";
+
+export function getDefaultLightConfig(): ThemeConfig {
+  return getDefaultTheme();
+}
+
+export function getDefaultDarkConfig(): ThemeConfig {
+  return {
+    appName: "Lyco",
+    colors: {
+      primary: "#a78bfa",
+      accent: null,
+      border: "#374151",
+      pageBg: "#111827",
+      cardBg: "#1f2937",
+      tabActiveBg: "#a78bfa",
+      tabInactiveBg: "#374151",
+      controlBg: "#374151",
+      success: "#4ade80",
+      warning: "#fb923c",
+      error: "#f87171",
+      primaryButton: "#a78bfa",
+      secondaryButton: "#60a5fa",
+      newSongButton: "#a78bfa",
+      translationToggle: "#60a5fa",
+      info: "#facc15",
+      neutral: "#9ca3af",
+    },
+    typography: {
+      headlineFont: DEFAULT_FONT,
+      headlineWeight: "700",
+      copyFont: DEFAULT_FONT,
+      copyWeight: "400",
+      labelFont: DEFAULT_FONT,
+      labelWeight: "500",
+      songLineFont: DEFAULT_FONT,
+      songLineWeight: "400",
+      songLineSize: "16px",
+      translationLineFont: DEFAULT_FONT,
+      translationLineWeight: "400",
+      translationLineSize: "14px",
+    },
+    karaoke: {
+      activeLineColor: "#ffffff",
+      readLineColor: "rgba(255,255,255,0.5)",
+      unreadLineColor: "rgba(255,255,255,0.3)",
+      activeLineSize: "28px",
+      readLineSize: "20px",
+      unreadLineSize: "18px",
+      bgFrom: "#1e1b4b",
+      bgVia: "#3b0764",
+      bgTo: "#020617",
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Theme name validation
+// ---------------------------------------------------------------------------
+
+export const THEME_NAME_MAX_LENGTH = 100;
+
 /**
- * Loads the theme configuration from the SystemSetting table.
- * Returns the default theme on any error or missing entry.
+ * Validates a theme name: must be 1–100 characters.
+ * Throws an error if invalid.
+ */
+export function validateThemeName(name: string): void {
+  if (!name || name.trim().length === 0) {
+    throw new Error("Theme-Name darf nicht leer sein");
+  }
+  if (name.length > THEME_NAME_MAX_LENGTH) {
+    throw new Error(
+      `Theme-Name darf maximal ${THEME_NAME_MAX_LENGTH} Zeichen lang sein, hat aber ${name.length}`
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// CRUD functions for Theme model
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns all themes ordered by creation date.
  *
- * Anforderungen: 15.1, 15.2, 15.3
+ * Anforderungen: 4.1
+ */
+export async function getAllThemes() {
+  return prisma.theme.findMany({
+    orderBy: { createdAt: "asc" },
+  });
+}
+
+/**
+ * Returns a single theme by ID, or null if not found.
+ *
+ * Anforderungen: 2.3
+ */
+export async function getThemeById(id: string) {
+  return prisma.theme.findUnique({
+    where: { id },
+  });
+}
+
+/**
+ * Creates a new theme with the given name.
+ * Automatically generates Light and Dark variants with default values.
+ * Validates name uniqueness and length (1–100 chars).
+ *
+ * Anforderungen: 1.1, 1.2, 1.3, 1.4
+ */
+export async function createTheme(name: string) {
+  validateThemeName(name);
+
+  const existing = await prisma.theme.findUnique({
+    where: { name },
+  });
+
+  if (existing) {
+    throw new Error("Theme-Name existiert bereits");
+  }
+
+  return prisma.theme.create({
+    data: {
+      name,
+      lightConfig: JSON.stringify(getDefaultLightConfig()),
+      darkConfig: JSON.stringify(getDefaultDarkConfig()),
+      isDefault: false,
+    },
+  });
+}
+
+/**
+ * Updates an existing theme's name and/or variant configs.
+ *
+ * Anforderungen: 2.3
+ */
+export async function updateTheme(
+  id: string,
+  data: {
+    name?: string;
+    lightConfig?: ThemeConfig;
+    darkConfig?: ThemeConfig;
+  }
+) {
+  const existing = await prisma.theme.findUnique({ where: { id } });
+  if (!existing) {
+    throw new Error("Theme nicht gefunden");
+  }
+
+  const updateData: Record<string, unknown> = {};
+
+  if (data.name !== undefined) {
+    validateThemeName(data.name);
+
+    // Check uniqueness only if name actually changed
+    if (data.name !== existing.name) {
+      const nameConflict = await prisma.theme.findUnique({
+        where: { name: data.name },
+      });
+      if (nameConflict) {
+        throw new Error("Theme-Name existiert bereits");
+      }
+    }
+    updateData.name = data.name;
+  }
+
+  if (data.lightConfig !== undefined) {
+    updateData.lightConfig = JSON.stringify(data.lightConfig);
+  }
+
+  if (data.darkConfig !== undefined) {
+    updateData.darkConfig = JSON.stringify(data.darkConfig);
+  }
+
+  return prisma.theme.update({
+    where: { id },
+    data: updateData,
+  });
+}
+
+/**
+ * Deletes a theme by ID.
+ * - Prevents deletion of the default theme (isDefault: true).
+ * - Resets all users who had this theme selected (selectedThemeId = null).
+ *
+ * Anforderungen: 3.1, 3.2, 3.3, 3.4
+ */
+export async function deleteTheme(id: string): Promise<void> {
+  const existing = await prisma.theme.findUnique({ where: { id } });
+  if (!existing) {
+    throw new Error("Theme nicht gefunden");
+  }
+
+  if (existing.isDefault) {
+    throw new Error("Standard-Theme kann nicht gelöscht werden");
+  }
+
+  // Reset affected users before deleting
+  await prisma.user.updateMany({
+    where: { selectedThemeId: id },
+    data: { selectedThemeId: null },
+  });
+
+  await prisma.theme.delete({ where: { id } });
+}
+
+// ---------------------------------------------------------------------------
+// Default-theme management
+// ---------------------------------------------------------------------------
+
+/**
+ * Marks the given theme as the default, removing the flag from the
+ * previous default theme (if any).
+ *
+ * Anforderungen: 4.3
+ */
+export async function setDefaultTheme(id: string): Promise<void> {
+  const theme = await prisma.theme.findUnique({ where: { id } });
+  if (!theme) {
+    throw new Error("Theme nicht gefunden");
+  }
+
+  await prisma.$transaction([
+    // Remove isDefault from the current default(s)
+    prisma.theme.updateMany({
+      where: { isDefault: true },
+      data: { isDefault: false },
+    }),
+    // Set isDefault on the new theme
+    prisma.theme.update({
+      where: { id },
+      data: { isDefault: true },
+    }),
+  ]);
+}
+
+// ---------------------------------------------------------------------------
+// User theme preference functions
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns the ThemeConfig for the user's selected variant.
+ * Falls back to the default theme's light variant when:
+ * - The user has no selectedThemeId
+ * - The selected theme no longer exists
+ * - The default theme itself is missing (returns hard-coded light defaults)
+ *
+ * Anforderungen: 6.3, 6.4, 6.5, 7.3, 7.4, 7.5
+ */
+export async function getUserThemeConfig(userId: string): Promise<ThemeConfig> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { selectedThemeId: true, themeVariant: true },
+  });
+
+  // If user has a selected theme, try to load it
+  if (user?.selectedThemeId) {
+    const theme = await prisma.theme.findUnique({
+      where: { id: user.selectedThemeId },
+    });
+
+    if (theme) {
+      const variant = user.themeVariant === "dark" ? "dark" : "light";
+      const configJson = variant === "dark" ? theme.darkConfig : theme.lightConfig;
+      return deserializeTheme(configJson);
+    }
+  }
+
+  // Fallback: default theme, light variant
+  const defaultTheme = await prisma.theme.findFirst({
+    where: { isDefault: true },
+  });
+
+  if (defaultTheme) {
+    return deserializeTheme(defaultTheme.lightConfig);
+  }
+
+  // Ultimate fallback: hard-coded light defaults
+  return getDefaultLightConfig();
+}
+
+/**
+ * Saves the user's theme preference (selected theme and variant).
+ *
+ * Anforderungen: 6.3, 7.3
+ */
+export async function setUserThemePreference(
+  userId: string,
+  themeId: string,
+  variant: "light" | "dark"
+): Promise<void> {
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      selectedThemeId: themeId,
+      themeVariant: variant,
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Legacy functions (SystemSetting-based, kept for backward compatibility)
+// ---------------------------------------------------------------------------
+
+/**
+ * Loads the theme configuration for contexts without a user (e.g. SSR,
+ * public pages). Resolution order:
+ *
+ * 1. Default theme from the new `Theme` table (isDefault: true) → light variant
+ * 2. Legacy fallback: `SystemSetting` table (key: "theme-config")
+ * 3. Ultimate fallback: hard-coded light defaults via `getDefaultLightConfig()`
+ *
+ * Anforderungen: 6.5, 7.5
  */
 export async function getThemeConfig(): Promise<ThemeConfig> {
   try {
+    // 1. Try the new Theme table first
+    const defaultTheme = await prisma.theme.findFirst({
+      where: { isDefault: true },
+    });
+
+    if (defaultTheme) {
+      return deserializeTheme(defaultTheme.lightConfig);
+    }
+
+    // 2. Legacy fallback: SystemSetting table
     const setting = await prisma.systemSetting.findUnique({
       where: { key: THEME_CONFIG_KEY },
     });
 
-    if (!setting) {
-      return getDefaultTheme();
+    if (setting) {
+      return deserializeTheme(setting.value);
     }
 
-    return deserializeTheme(setting.value);
+    // 3. Ultimate fallback
+    return getDefaultLightConfig();
   } catch {
-    return getDefaultTheme();
+    return getDefaultLightConfig();
   }
 }
 

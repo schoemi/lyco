@@ -5,6 +5,8 @@ import {
   hashPassword,
 } from "@/lib/services/auth-service";
 import { encryptApiKey, decryptApiKey, maskApiKey } from "@/lib/genius/api-key-store";
+
+const VALID_THEME_VARIANTS = ["light", "dark"] as const;
 import type {
   ProfileData,
   UpdateProfileInput,
@@ -30,6 +32,8 @@ const profileSelect = {
   genre: true,
   sprache: true,
   geniusApiKeyEncrypted: true,
+  selectedThemeId: true,
+  themeVariant: true,
 } as const;
 
 export async function getProfile(userId: string): Promise<ProfileData> {
@@ -116,6 +120,27 @@ export async function updateProfile(
     }
   }
 
+  // Validate themeVariant
+  if (data.themeVariant !== undefined) {
+    if (
+      !VALID_THEME_VARIANTS.includes(
+        data.themeVariant as (typeof VALID_THEME_VARIANTS)[number]
+      )
+    ) {
+      throw new Error("Theme-Variante muss 'light' oder 'dark' sein");
+    }
+  }
+
+  // Validate selectedThemeId – must reference an existing theme
+  if (data.selectedThemeId !== undefined && data.selectedThemeId !== null) {
+    const theme = await prisma.theme.findUnique({
+      where: { id: data.selectedThemeId },
+    });
+    if (!theme) {
+      throw new Error("Ausgewähltes Theme existiert nicht");
+    }
+  }
+
   const user = await prisma.user.update({
     where: { id: userId },
     data: {
@@ -129,6 +154,12 @@ export async function updateProfile(
       ...(data.genre !== undefined && { genre: data.genre }),
       ...(data.sprache !== undefined && { sprache: data.sprache }),
       ...geniusApiKeyData,
+      ...(data.selectedThemeId !== undefined && {
+        selectedThemeId: data.selectedThemeId,
+      }),
+      ...(data.themeVariant !== undefined && {
+        themeVariant: data.themeVariant,
+      }),
     },
     select: profileSelect,
   });

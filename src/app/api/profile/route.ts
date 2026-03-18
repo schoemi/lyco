@@ -36,6 +36,8 @@ export async function PUT(request: NextRequest) {
         "Alter muss eine Ganzzahl zwischen 1 und 120 sein",
         "Geschlecht muss MAENNLICH, WEIBLICH oder DIVERS sein",
         "Erfahrungslevel muss ANFAENGER, FORTGESCHRITTEN, ERFAHREN oder PROFI sein",
+        "Theme-Variante muss 'light' oder 'dark' sein",
+        "Ausgewähltes Theme existiert nicht",
       ];
       if (validationMessages.some((msg) => error.message.includes(msg))) {
         return NextResponse.json({ error: error.message }, { status: 400 });

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ProfileData, ChangePasswordInput } from "@/types/profile";
+import ThemeSelector from "@/components/ThemeSelector";
 
 export default function ProfilePage() {
   // Profile form state
@@ -357,6 +358,20 @@ export default function ProfilePage() {
             </button>
           </div>
         </form>
+      </div>
+
+      {/* Theme selection section */}
+      <div className="rounded-lg border border-neutral-200 bg-white px-4 py-5 sm:px-6">
+        <h2 className="text-lg font-semibold text-neutral-900 mb-4">Theme auswählen</h2>
+        <p className="mb-3 text-sm text-neutral-500">
+          Wähle ein Theme, um das Erscheinungsbild der Anwendung anzupassen.
+        </p>
+        {profile && (
+          <ThemeSelector
+            selectedThemeId={profile.selectedThemeId ?? null}
+            themeVariant={profile.themeVariant ?? "light"}
+          />
+        )}
       </div>
 
       {/* Password change section */}

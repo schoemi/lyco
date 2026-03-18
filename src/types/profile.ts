@@ -9,6 +9,8 @@ export interface ProfileData {
   genre: string | null;
   sprache: string;
   geniusApiKeyMasked: string | null;
+  selectedThemeId: string | null;
+  themeVariant: string | null;
 }
 
 export interface UpdateProfileInput {
@@ -20,6 +22,8 @@ export interface UpdateProfileInput {
   genre?: string | null;
   sprache?: string;
   geniusApiKey?: string;
+  selectedThemeId?: string | null;
+  themeVariant?: "light" | "dark";
 }
 
 export interface ChangePasswordInput {

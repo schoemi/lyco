@@ -8,6 +8,9 @@ vi.mock("@/lib/prisma", () => ({
       findUnique: vi.fn(),
       upsert: vi.fn(),
     },
+    theme: {
+      findFirst: vi.fn(),
+    },
   },
 }));
 
@@ -26,38 +29,26 @@ describe("theme-service", () => {
   // -----------------------------------------------------------------------
 
   describe("getThemeConfig", () => {
-    it("returns default theme when no setting exists", async () => {
-      mockPrisma.systemSetting.findUnique.mockResolvedValueOnce(null);
-
-      const result = await getThemeConfig();
-      expect(result).toEqual(getDefaultTheme());
-    });
-
-    it("returns default theme when DB throws", async () => {
-      mockPrisma.systemSetting.findUnique.mockRejectedValueOnce(
-        new Error("DB connection lost")
-      );
-
-      const result = await getThemeConfig();
-      expect(result).toEqual(getDefaultTheme());
-    });
-
-    it("returns default theme when stored JSON is invalid", async () => {
-      mockPrisma.systemSetting.findUnique.mockResolvedValueOnce({
-        id: "id",
-        key: "theme-config",
-        value: "not-valid-json{{{",
-        updatedAt: new Date(),
+    it("returns light variant of default theme from Theme table when available", async () => {
+      const lightConfig = getDefaultTheme();
+      lightConfig.appName = "From Theme Table";
+      (mockPrisma.theme.findFirst as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        id: "t1",
+        name: "Default",
+        lightConfig: JSON.stringify(lightConfig),
+        darkConfig: "{}",
+        isDefault: true,
       });
 
       const result = await getThemeConfig();
-      expect(result).toEqual(getDefaultTheme());
+      expect(result.appName).toBe("From Theme Table");
     });
 
-    it("deserializes and returns a valid stored theme", async () => {
-      const theme = getDefaultTheme();
-      theme.appName = "My Custom App";
+    it("falls back to SystemSetting when no default theme in Theme table", async () => {
+      (mockPrisma.theme.findFirst as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null);
 
+      const theme = getDefaultTheme();
+      theme.appName = "From SystemSetting";
       mockPrisma.systemSetting.findUnique.mockResolvedValueOnce({
         id: "id",
         key: "theme-config",
@@ -66,7 +57,38 @@ describe("theme-service", () => {
       });
 
       const result = await getThemeConfig();
-      expect(result.appName).toBe("My Custom App");
+      expect(result.appName).toBe("From SystemSetting");
+    });
+
+    it("returns default light config when no Theme and no SystemSetting exist", async () => {
+      (mockPrisma.theme.findFirst as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null);
+      mockPrisma.systemSetting.findUnique.mockResolvedValueOnce(null);
+
+      const result = await getThemeConfig();
+      expect(result).toEqual(getDefaultTheme());
+    });
+
+    it("returns default light config when DB throws", async () => {
+      (mockPrisma.theme.findFirst as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+        new Error("DB connection lost")
+      );
+
+      const result = await getThemeConfig();
+      expect(result).toEqual(getDefaultTheme());
+    });
+
+    it("returns default light config when stored SystemSetting JSON is invalid", async () => {
+      (mockPrisma.theme.findFirst as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null);
+      mockPrisma.systemSetting.findUnique.mockResolvedValueOnce({
+        id: "id",
+        key: "theme-config",
+        value: "not-valid-json{{{",
+        updatedAt: new Date(),
+      });
+
+      const result = await getThemeConfig();
+      // deserializeTheme will throw, caught by the outer try/catch
+      expect(result).toEqual(getDefaultTheme());
     });
   });
 

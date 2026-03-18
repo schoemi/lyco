@@ -325,3 +325,264 @@ describe('deriveButtonStates', () => {
     expect(hoverLightness).toBeLessThan(baseLightness);
   });
 });
+
+// ---------------------------------------------------------------------------
+// deserializeThemeJson
+// ---------------------------------------------------------------------------
+
+import {
+  deserializeThemeJson,
+  validateThemeJson,
+} from '@/lib/theme/serializer';
+
+describe('deserializeThemeJson', () => {
+  it('deserializes a valid Theme_JSON with annotated values', () => {
+    const themeJson = JSON.stringify({
+      version: 1,
+      name: 'Ocean Breeze',
+      light: {
+        appName: { value: 'Lyco', description: 'App name' },
+        colors: {
+          primary: { value: '#3b82f6', description: 'Primary colour' },
+          accent: { value: null, description: 'Accent colour' },
+          border: { value: '#e5e7eb', description: 'Border' },
+          pageBg: { value: '#f9fafb', description: 'Page bg' },
+          cardBg: { value: '#ffffff', description: 'Card bg' },
+          tabActiveBg: { value: '#3b82f6', description: 'Tab active' },
+          tabInactiveBg: { value: '#f3f4f6', description: 'Tab inactive' },
+          controlBg: { value: '#f3f4f6', description: 'Control bg' },
+          success: { value: '#22c55e', description: 'Success' },
+          warning: { value: '#f97316', description: 'Warning' },
+          error: { value: '#ef4444', description: 'Error' },
+          primaryButton: { value: '#3b82f6', description: 'Primary btn' },
+          secondaryButton: { value: '#6366f1', description: 'Secondary btn' },
+          newSongButton: { value: '#3b82f6', description: 'New song btn' },
+          translationToggle: { value: '#3b82f6', description: 'Translation' },
+          info: { value: '#eab308', description: 'Info' },
+          neutral: { value: '#6b7280', description: 'Neutral' },
+        },
+        typography: {
+          headlineFont: { value: 'Inter', description: 'Headline font' },
+          headlineWeight: { value: '700', description: 'Headline weight' },
+          copyFont: { value: 'Inter', description: 'Copy font' },
+          copyWeight: { value: '400', description: 'Copy weight' },
+          labelFont: { value: 'Inter', description: 'Label font' },
+          labelWeight: { value: '500', description: 'Label weight' },
+          songLineFont: { value: 'Inter', description: 'Song font' },
+          songLineWeight: { value: '400', description: 'Song weight' },
+          songLineSize: { value: '16px', description: 'Song size' },
+          translationLineFont: { value: 'Inter', description: 'Trans font' },
+          translationLineWeight: { value: '400', description: 'Trans weight' },
+          translationLineSize: { value: '14px', description: 'Trans size' },
+        },
+        karaoke: {
+          activeLineColor: { value: '#ffffff', description: 'Active' },
+          readLineColor: { value: 'rgba(255,255,255,0.4)', description: 'Read' },
+          unreadLineColor: { value: 'rgba(255,255,255,0.2)', description: 'Unread' },
+          activeLineSize: { value: '28px', description: 'Active size' },
+          readLineSize: { value: '20px', description: 'Read size' },
+          unreadLineSize: { value: '18px', description: 'Unread size' },
+          bgFrom: { value: '#312e81', description: 'BG from' },
+          bgVia: { value: '#581c87', description: 'BG via' },
+          bgTo: { value: '#0f172a', description: 'BG to' },
+        },
+      },
+      dark: {
+        appName: { value: 'Lyco', description: 'App name' },
+        colors: {
+          primary: { value: '#60a5fa', description: 'Primary' },
+          accent: { value: null, description: 'Accent' },
+          border: { value: '#374151', description: 'Border' },
+          pageBg: { value: '#111827', description: 'Page bg' },
+          cardBg: { value: '#1f2937', description: 'Card bg' },
+          tabActiveBg: { value: '#60a5fa', description: 'Tab active' },
+          tabInactiveBg: { value: '#374151', description: 'Tab inactive' },
+          controlBg: { value: '#374151', description: 'Control bg' },
+          success: { value: '#22c55e', description: 'Success' },
+          warning: { value: '#f97316', description: 'Warning' },
+          error: { value: '#ef4444', description: 'Error' },
+          primaryButton: { value: '#60a5fa', description: 'Primary btn' },
+          secondaryButton: { value: '#818cf8', description: 'Secondary btn' },
+          newSongButton: { value: '#60a5fa', description: 'New song btn' },
+          translationToggle: { value: '#60a5fa', description: 'Translation' },
+          info: { value: '#eab308', description: 'Info' },
+          neutral: { value: '#9ca3af', description: 'Neutral' },
+        },
+        typography: {
+          headlineFont: { value: 'Inter', description: 'Headline font' },
+          headlineWeight: { value: '700', description: 'Headline weight' },
+          copyFont: { value: 'Inter', description: 'Copy font' },
+          copyWeight: { value: '400', description: 'Copy weight' },
+          labelFont: { value: 'Inter', description: 'Label font' },
+          labelWeight: { value: '500', description: 'Label weight' },
+          songLineFont: { value: 'Inter', description: 'Song font' },
+          songLineWeight: { value: '400', description: 'Song weight' },
+          songLineSize: { value: '16px', description: 'Song size' },
+          translationLineFont: { value: 'Inter', description: 'Trans font' },
+          translationLineWeight: { value: '400', description: 'Trans weight' },
+          translationLineSize: { value: '14px', description: 'Trans size' },
+        },
+        karaoke: {
+          activeLineColor: { value: '#ffffff', description: 'Active' },
+          readLineColor: { value: 'rgba(255,255,255,0.4)', description: 'Read' },
+          unreadLineColor: { value: 'rgba(255,255,255,0.2)', description: 'Unread' },
+          activeLineSize: { value: '28px', description: 'Active size' },
+          readLineSize: { value: '20px', description: 'Read size' },
+          unreadLineSize: { value: '18px', description: 'Unread size' },
+          bgFrom: { value: '#312e81', description: 'BG from' },
+          bgVia: { value: '#581c87', description: 'BG via' },
+          bgTo: { value: '#0f172a', description: 'BG to' },
+        },
+      },
+    });
+
+    const result = deserializeThemeJson(themeJson);
+    expect(result.name).toBe('Ocean Breeze');
+    expect(result.lightConfig.appName).toBe('Lyco');
+    expect(result.lightConfig.colors.primary).toBe('#3b82f6');
+    expect(result.lightConfig.colors.accent).toBeNull();
+    expect(result.darkConfig.colors.primary).toBe('#60a5fa');
+    expect(result.darkConfig.colors.pageBg).toBe('#111827');
+  });
+
+  it('handles plain (non-annotated) values', () => {
+    const defaults = getDefaultTheme();
+    const themeJson = JSON.stringify({
+      version: 1,
+      name: 'Plain Theme',
+      light: defaults,
+      dark: defaults,
+    });
+
+    const result = deserializeThemeJson(themeJson);
+    expect(result.name).toBe('Plain Theme');
+    expect(result.lightConfig.appName).toBe('Lyco');
+    expect(result.lightConfig.colors.primary).toBe('#7c3aed');
+  });
+
+  it('throws on invalid JSON', () => {
+    expect(() => deserializeThemeJson('not-json')).toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// validateThemeJson
+// ---------------------------------------------------------------------------
+
+describe('validateThemeJson', () => {
+  const makeValidJson = () =>
+    JSON.stringify({
+      version: 1,
+      name: 'Test Theme',
+      light: {
+        appName: { value: 'Lyco', description: 'App name' },
+        colors: { primary: { value: '#3b82f6', description: 'Primary' } },
+      },
+      dark: {
+        appName: { value: 'Lyco', description: 'App name' },
+        colors: { primary: { value: '#60a5fa', description: 'Primary' } },
+      },
+    });
+
+  it('accepts a valid Theme_JSON', () => {
+    const result = validateThemeJson(makeValidJson());
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it('rejects invalid JSON', () => {
+    const result = validateThemeJson('not-json');
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Ungültiges JSON-Format');
+  });
+
+  it('rejects non-object JSON', () => {
+    const result = validateThemeJson('"just a string"');
+    expect(result.valid).toBe(false);
+  });
+
+  it('reports missing version field', () => {
+    const result = validateThemeJson(JSON.stringify({ name: 'X', light: {}, dark: {} }));
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('version'))).toBe(true);
+  });
+
+  it('reports missing name field', () => {
+    const result = validateThemeJson(JSON.stringify({ version: 1, light: {}, dark: {} }));
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('name'))).toBe(true);
+  });
+
+  it('reports missing light field', () => {
+    const result = validateThemeJson(JSON.stringify({ version: 1, name: 'X', dark: {} }));
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('light'))).toBe(true);
+  });
+
+  it('reports missing dark field', () => {
+    const result = validateThemeJson(JSON.stringify({ version: 1, name: 'X', light: {} }));
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('dark'))).toBe(true);
+  });
+
+  it('rejects incompatible version number', () => {
+    const result = validateThemeJson(
+      JSON.stringify({ version: 99, name: 'X', light: {}, dark: {} })
+    );
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('Inkompatible'))).toBe(true);
+  });
+
+  it('rejects empty name', () => {
+    const result = validateThemeJson(
+      JSON.stringify({ version: 1, name: '  ', light: {}, dark: {} })
+    );
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('leer'))).toBe(true);
+  });
+
+  it('detects invalid hex colors in light variant', () => {
+    const result = validateThemeJson(
+      JSON.stringify({
+        version: 1,
+        name: 'Bad Colors',
+        light: { colors: { primary: { value: 'not-hex', description: 'bad' } } },
+        dark: {},
+      })
+    );
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('light.colors.primary'))).toBe(true);
+  });
+
+  it('detects invalid hex colors in dark variant', () => {
+    const result = validateThemeJson(
+      JSON.stringify({
+        version: 1,
+        name: 'Bad Colors',
+        light: {},
+        dark: { colors: { pageBg: { value: '#xyz', description: 'bad' } } },
+      })
+    );
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('dark.colors.pageBg'))).toBe(true);
+  });
+
+  it('validates plain (non-annotated) hex colors too', () => {
+    const result = validateThemeJson(
+      JSON.stringify({
+        version: 1,
+        name: 'Plain Bad',
+        light: { colors: { primary: 'invalid' } },
+        dark: {},
+      })
+    );
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('light.colors.primary'))).toBe(true);
+  });
+
+  it('collects multiple errors at once', () => {
+    const result = validateThemeJson(JSON.stringify({}));
+    expect(result.valid).toBe(false);
+    expect(result.errors.length).toBeGreaterThanOrEqual(4);
+  });
+});
