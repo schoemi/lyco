@@ -7,7 +7,7 @@ Schrittweise Implementierung des erweiterten Theming-Systems: Datenbankschema, S
 ## Tasks
 
 - [-] 1. Prisma-Schema erweitern und Datenbank migrieren
-  - [~] 1.1 Neues `Theme`-Modell in `prisma/schema.prisma` anlegen
+  - [-] 1.1 Neues `Theme`-Modell in `prisma/schema.prisma` anlegen
     - Felder: `id`, `name` (unique, max 100), `lightConfig` (JSON-String), `darkConfig` (JSON-String), `isDefault`, `createdAt`, `updatedAt`
     - Tabelle `themes` via `@@map("themes")`
     - _Anforderungen: 1.1, 1.3, 5.1_
