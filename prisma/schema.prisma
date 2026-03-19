@@ -89,6 +89,7 @@ model User {
 
   selectedTheme    Theme?           @relation(fields: [selectedThemeId], references: [id], onDelete: SetNull)
   loginAttempts    LoginAttempt[]
+  passwordResetTokens PasswordResetToken[]
   sets             Set[]
   songs            Song[]
   sessions         Session[]
@@ -345,4 +346,29 @@ model Theme {
   users User[]
 
   @@map("themes")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  token     String    // SHA-256-Hash des Klartext-Tokens
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model PasswordResetAttempt {
+  id        String   @id @default(cuid())
+  email     String   // E-Mail oder Token-Hash als Identifier
+  type      String   // "request" oder "validation"
+  createdAt DateTime @default(now())
+
+  @@index([email, type, createdAt])
+  @@map("password_reset_attempts")
 }

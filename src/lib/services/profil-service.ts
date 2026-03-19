@@ -3,6 +3,7 @@ import {
   verifyPassword,
   validatePassword,
   hashPassword,
+  validateEmail,
 } from "@/lib/services/auth-service";
 import { encryptApiKey, decryptApiKey, maskApiKey } from "@/lib/genius/api-key-store";
 
@@ -216,3 +217,59 @@ export async function changePassword(
     data: { passwordHash },
   });
 }
+
+export async function changeEmail(
+  userId: string,
+  newEmail: string,
+  currentPassword: string
+): Promise<ProfileData> {
+  // 1. Validate email format
+  if (!validateEmail(newEmail)) {
+    throw new Error("Ungültige E-Mail-Adresse");
+  }
+
+  // 2. Check if email is already taken by another user
+  const existingUser = await prisma.user.findUnique({
+    where: { email: newEmail },
+  });
+  if (existingUser && existingUser.id !== userId) {
+    throw new Error("Diese E-Mail-Adresse wird bereits verwendet.");
+  }
+
+  // 3. Load user and verify password
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, passwordHash: true },
+  });
+
+  if (!user) {
+    throw new Error("Benutzer nicht gefunden");
+  }
+
+  const isValid = await verifyPassword(currentPassword, user.passwordHash);
+  if (!isValid) {
+    throw new Error("Passwort ist falsch.");
+  }
+
+  // 4. Update email
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: { email: newEmail },
+    select: profileSelect,
+  });
+
+  // 5. Return updated profile data
+  let geniusApiKeyMasked: string | null = null;
+  if (updated.geniusApiKeyEncrypted) {
+    try {
+      const plaintext = decryptApiKey(updated.geniusApiKeyEncrypted);
+      geniusApiKeyMasked = maskApiKey(plaintext);
+    } catch {
+      geniusApiKeyMasked = null;
+    }
+  }
+
+  const { geniusApiKeyEncrypted: _, ...rest } = updated;
+  return { ...rest, geniusApiKeyMasked } as ProfileData;
+}
+

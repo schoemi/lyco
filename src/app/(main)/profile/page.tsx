@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { ProfileData, ChangePasswordInput } from "@/types/profile";
+import type { ProfileData, ChangePasswordInput, ChangeEmailInput } from "@/types/profile";
 import ThemeSelector from "@/components/ThemeSelector";
 
 export default function ProfilePage() {
@@ -22,6 +22,15 @@ export default function ProfilePage() {
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+
+  // Email form state
+  const [emailForm, setEmailForm] = useState<ChangeEmailInput>({
+    email: "",
+    currentPassword: "",
+  });
+  const [emailSaving, setEmailSaving] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailSuccess, setEmailSuccess] = useState<string | null>(null);
 
   // Form field state (separate from loaded profile to track edits)
   const [name, setName] = useState("");
@@ -152,6 +161,33 @@ export default function ProfilePage() {
     }
   }
 
+  async function handleEmailSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setEmailSaving(true);
+    setEmailError(null);
+    setEmailSuccess(null);
+
+    try {
+      const res = await fetch("/api/profile/email", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(emailForm),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setEmailError(json.error ?? "Fehler beim Ändern der E-Mail-Adresse");
+        return;
+      }
+      setProfile(json.profile);
+      setEmailSuccess("E-Mail-Adresse wurde erfolgreich geändert.");
+      setEmailForm({ email: "", currentPassword: "" });
+    } catch {
+      setEmailError("Ein unerwarteter Fehler ist aufgetreten.");
+    } finally {
+      setEmailSaving(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -190,6 +226,20 @@ export default function ProfilePage() {
         )}
 
         <form onSubmit={handleProfileSubmit} className="space-y-4">
+          {/* E-Mail (read-only) */}
+          <div>
+            <label htmlFor="profileEmail" className="block text-sm font-medium text-neutral-700 mb-1">
+              E-Mail-Adresse
+            </label>
+            <input
+              id="profileEmail"
+              type="email"
+              value={profile?.email ?? ""}
+              readOnly
+              className="w-full rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-500 cursor-not-allowed"
+            />
+          </div>
+
           {/* Name */}
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-neutral-700 mb-1">
@@ -372,6 +422,60 @@ export default function ProfilePage() {
             themeVariant={profile.themeVariant ?? "light"}
           />
         )}
+      </div>
+
+      {/* Email change section */}
+      <div className="rounded-lg border border-neutral-200 bg-white px-4 py-5 sm:px-6">
+        <h2 className="text-lg font-semibold text-neutral-900 mb-4">E-Mail-Adresse ändern</h2>
+
+        {emailSuccess && (
+          <div className="mb-4 rounded-lg border border-success-200 bg-success-50 px-4 py-3 text-sm text-success-700">
+            {emailSuccess}
+          </div>
+        )}
+        {emailError && (
+          <div className="mb-4 rounded-lg border border-error-200 bg-error-50 px-4 py-3 text-sm text-error-700">
+            {emailError}
+          </div>
+        )}
+
+        <form onSubmit={handleEmailSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="newEmail" className="block text-sm font-medium text-neutral-700 mb-1">
+              Neue E-Mail-Adresse
+            </label>
+            <input
+              id="newEmail"
+              type="email"
+              value={emailForm.email}
+              onChange={(e) => setEmailForm({ ...emailForm, email: e.target.value })}
+              className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm text-neutral-900 focus:border-newsong-500 focus:outline-none focus:ring-1 focus:ring-newsong-500"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="emailCurrentPassword" className="block text-sm font-medium text-neutral-700 mb-1">
+              Aktuelles Passwort
+            </label>
+            <input
+              id="emailCurrentPassword"
+              type="password"
+              value={emailForm.currentPassword}
+              onChange={(e) => setEmailForm({ ...emailForm, currentPassword: e.target.value })}
+              className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm text-neutral-900 focus:border-newsong-500 focus:outline-none focus:ring-1 focus:ring-newsong-500"
+            />
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              disabled={emailSaving}
+              className="rounded-md bg-newsong-600 px-4 py-2 text-sm font-medium text-white hover:bg-newsong-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-newsong-500 focus:ring-offset-2"
+            >
+              {emailSaving ? "Speichert…" : "E-Mail ändern"}
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* Password change section */}

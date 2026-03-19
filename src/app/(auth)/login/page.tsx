@@ -141,6 +141,14 @@ function LoginForm() {
               {passwordError}
             </p>
           )}
+          <div className="mt-1 text-right">
+            <Link
+              href="/passwort-vergessen"
+              className="text-xs text-newsong-600 hover:text-newsong-500"
+            >
+              Passwort vergessen?
+            </Link>
+          </div>
         </div>
 
         <button

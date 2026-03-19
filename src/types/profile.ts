@@ -32,6 +32,11 @@ export interface ChangePasswordInput {
   confirmPassword: string;
 }
 
+export interface ChangeEmailInput {
+  email: string;
+  currentPassword: string;
+}
+
 export interface CoachResult {
   coachTipp: string;
 }

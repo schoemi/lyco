@@ -227,12 +227,12 @@ function ColorsEditor({
       <ColorField label="Übersetzungs-Toggle" value={colors.translationToggle} onChange={(v) => set("translationToggle", v)} />
       <ColorField label="Info" value={colors.info} onChange={(v) => set("info", v)} />
       <ColorField label="Neutral" value={colors.neutral} onChange={(v) => set("neutral", v)} />
-      <ColorField label="Überschrift-Text" value={colors.headlineColor} onChange={(v) => set("headlineColor", v)} />
-      <ColorField label="Fließtext" value={colors.copyColor} onChange={(v) => set("copyColor", v)} />
-      <ColorField label="Label-Text" value={colors.labelColor} onChange={(v) => set("labelColor", v)} />
-      <ColorField label="Link-Text" value={colors.linkColor} onChange={(v) => set("linkColor", v)} />
-      <ColorField label="Gedämpfter Text" value={colors.mutedColor} onChange={(v) => set("mutedColor", v)} />
-      <ColorField label="Button-Text" value={colors.buttonTextColor} onChange={(v) => set("buttonTextColor", v)} />
+      <ColorField label="Überschrift-Text" value={colors.headlineColor ?? "#111827"} onChange={(v) => set("headlineColor", v)} />
+      <ColorField label="Fließtext" value={colors.copyColor ?? "#374151"} onChange={(v) => set("copyColor", v)} />
+      <ColorField label="Label-Text" value={colors.labelColor ?? "#4b5563"} onChange={(v) => set("labelColor", v)} />
+      <ColorField label="Link-Text" value={colors.linkColor ?? "#7c3aed"} onChange={(v) => set("linkColor", v)} />
+      <ColorField label="Gedämpfter Text" value={colors.mutedColor ?? "#6b7280"} onChange={(v) => set("mutedColor", v)} />
+      <ColorField label="Button-Text" value={colors.buttonTextColor ?? "#ffffff"} onChange={(v) => set("buttonTextColor", v)} />
     </Section>
   );
 }
