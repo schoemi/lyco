@@ -515,7 +515,7 @@ export default function SongDetailPage() {
       </div>
 
       {/* Cover-Bild & Audio-Quellen nur im Bearbeiten-Modus */}
-      {!istFreigabe && editingText && (
+      {!istFreigabe && editing && (
         <>
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-neutral-900">Cover-Bild</h2>
