@@ -95,6 +95,18 @@ export interface ThemeColors {
   info: string;
   /** Neutral base colour for text, borders, backgrounds (palette generated) */
   neutral: string;
+  /** Headline text colour (Anforderung Typografie) */
+  headlineColor: string;
+  /** Body / copy text colour (Anforderung Typografie) */
+  copyColor: string;
+  /** Label text colour (Anforderung Typografie) */
+  labelColor: string;
+  /** Link text colour */
+  linkColor: string;
+  /** Muted / secondary text colour (e.g. artist name, hints) */
+  mutedColor: string;
+  /** Text colour on primary buttons */
+  buttonTextColor: string;
 }
 
 // ---------------------------------------------------------------------------

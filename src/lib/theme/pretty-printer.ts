@@ -58,6 +58,18 @@ const COLOR_DESCRIPTIONS: Record<keyof ThemeColors, string> = {
     'Farbe für informative Hinweise und Tipps',
   neutral:
     'Neutrale Basisfarbe für Text, Rahmen und Hintergründe – wird für die Neutral-Palette generiert',
+  headlineColor:
+    'Textfarbe für Überschriften und Seitentitel',
+  copyColor:
+    'Textfarbe für Fließtext, Beschreibungen und allgemeine Inhalte',
+  labelColor:
+    'Textfarbe für Labels, Beschriftungen und Formularfelder',
+  linkColor:
+    'Textfarbe für Links und klickbare Textelemente',
+  mutedColor:
+    'Textfarbe für sekundäre Informationen wie Künstlername, Hinweise und Zeitangaben',
+  buttonTextColor:
+    'Textfarbe auf primären Buttons und Aktions-Schaltflächen',
 };
 
 const TYPOGRAPHY_DESCRIPTIONS: Record<keyof ThemeTypography, string> = {

@@ -44,6 +44,12 @@ export function getDefaultTheme(): ThemeConfig {
       translationToggle: '#3b82f6',
       info: '#eab308',
       neutral: '#6b7280',
+      headlineColor: '#111827',
+      copyColor: '#374151',
+      labelColor: '#4b5563',
+      linkColor: '#7c3aed',
+      mutedColor: '#6b7280',
+      buttonTextColor: '#ffffff',
     },
     typography: {
       headlineFont: DEFAULT_FONT,
@@ -176,6 +182,12 @@ function validateColors(raw: unknown, defaults: ThemeColors): ThemeColors {
     translationToggle: hexField('translationToggle'),
     info: hexField('info'),
     neutral: hexField('neutral'),
+    headlineColor: hexField('headlineColor'),
+    copyColor: hexField('copyColor'),
+    labelColor: hexField('labelColor'),
+    linkColor: hexField('linkColor'),
+    mutedColor: hexField('mutedColor'),
+    buttonTextColor: hexField('buttonTextColor'),
   };
 }
 
@@ -321,6 +333,14 @@ export function themeToCssVars(config: ThemeConfig): string {
   lines.push(`--color-btn-secondary: ${config.colors.secondaryButton};`);
   lines.push(`--color-btn-new-song: ${config.colors.newSongButton};`);
   lines.push(`--color-translation-toggle: ${config.colors.translationToggle};`);
+
+  // Text colours
+  lines.push(`--color-headline-text: ${config.colors.headlineColor};`);
+  lines.push(`--color-copy-text: ${config.colors.copyColor};`);
+  lines.push(`--color-label-text: ${config.colors.labelColor};`);
+  lines.push(`--color-link-text: ${config.colors.linkColor};`);
+  lines.push(`--color-muted-text: ${config.colors.mutedColor};`);
+  lines.push(`--color-button-text: ${config.colors.buttonTextColor};`);
 
   // Karaoke
   lines.push(`--karaoke-active-color: ${config.karaoke.activeLineColor};`);
@@ -512,6 +532,7 @@ const HEX_COLOR_KEYS: (keyof ThemeColors)[] = [
   'primary', 'border', 'pageBg', 'cardBg', 'tabActiveBg', 'tabInactiveBg',
   'controlBg', 'success', 'warning', 'error', 'primaryButton',
   'secondaryButton', 'newSongButton', 'translationToggle', 'info', 'neutral',
+  'headlineColor', 'copyColor', 'labelColor', 'linkColor', 'mutedColor', 'buttonTextColor',
 ];
 
 /**

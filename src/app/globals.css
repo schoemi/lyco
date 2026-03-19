@@ -122,6 +122,14 @@
   --color-btn-primary:   var(--color-btn-primary);
   --color-btn-secondary: var(--color-btn-secondary);
   --color-btn-new-song:  var(--color-btn-new-song);
+
+  /* Text colours */
+  --color-headline-text: var(--color-headline-text);
+  --color-copy-text:     var(--color-copy-text);
+  --color-label-text:    var(--color-label-text);
+  --color-link-text:     var(--color-link-text);
+  --color-muted-text:    var(--color-muted-text);
+  --color-button-text:   var(--color-button-text);
 }
 
 body {

@@ -44,6 +44,12 @@ export function getDefaultDarkConfig(): ThemeConfig {
       translationToggle: "#60a5fa",
       info: "#facc15",
       neutral: "#9ca3af",
+      headlineColor: "#f9fafb",
+      copyColor: "#e5e7eb",
+      labelColor: "#d1d5db",
+      linkColor: "#a78bfa",
+      mutedColor: "#9ca3af",
+      buttonTextColor: "#ffffff",
     },
     typography: {
       headlineFont: DEFAULT_FONT,
