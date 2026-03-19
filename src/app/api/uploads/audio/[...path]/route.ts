@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFile, stat } from "fs/promises";
+import { open, stat } from "fs/promises";
 import { join } from "path";
 
 const MIME_TYPES: Record<string, string> = {
@@ -9,7 +9,7 @@ const MIME_TYPES: Record<string, string> = {
 };
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
@@ -29,26 +29,79 @@ export async function GET(
 
     const filepath = join(process.cwd(), "data", "uploads", "audio", filename);
 
-    // Check file exists
+    // Check file exists and get size
+    let fileSize: number;
     try {
-      await stat(filepath);
+      const fileStat = await stat(filepath);
+      fileSize = fileStat.size;
     } catch {
       return NextResponse.json({ error: "Nicht gefunden" }, { status: 404 });
     }
 
-    const buffer = await readFile(filepath);
     const ext = filename.slice(filename.lastIndexOf(".")).toLowerCase();
     const contentType = MIME_TYPES[ext] || "application/octet-stream";
 
-    return new NextResponse(buffer, {
-      status: 200,
-      headers: {
-        "Content-Type": contentType,
-        "Content-Length": String(buffer.length),
-        "Cache-Control": "public, max-age=31536000, immutable",
-        "Accept-Ranges": "bytes",
-      },
-    });
+    const rangeHeader = request.headers.get("range");
+
+    // --- Range Request (required for iOS Safari audio playback) ---
+    if (rangeHeader) {
+      const match = rangeHeader.match(/bytes=(\d+)-(\d*)/);
+      if (!match) {
+        return new NextResponse(null, {
+          status: 416,
+          headers: { "Content-Range": `bytes */${fileSize}` },
+        });
+      }
+
+      const start = parseInt(match[1], 10);
+      const end = match[2] ? parseInt(match[2], 10) : fileSize - 1;
+
+      if (start >= fileSize || end >= fileSize || start > end) {
+        return new NextResponse(null, {
+          status: 416,
+          headers: { "Content-Range": `bytes */${fileSize}` },
+        });
+      }
+
+      const chunkSize = end - start + 1;
+
+      // Read only the requested byte range
+      const fh = await open(filepath, "r");
+      try {
+        const buf = Buffer.alloc(chunkSize);
+        await fh.read(buf, 0, chunkSize, start);
+        return new NextResponse(buf, {
+          status: 206,
+          headers: {
+            "Content-Type": contentType,
+            "Content-Length": String(chunkSize),
+            "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+            "Accept-Ranges": "bytes",
+            "Cache-Control": "public, max-age=31536000, immutable",
+          },
+        });
+      } finally {
+        await fh.close();
+      }
+    }
+
+    // --- Full request (non-range) ---
+    const fh = await open(filepath, "r");
+    try {
+      const buf = Buffer.alloc(fileSize);
+      await fh.read(buf, 0, fileSize, 0);
+      return new NextResponse(buf, {
+        status: 200,
+        headers: {
+          "Content-Type": contentType,
+          "Content-Length": String(fileSize),
+          "Accept-Ranges": "bytes",
+          "Cache-Control": "public, max-age=31536000, immutable",
+        },
+      });
+    } finally {
+      await fh.close();
+    }
   } catch (error) {
     console.error("GET /api/uploads/audio error:", error);
     return NextResponse.json(

@@ -48,7 +48,9 @@ export const AudioPlayButton = forwardRef<AudioPlayButtonHandle, AudioPlayButton
       const audio = audioRef.current;
       if (!audio) return;
       if (audio.paused) {
-        audio.play();
+        audio.play().catch(() => {
+          // iOS Safari rejects play() without user gesture — ignore gracefully
+        });
       } else {
         audio.pause();
       }
@@ -66,6 +68,7 @@ export const AudioPlayButton = forwardRef<AudioPlayButtonHandle, AudioPlayButton
           onPause={() => setIsPlaying(false)}
           onEnded={() => setIsPlaying(false)}
           preload="metadata"
+          playsInline
         />
         <button
           onClick={toggle}
