@@ -225,7 +225,7 @@ describe("Property 5: Set-Song-Zuordnung Round-Trip", () => {
           const userId = "test-user-1";
 
           // 1. Create a set and a song
-          const createdSet = await createSet(userId, setName);
+          const createdSet = await createSet(userId, { name: setName });
           const createdSong = await createSong(userId, { titel: songTitle });
 
           // 2. Add the song to the set

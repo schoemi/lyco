@@ -229,7 +229,7 @@ describe("Property 6: Set löschen erhält Songs", () => {
           const titles = songTitles.slice(0, songCount);
 
           // 1. Create a set
-          const createdSet = await createSet(userId, setName);
+          const createdSet = await createSet(userId, { name: setName });
 
           // 2. Create 1-3 songs
           const createdSongs = [];

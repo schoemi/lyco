@@ -117,11 +117,12 @@ model LoginAttempt {
 }
 
 model Set {
-  id        String    @id @default(cuid())
-  name      String
-  userId    String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  name        String    @db.VarChar(100)
+  description String?   @db.VarChar(500)
+  userId      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   user  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   songs SetSong[]
@@ -130,10 +131,11 @@ model Set {
 }
 
 model SetSong {
-  id        String   @id @default(cuid())
-  setId     String
-  songId    String
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  setId      String
+  songId     String
+  orderIndex Int      @default(0)
+  createdAt  DateTime @default(now())
 
   set  Set  @relation(fields: [setId], references: [id], onDelete: Cascade)
   song Song @relation(fields: [songId], references: [id], onDelete: Cascade)

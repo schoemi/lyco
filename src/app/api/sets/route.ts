@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name } = body;
+    const { name, description } = body;
 
     if (!name || typeof name !== "string" || !name.trim()) {
       return NextResponse.json(
@@ -34,14 +34,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const set = await createSet(session.user.id, name);
+    const set = await createSet(session.user.id, { name, description });
     return NextResponse.json({ set }, { status: 201 });
   } catch (error) {
-    if (error instanceof Error && error.message === "Name ist erforderlich") {
-      return NextResponse.json(
-        { error: "Name ist erforderlich", field: "name" },
-        { status: 400 }
-      );
+    if (error instanceof Error) {
+      if (error.message === "Name ist erforderlich") {
+        return NextResponse.json(
+          { error: "Name ist erforderlich", field: "name" },
+          { status: 400 }
+        );
+      }
+      if (error.message === "Name darf maximal 100 Zeichen lang sein") {
+        return NextResponse.json(
+          { error: "Name darf maximal 100 Zeichen lang sein", field: "name" },
+          { status: 400 }
+        );
+      }
+      if (error.message === "Beschreibung darf maximal 500 Zeichen lang sein") {
+        return NextResponse.json(
+          { error: "Beschreibung darf maximal 500 Zeichen lang sein", field: "description" },
+          { status: 400 }
+        );
+      }
     }
     console.error("POST /api/sets error:", error);
     return NextResponse.json({ error: "Interner Serverfehler" }, { status: 500 });

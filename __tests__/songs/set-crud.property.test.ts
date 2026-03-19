@@ -137,7 +137,7 @@ describe("Property 4: Set-CRUD Round-Trip", () => {
           const userId = "test-user-1";
 
           // 1. Create a set
-          const created = await createSet(userId, setName);
+          const created = await createSet(userId, { name: setName });
           expect(created.name).toBe(setName.trim());
           expect(created.id).toBeDefined();
 
@@ -148,7 +148,7 @@ describe("Property 4: Set-CRUD Round-Trip", () => {
           expect(allSets[0].id).toBe(created.id);
 
           // 3. Rename the set
-          const updated = await updateSet(userId, created.id, newName);
+          const updated = await updateSet(userId, created.id, { name: newName });
           expect(updated.name).toBe(newName.trim());
 
           // 4. List sets again and verify the name is updated

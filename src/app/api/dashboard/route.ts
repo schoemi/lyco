@@ -46,6 +46,7 @@ export async function GET() {
     const dashboardSets: DashboardSet[] = sets.map((set) => ({
       id: set.id,
       name: set.name,
+      description: set.description ?? null,
       songs: set.songs
         .map((ss) => songMap.get(ss.song.id))
         .filter((s): s is SongWithProgress => s !== undefined),

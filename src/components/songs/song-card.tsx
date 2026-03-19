@@ -20,36 +20,35 @@ export function SongCard({ song }: SongCardProps) {
   return (
     <Link
       href={`/songs/${song.id}`}
-      className="group relative flex flex-col justify-end overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-lg aspect-[3/4]"
+      className="group block overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-lg"
       aria-label={ariaLabel}
     >
-      {/* Cover image or gradient placeholder */}
-      {song.coverUrl ? (
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${song.coverUrl})` }}
-        />
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />
-      )}
-
-      {/* StatusPunkt top-right */}
-      <div className="absolute top-2 right-2 z-10">
-        <StatusPunkt fortschritt={song.progress} />
-      </div>
-
-      {/* Semi-transparent overlay + text at bottom */}
-      <div className="relative z-10 bg-gradient-to-t from-black/70 to-transparent px-3 pt-8 pb-0">
-        <p className="truncate text-sm font-semibold text-white">{song.titel}</p>
-        {song.kuenstler && (
-          <p className="truncate text-xs text-white/80">{song.kuenstler}</p>
+      <div className="relative aspect-square">
+        {/* Cover image or gradient placeholder */}
+        {song.coverUrl ? (
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${song.coverUrl})` }}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />
         )}
-        <div className="mt-1" />
-      </div>
 
-      {/* ProgressBar flush at bottom edge */}
-      <div className="relative z-10">
-        <ProgressBar value={song.progress} className="rounded-none" />
+        {/* StatusPunkt top-right */}
+        <div className="absolute top-2 right-2 z-10">
+          <StatusPunkt fortschritt={song.progress} />
+        </div>
+
+        {/* Semi-transparent overlay + text at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/70 to-transparent px-3 pt-8 pb-0">
+          <p className="truncate text-sm font-semibold text-white">{song.titel}</p>
+          {song.kuenstler && (
+            <p className="truncate text-xs text-white/80">{song.kuenstler}</p>
+          )}
+          <div className="mt-1" />
+          {/* ProgressBar flush at bottom edge */}
+          <ProgressBar value={song.progress} className="rounded-none" />
+        </div>
       </div>
     </Link>
   );

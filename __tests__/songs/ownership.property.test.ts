@@ -217,7 +217,7 @@ describe("Property 7: Ownership-Prüfung", () => {
           const song = await seedSong(owner, "Test Song");
 
           // updateSet as non-owner → "Zugriff verweigert"
-          await expect(updateSet(intruder, set.id, newName)).rejects.toThrow(
+          await expect(updateSet(intruder, set.id, { name: newName })).rejects.toThrow(
             "Zugriff verweigert"
           );
 

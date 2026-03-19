@@ -132,7 +132,7 @@ describe("Property 8: Pflichtfeld-Validierung", () => {
         const setsBefore = sets.length;
 
         // Attempt to create a set with invalid name → expect rejection
-        await expect(createSet(userId, invalidName)).rejects.toThrow(
+        await expect(createSet(userId, { name: invalidName })).rejects.toThrow(
           "Name ist erforderlich"
         );
 

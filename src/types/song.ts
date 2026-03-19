@@ -5,6 +5,17 @@ import { AudioQuelleResponse } from "@/types/audio";
 
 export interface CreateSetInput {
   name: string;
+  description?: string;
+}
+
+export interface UpdateSetInput {
+  name: string;
+  description?: string;
+}
+
+export interface ReorderSetSongItem {
+  songId: string;
+  orderIndex: number;
 }
 
 export interface CreateSongInput {
@@ -71,9 +82,30 @@ export interface UpdateMarkupInput {
 export interface SetWithSongCount {
   id: string;
   name: string;
+  description: string | null;
   songCount: number;
   lastActivity: string | null;
   createdAt: string;
+}
+
+export interface SetDetail {
+  id: string;
+  name: string;
+  description: string | null;
+  songCount: number;
+  songs: SetSongWithProgress[];
+}
+
+export interface SetSongWithProgress {
+  id: string;
+  titel: string;
+  kuenstler: string | null;
+  sprache: string | null;
+  coverUrl: string | null;
+  progress: number;
+  sessionCount: number;
+  status: "neu" | "aktiv" | "gelernt";
+  orderIndex: number;
 }
 
 export interface SongWithProgress {
@@ -166,6 +198,7 @@ export interface DashboardData {
 export interface DashboardSet {
   id: string;
   name: string;
+  description: string | null;
   songs: SongWithProgress[];
 }
 
