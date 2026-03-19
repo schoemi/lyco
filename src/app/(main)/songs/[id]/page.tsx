@@ -438,6 +438,15 @@ export default function SongDetailPage() {
             >
               🎤 Gesangstechnik-Coach
             </Link>
+            {song.audioQuellen.some((q) => q.rolle === "INSTRUMENTAL") && (
+              <Link
+                href={`/songs/${id}/vocal-trainer/`}
+                className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+                aria-label="Vocal Trainer öffnen"
+              >
+                🎙️ Vocal Trainer
+              </Link>
+            )}
           </div>
         </div>
 

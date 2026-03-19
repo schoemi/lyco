@@ -1,4 +1,4 @@
-import { AudioTyp } from "@/generated/prisma/client";
+import { AudioTyp, AudioRolle } from "@/generated/prisma/client";
 
 export interface AudioQuelleResponse {
   id: string;
@@ -6,6 +6,7 @@ export interface AudioQuelleResponse {
   typ: AudioTyp;
   label: string;
   orderIndex: number;
+  rolle: AudioRolle;
 }
 
 export interface CreateAudioQuelleInput {
@@ -18,4 +19,5 @@ export interface UpdateAudioQuelleInput {
   url?: string;
   typ?: AudioTyp;
   label?: string;
+  rolle?: AudioRolle;
 }

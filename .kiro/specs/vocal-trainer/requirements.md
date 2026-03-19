@@ -32,6 +32,8 @@ Der Vocal Trainer ist ein Modul, das den Gesang eines Nutzers gegen eine Referen
 - **Kopfhörer_Hinweis**: Ein modaler Dialog, der den Nutzer auffordert, Kopfhörer zu verwenden, um akustische Rückkopplungen zu vermeiden
 - **Feedback_Ansicht**: Der Bereich der Vocal_Trainer_Ansicht, der nach der Analyse den Vergleichs_Graph und die Scores anzeigt
 - **Aufnahme_Zustand**: Der aktuelle Status des Vocal Trainers: BEREIT, AUFNAHME, ANALYSE oder ERGEBNIS
+- **Audio_Rolle**: Die funktionale Zuordnung einer AudioQuelle innerhalb des Vocal Trainers: INSTRUMENTAL (Playback-Track), REFERENZ_VOKAL (Vocal Stem für die Analyse) oder STANDARD (keine spezielle Rolle, Default)
+- **AudioQuelle**: Ein bestehendes Datenmodell, das eine Audio-Datei oder einen Streaming-Link einem Song zuordnet (Felder: id, songId, url, typ, label, orderIndex)
 
 ## Anforderungen
 
@@ -219,3 +221,21 @@ Der Vocal Trainer ist ein Modul, das den Gesang eines Nutzers gegen eine Referen
 1. THE Pitch_Extraktor SHALL ein Noise-Gate anwenden, um Signale unterhalb eines konfigurierbaren Schwellenwerts als Stille zu behandeln.
 2. THE Pitch_Extraktor SHALL Zeitfenster mit niedriger Konfidenz (confidence < 0.5) von der Pitch-Bewertung ausschließen.
 3. IF die Aufnahme überwiegend aus Stille oder Rauschen besteht (weniger als 20% stimmaktive Frames), THEN THE System SHALL eine Warnung anzeigen, dass die Aufnahme zu wenig Gesang enthält, und dem Nutzer eine erneute Aufnahme empfehlen.
+
+### Anforderung 16: Audio-Quellen als Instrumental oder Referenz-Vokal markieren
+
+**User Story:** Als Nutzer möchte ich meine Audio-Dateien als Instrumental (Playback-Track für den Player) oder Referenz-Vokal markieren können, damit das System weiß, welche Dateien es für Playback und Analyse nutzen muss.
+
+#### Akzeptanzkriterien
+
+1. THE System SHALL das bestehende AudioQuelle-Modell um ein Feld `rolle` vom Typ Audio_Rolle erweitern, das die Werte STANDARD, INSTRUMENTAL und REFERENZ_VOKAL annehmen kann.
+2. THE System SHALL den Standardwert des Feldes `rolle` auf STANDARD setzen, sodass bestehende Audio-Quellen unverändert funktionieren.
+3. THE System SHALL in der Audio-Quellen-Verwaltung eines Songs für jede AudioQuelle ein Auswahlfeld (Dropdown oder Segmented Control) anzeigen, über das der Nutzer die Audio_Rolle zuweisen kann.
+4. THE System SHALL pro Song maximal eine AudioQuelle mit der Rolle INSTRUMENTAL und maximal eine mit der Rolle REFERENZ_VOKAL zulassen.
+5. IF der Nutzer eine AudioQuelle als INSTRUMENTAL markiert und bereits eine andere AudioQuelle diese Rolle hat, THEN THE System SHALL die Rolle der bisherigen AudioQuelle auf STANDARD zurücksetzen.
+6. IF der Nutzer eine AudioQuelle als REFERENZ_VOKAL markiert und bereits eine andere AudioQuelle diese Rolle hat, THEN THE System SHALL die Rolle der bisherigen AudioQuelle auf STANDARD zurücksetzen.
+7. WHEN die Vocal_Trainer_Ansicht geöffnet wird, THE System SHALL die AudioQuelle mit der Rolle INSTRUMENTAL als Playback-Track laden.
+8. WHEN die Vocal_Trainer_Ansicht geöffnet wird, THE System SHALL die AudioQuelle mit der Rolle REFERENZ_VOKAL als Basis für die Referenz_Daten verwenden.
+9. IF für einen Song keine AudioQuelle mit der Rolle INSTRUMENTAL vorhanden ist, THEN THE Vocal_Trainer_Ansicht SHALL eine Meldung anzeigen, dass kein Instrumental zugewiesen ist, und den Aufnahme-Button deaktivieren.
+10. THE System SHALL die Rollenzuweisung über die bestehende API `/api/songs/[id]/audio-quellen` per PATCH-Request ermöglichen.
+11. THE System SHALL das Auswahlfeld für die Audio_Rolle mit einem `aria-label="Rolle der Audio-Quelle"` versehen.

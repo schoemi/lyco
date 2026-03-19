@@ -6,6 +6,7 @@ import {
 } from "@/lib/services/audio-quelle-service";
 
 const VALID_AUDIO_TYPEN = ["MP3", "SPOTIFY", "YOUTUBE", "APPLE_MUSIC"] as const;
+const VALID_AUDIO_ROLLEN = ["STANDARD", "INSTRUMENTAL", "REFERENZ_VOKAL"] as const;
 
 export async function PUT(
   request: NextRequest,
@@ -23,7 +24,7 @@ export async function PUT(
     const { quelleId } = await params;
     const body = await request.json();
 
-    const { url, typ, label } = body;
+    const { url, typ, label, rolle } = body;
 
     if (url !== undefined && (typeof url !== "string" || !url.trim())) {
       return NextResponse.json(
@@ -46,9 +47,16 @@ export async function PUT(
       );
     }
 
+    if (rolle !== undefined && !VALID_AUDIO_ROLLEN.includes(rolle)) {
+      return NextResponse.json(
+        { error: "Ungültige Audio-Rolle" },
+        { status: 400 }
+      );
+    }
+
     const updatedQuelle = await updateAudioQuelle(
       quelleId,
-      { url, typ, label },
+      { url, typ, label, rolle },
       session.user.id
     );
 

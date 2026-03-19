@@ -29,6 +29,7 @@ enum Lernmethode {
   RUECKWAERTS
   SPACED_REPETITION
   QUIZ
+  VOCAL_TRAINER
 }
 
 enum MarkupTyp {
@@ -66,6 +67,12 @@ enum AudioTyp {
   SPOTIFY
   YOUTUBE
   APPLE_MUSIC
+}
+
+enum AudioRolle {
+  STANDARD
+  INSTRUMENTAL
+  REFERENZ_VOKAL
 }
 
 model User {
@@ -315,13 +322,14 @@ model Streak {
 }
 
 model AudioQuelle {
-  id         String   @id @default(cuid())
+  id         String     @id @default(cuid())
   songId     String
   url        String
   typ        AudioTyp
   label      String
   orderIndex Int
-  createdAt  DateTime @default(now())
+  rolle      AudioRolle @default(STANDARD)
+  createdAt  DateTime   @default(now())
 
   song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
 

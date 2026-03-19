@@ -289,6 +289,7 @@ export async function getSongDetail(
       typ: aq.typ,
       label: aq.label,
       orderIndex: aq.orderIndex,
+      rolle: aq.rolle,
     })),
     sets: song.sets.map((ss) => ({ id: ss.set.id, name: ss.set.name })),
     ...(istEigentuemer

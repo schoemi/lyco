@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import type { AudioQuelle } from "@/generated/prisma/client";
+import type { AudioQuelle, AudioRolle } from "@/generated/prisma/client";
 import type {
   CreateAudioQuelleInput,
   UpdateAudioQuelleInput,
@@ -41,6 +41,23 @@ async function verifySongOwnership(
   if (song.userId !== userId) {
     throw new Error("Zugriff verweigert");
   }
+}
+
+export async function setRolle(
+  quelleId: string,
+  rolle: AudioRolle,
+  songId: string
+): Promise<void> {
+  if (rolle !== "STANDARD") {
+    await prisma.audioQuelle.updateMany({
+      where: { songId, rolle, id: { not: quelleId } },
+      data: { rolle: "STANDARD" },
+    });
+  }
+  await prisma.audioQuelle.update({
+    where: { id: quelleId },
+    data: { rolle },
+  });
 }
 
 export async function getAudioQuellen(
@@ -108,6 +125,17 @@ export async function updateAudioQuelle(
   if (input.url !== undefined) updateData.url = input.url.trim();
   if (input.typ !== undefined) updateData.typ = input.typ;
   if (input.label !== undefined) updateData.label = input.label.trim();
+
+  if (input.rolle !== undefined) {
+    await setRolle(quelleId, input.rolle, quelle.songId);
+    // If only rolle was changed, return the updated quelle
+    if (Object.keys(updateData).length === 0) {
+      const updated = await prisma.audioQuelle.findUnique({
+        where: { id: quelleId },
+      });
+      return updated!;
+    }
+  }
 
   return prisma.audioQuelle.update({
     where: { id: quelleId },

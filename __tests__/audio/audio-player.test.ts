@@ -37,6 +37,7 @@ function makeQuelle(
     typ,
     label: `Test ${typ}`,
     orderIndex: 0,
+    rolle: "STANDARD",
     ...overrides,
   };
 }

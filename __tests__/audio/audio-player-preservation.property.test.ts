@@ -89,6 +89,7 @@ const arbEmbedQuelle: fc.Arbitrary<AudioQuelleResponse> = arbEmbedTyp.chain((typ
     typ: fc.constant(typ),
     label: arbNonEmptyString,
     orderIndex: fc.nat({ max: 10 }),
+    rolle: fc.constant("STANDARD" as const),
   }),
 );
 
@@ -101,6 +102,7 @@ const arbExternalMp3Quelle: fc.Arbitrary<AudioQuelleResponse> = fc.record({
   typ: fc.constant("MP3" as const),
   label: arbNonEmptyString,
   orderIndex: fc.nat({ max: 10 }),
+  rolle: fc.constant("STANDARD" as const),
 });
 
 /** Arbitrary SongDetail for editing mode tests */

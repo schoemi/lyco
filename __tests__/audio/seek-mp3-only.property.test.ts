@@ -45,6 +45,7 @@ function makeQuelle(typ: "SPOTIFY" | "YOUTUBE" | "MP3"): AudioQuelleResponse {
     typ,
     label: `Test ${typ}`,
     orderIndex: 0,
+    rolle: "STANDARD",
   };
 }
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { AudioQuelleResponse } from "@/types/audio";
+import { RollenAuswahl } from "@/components/vocal-trainer/rollen-auswahl";
 
 interface AudioQuellenManagerProps {
   songId: string;
@@ -456,6 +457,12 @@ export default function AudioQuellenManager({
                       {quelle.url}
                     </p>
                   </div>
+                  <RollenAuswahl
+                    songId={songId}
+                    quelleId={quelle.id}
+                    aktuelleRolle={quelle.rolle}
+                    onRolleGeaendert={() => onQuellenChanged()}
+                  />
                   <div className="flex shrink-0 gap-1">
                     <button
                       type="button"

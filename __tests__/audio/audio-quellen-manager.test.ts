@@ -31,6 +31,7 @@ function makeQuelle(overrides?: Partial<AudioQuelleResponse>): AudioQuelleRespon
     typ: "MP3",
     label: "Original",
     orderIndex: 0,
+    rolle: "STANDARD",
     ...overrides,
   };
 }
