@@ -38,6 +38,22 @@ function MarkupNode({ node, tagDefinitions }: { node: ChordProNode; tagDefinitio
   const label = def?.label ?? node.tag;
   const zusatztext = node.zusatztext;
 
+  // Range tag: icon + highlighted text span
+  if (node.type === "chordpro-range") {
+    return (
+      <span
+        className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 mx-0.5"
+        style={{ backgroundColor: `${color}20`, borderBottom: `2px solid ${color}` }}
+        aria-label={zusatztext ? `${label}: ${zusatztext}` : label}
+        title={zusatztext ? `${label}: ${zusatztext}` : label}
+      >
+        <i className={icon} aria-hidden="true" style={{ color, fontSize: "0.7em" }} />
+        <span>{node.rangeText}</span>
+      </span>
+    );
+  }
+
+  // Inline tag: badge with icon
   return (
     <span
       className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-xs font-medium mx-0.5"

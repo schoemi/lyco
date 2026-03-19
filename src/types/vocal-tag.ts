@@ -39,11 +39,13 @@ export interface ChordProParseResult {
 }
 
 export interface ChordProNode {
-  type: 'text' | 'chordpro-tag';
+  type: 'text' | 'chordpro-tag' | 'chordpro-range';
   content?: string;
   tag?: string;
   zusatztext?: string;
   unknown?: boolean;
+  /** For range tags: the marked text content */
+  rangeText?: string;
 }
 
 export interface ChordProParseError {

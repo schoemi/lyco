@@ -11,7 +11,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import fc from "fast-check";
 
 // --- Hoisted mocks ---
-const { mockAuth, mockListSongs, mockGetAverageProgress, mockGetTotalSessionCount, mockSetFindMany, mockGetFaelligeAnzahl, mockGetStreak } = vi.hoisted(() => {
+const { mockAuth, mockListSongs, mockGetAverageProgress, mockGetTotalSessionCount, mockSetFindMany, mockGetFaelligeAnzahl, mockGetStreak, mockGetEmpfangeneFreigaben } = vi.hoisted(() => {
   return {
     mockAuth: vi.fn(),
     mockListSongs: vi.fn(),
@@ -20,6 +20,7 @@ const { mockAuth, mockListSongs, mockGetAverageProgress, mockGetTotalSessionCoun
     mockSetFindMany: vi.fn(),
     mockGetFaelligeAnzahl: vi.fn(),
     mockGetStreak: vi.fn(),
+    mockGetEmpfangeneFreigaben: vi.fn(),
   };
 });
 
@@ -45,6 +46,10 @@ vi.mock("@/lib/services/spaced-repetition-service", () => ({
 
 vi.mock("@/lib/services/streak-service", () => ({
   getStreak: mockGetStreak,
+}));
+
+vi.mock("@/lib/services/freigabe-service", () => ({
+  getEmpfangeneFreigaben: mockGetEmpfangeneFreigaben,
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -108,6 +113,7 @@ describe("Property 16: Dashboard-Aggregation", () => {
     mockAuth.mockResolvedValue({
       user: { id: "user-1", email: "test@example.com" },
     });
+    mockGetEmpfangeneFreigaben.mockResolvedValue({ sets: [], songs: [] });
   });
 
   it("Dashboard response contains all sets, correct songs, and consistent aggregate values", () => {

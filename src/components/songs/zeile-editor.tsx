@@ -15,9 +15,11 @@ interface ZeileEditorProps {
   onZeilenChanged: (zeilen: ZeileDetail[]) => void;
   editing?: boolean;
   viewMode?: StrophenViewMode;
+  /** Controls whether translation fields are shown in edit mode */
+  showTranslations?: boolean;
 }
 
-export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged, editing: isEditing = true, viewMode = "normal" }: ZeileEditorProps) {
+export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged, editing: isEditing = true, viewMode = "normal", showTranslations = true }: ZeileEditorProps) {
   const [statusMessage, setStatusMessage] = useState("");
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [addText, setAddText] = useState("");
@@ -312,7 +314,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
             ) : (
               <p className="text-sm text-neutral-900">{stripChordPro(zeile.text)}</p>
             )}
-            {viewMode === "translation" && zeile.uebersetzung && (
+            {showTranslations && zeile.uebersetzung && (
               <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
             )}
           </div>
@@ -417,8 +419,14 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
             /* Display mode */
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-neutral-900">{stripChordPro(zeile.text)}</p>
-                {viewMode === "translation" && zeile.uebersetzung && (
+                {viewMode === "markup" && tagDefinitions.length > 0 ? (
+                  <p className="text-sm text-neutral-900">
+                    <ZeileMarkupView text={zeile.text} tagDefinitions={tagDefinitions} />
+                  </p>
+                ) : (
+                  <p className="text-sm text-neutral-900">{stripChordPro(zeile.text)}</p>
+                )}
+                {showTranslations && zeile.uebersetzung && (
                   <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
                 )}
               </div>

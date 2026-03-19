@@ -267,6 +267,7 @@ function setupMocks() {
       ...song,
       strophen: songStrophen,
       audioQuellen: [],
+      sets: [],
     } as any;
   });
 }

@@ -8,6 +8,7 @@ import { MetrikKarte } from "@/components/gamification/metrik-karte";
 import { StreakPill } from "@/components/gamification/streak-pill";
 import { SpacedRepetitionWidget } from "@/components/spaced-repetition/spaced-repetition-widget";
 import SetEditDialog from "@/components/songs/set-edit-dialog";
+import GeteilteInhalteSektion from "@/components/sharing/geteilte-inhalte-sektion";
 import type { DashboardData } from "../../../types/song";
 
 export default function DashboardPage() {
@@ -168,6 +169,11 @@ export default function DashboardPage() {
           </div>
         )}
       </section>
+
+      {/* Geteilte Inhalte */}
+      {data.geteilteInhalte && (
+        <GeteilteInhalteSektion geteilteInhalte={data.geteilteInhalte} />
+      )}
 
       {/* Set Create Dialog */}
       <SetEditDialog

@@ -10,6 +10,7 @@ import type {
   MarkupResponse,
 } from "../../types/song";
 import type { Song } from "@/generated/prisma/client";
+import { hatSongZugriff } from "@/lib/services/freigabe-service";
 
 export function deriveSongStatus(
   progress: number
@@ -180,6 +181,9 @@ export async function getSongDetail(
       audioQuellen: {
         orderBy: { orderIndex: "asc" },
       },
+      sets: {
+        include: { set: { select: { id: true, name: true } } },
+      },
       strophen: {
         orderBy: { orderIndex: "asc" },
         include: {
@@ -204,8 +208,14 @@ export async function getSongDetail(
   if (!song) {
     throw new Error("Song nicht gefunden");
   }
-  if (song.userId !== userId) {
-    throw new Error("Zugriff verweigert");
+
+  const istEigentuemer = song.userId === userId;
+
+  if (!istEigentuemer) {
+    const hatZugriff = await hatSongZugriff(songId, userId);
+    if (!hatZugriff) {
+      throw new Error("Zugriff verweigert");
+    }
   }
 
   const sessionCount = await prisma.session.count({
@@ -280,6 +290,18 @@ export async function getSongDetail(
       label: aq.label,
       orderIndex: aq.orderIndex,
     })),
+    sets: song.sets.map((ss) => ({ id: ss.set.id, name: ss.set.name })),
+    ...(istEigentuemer
+      ? {}
+      : {
+          istFreigabe: true,
+          eigentuemerName: await prisma.user
+            .findUnique({
+              where: { id: song.userId },
+              select: { name: true },
+            })
+            .then((u) => u?.name ?? ""),
+        }),
   };
 }
 

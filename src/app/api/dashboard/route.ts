@@ -6,6 +6,7 @@ import { getAverageProgress } from "@/lib/services/progress-service";
 import { getTotalSessionCount } from "@/lib/services/session-service";
 import { getFaelligeAnzahl } from "@/lib/services/spaced-repetition-service";
 import { getStreak } from "@/lib/services/streak-service";
+import { getEmpfangeneFreigaben } from "@/lib/services/freigabe-service";
 import type { DashboardData, DashboardSet, SongWithProgress } from "../../../types/song";
 
 export async function GET() {
@@ -72,6 +73,7 @@ export async function GET() {
       faelligeStrophenAnzahl,
       streak,
       activeSongCount,
+      geteilteInhalte: await getEmpfangeneFreigaben(userId),
     };
 
     return NextResponse.json(data);

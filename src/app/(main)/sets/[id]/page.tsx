@@ -8,6 +8,8 @@ import SetSongList from "@/components/songs/set-song-list";
 import AddSongToSetDialog from "@/components/songs/add-song-to-set-dialog";
 import SetEditDialog from "@/components/songs/set-edit-dialog";
 import SetDeleteDialog from "@/components/songs/set-delete-dialog";
+import FreigabeDialog from "@/components/sharing/freigabe-dialog";
+import FreigabeUebersicht from "@/components/sharing/freigabe-uebersicht";
 
 export default function SetDetailPage() {
   const params = useParams();
@@ -21,6 +23,7 @@ export default function SetDetailPage() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [addSongDialogOpen, setAddSongDialogOpen] = useState(false);
+  const [freigabeDialogOpen, setFreigabeDialogOpen] = useState(false);
 
   const fetchSet = useCallback(async () => {
     try {
@@ -88,6 +91,13 @@ export default function SetDetailPage() {
         <div className="flex gap-2">
           <button
             type="button"
+            onClick={() => setFreigabeDialogOpen(true)}
+            className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+          >
+            Teilen
+          </button>
+          <button
+            type="button"
             onClick={() => setEditDialogOpen(true)}
             className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
           >
@@ -153,6 +163,15 @@ export default function SetDetailPage() {
           fetchSet();
         }}
       />
+
+      <FreigabeDialog
+        open={freigabeDialogOpen}
+        onClose={() => setFreigabeDialogOpen(false)}
+        type="set"
+        itemId={id}
+      />
+
+      <FreigabeUebersicht type="set" itemId={id} />
     </div>
   );
 }

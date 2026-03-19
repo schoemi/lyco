@@ -52,6 +52,52 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
   });
 }
 
+function isSmtpConfigured(): boolean {
+  return !!(
+    process.env.SMTP_HOST &&
+    process.env.SMTP_PORT &&
+    process.env.SMTP_USER &&
+    process.env.SMTP_PASS
+  );
+}
+
+export async function sendFreigabeNotification(
+  empfaengerEmail: string,
+  eigentuemerName: string,
+  titel: string,
+  typ: "song" | "set"
+): Promise<void> {
+  if (!isSmtpConfigured()) {
+    return;
+  }
+
+  const typLabel = typ === "song" ? "Song" : "Set";
+
+  const subject = `Lyco – ${eigentuemerName} hat einen ${typLabel} mit dir geteilt`;
+
+  const html = `
+    <p>Hallo,</p>
+    <p><strong>${eigentuemerName}</strong> hat den ${typLabel} <strong>${titel}</strong> mit dir geteilt.</p>
+    <p>Melde dich bei Lyco an, um den geteilten Inhalt anzusehen.</p>
+    <p>Viele Grüße,<br>Dein Lyco-Team</p>
+  `;
+
+  const text = `Hallo,
+
+${eigentuemerName} hat den ${typLabel} "${titel}" mit dir geteilt.
+
+Melde dich bei Lyco an, um den geteilten Inhalt anzusehen.
+
+Viele Grüße,
+Dein Lyco-Team`;
+
+  try {
+    await sendEmail({ to: empfaengerEmail, subject, html, text });
+  } catch (error) {
+    console.error("Fehler beim Senden der Freigabe-Benachrichtigung:", error);
+  }
+}
+
 export async function sendPasswordResetEmail(
   to: string,
   resetToken: string

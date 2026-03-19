@@ -31,7 +31,6 @@ describe("StropheEditor — showTranslations prop (Req 3.1, 3.3)", () => {
   });
 
   it("destructures showTranslations from props", () => {
-    // The function signature should destructure showTranslations
     expect(source).toContain("showTranslations");
   });
 });
@@ -46,15 +45,18 @@ describe("StropheEditor — showTranslations passed to ZeileEditor (Req 3.3)", (
   });
 
   it("passes showTranslations prop to ZeileEditor", () => {
-    // The editing view should pass showTranslations={showTranslations} to ZeileEditor
-    expect(source).toMatch(/showTranslations=\{showTranslations\}/);
+    // The editing view passes effectiveShowTranslations (derived from edit mode state) to ZeileEditor
+    expect(source).toMatch(/showTranslations=\{effectiveShowTranslations\}/);
+  });
+
+  it("derives effectiveShowTranslations for edit mode", () => {
+    expect(source).toContain("effectiveShowTranslations");
   });
 
   it("passes showTranslations within the ZeileEditor JSX block", () => {
-    // Extract the ZeileEditor JSX block and verify showTranslations is inside it
     const zeileEditorMatch = source.match(/<ZeileEditor[\s\S]*?\/>/);
     expect(zeileEditorMatch).not.toBeNull();
-    expect(zeileEditorMatch![0]).toContain("showTranslations={showTranslations}");
+    expect(zeileEditorMatch![0]).toContain("showTranslations={effectiveShowTranslations}");
   });
 });
 
@@ -64,19 +66,16 @@ describe("StropheEditor — showTranslations passed to ZeileEditor (Req 3.3)", (
 
 describe("StropheEditor — Read-only view translation visibility (Req 3.1, 3.2)", () => {
   it("conditionally renders uebersetzung in read-only view based on showTranslations", () => {
-    // The read-only view (!isEditing) should gate uebersetzung on showTranslations
     expect(source).toMatch(/showTranslations\s*&&\s*zeile\.uebersetzung/);
   });
 
   it("read-only block contains the showTranslations guard for uebersetzung", () => {
-    // Extract the read-only view block (between !isEditing check and the editing view)
     const readOnlyMatch = source.match(
       /if\s*\(\s*!isEditing\s*\)\s*\{[\s\S]*?return\s*\(([\s\S]*?)\);\s*\}/
     );
     expect(readOnlyMatch).not.toBeNull();
     const readOnlyBlock = readOnlyMatch![1];
 
-    // The read-only block should contain the showTranslations guard
     expect(readOnlyBlock).toContain("showTranslations");
     expect(readOnlyBlock).toMatch(/showTranslations\s*&&\s*zeile\.uebersetzung/);
   });

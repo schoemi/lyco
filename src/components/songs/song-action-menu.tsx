@@ -3,21 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import LanguageSelector from "./language-selector";
 import TranslateButton from "./translate-button";
-import TranslationToggle from "./translation-toggle";
 
 interface SongActionMenuProps {
   analyzing: boolean;
   translating: boolean;
   zielsprache: string;
   hasTranslations: boolean;
-  showTranslations: boolean;
   onAnalyze: () => void;
   onTranslate: () => void;
   onEdit: () => void;
   onEditText: () => void;
   onDelete: () => void;
   onZielspracheChange: (sprache: string) => void;
-  onShowTranslationsChange: (show: boolean) => void;
 }
 
 export default function SongActionMenu({
@@ -25,14 +22,12 @@ export default function SongActionMenu({
   translating,
   zielsprache,
   hasTranslations,
-  showTranslations,
   onAnalyze,
   onTranslate,
   onEdit,
   onEditText,
   onDelete,
   onZielspracheChange,
-  onShowTranslationsChange,
 }: SongActionMenuProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -165,19 +160,6 @@ export default function SongActionMenu({
           >
             🗑️ Löschen
           </button>
-
-          {/* Übersetzung Toggle */}
-          {hasTranslations && (
-            <>
-              <div className="border-t border-neutral-100 my-1" />
-              <div className="px-4 py-2.5">
-                <TranslationToggle
-                  checked={showTranslations}
-                  onChange={onShowTranslationsChange}
-                />
-              </div>
-            </>
-          )}
         </div>
       )}
     </div>

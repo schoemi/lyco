@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { Interpretation } from "@/generated/prisma/client";
+import { hatSongZugriff } from "@/lib/services/freigabe-service";
 
 export async function upsertInterpretation(
   userId: string,
@@ -17,7 +18,8 @@ export async function upsertInterpretation(
   if (!strophe) {
     throw new Error("Strophe nicht gefunden");
   }
-  if (strophe.song.userId !== userId) {
+  const hasAccess = await hatSongZugriff(strophe.song.id, userId);
+  if (!hasAccess) {
     throw new Error("Zugriff verweigert");
   }
 
@@ -55,7 +57,8 @@ export async function getInterpretationsForSong(
   if (!song) {
     throw new Error("Song nicht gefunden");
   }
-  if (song.userId !== userId) {
+  const hasAccess = await hatSongZugriff(songId, userId);
+  if (!hasAccess) {
     throw new Error("Zugriff verweigert");
   }
 

@@ -55,11 +55,15 @@ const { mockPrisma } = vi.hoisted(() => {
     delete: vi.fn(),
   };
   const _mockSong = { findUnique: vi.fn() };
+  const _mockSongFreigabe = { findUnique: vi.fn() };
+  const _mockSetFreigabe = { findFirst: vi.fn() };
 
   const _mockPrisma: Record<string, unknown> = {
     strophe: _mockStrophe,
     interpretation: _mockInterpretation,
     song: _mockSong,
+    songFreigabe: _mockSongFreigabe,
+    setFreigabe: _mockSetFreigabe,
   };
 
   return { mockPrisma: _mockPrisma };
@@ -86,6 +90,8 @@ function setupMocks() {
   const mockedStropheFindUnique = vi.mocked(prisma.strophe.findUnique);
   const mockedInterpretationFindUnique = vi.mocked(prisma.interpretation.findUnique);
   const mockedSongFindUnique = vi.mocked(prisma.song.findUnique);
+  const mockedSongFreigabeFindUnique = vi.mocked((prisma as any).songFreigabe.findUnique);
+  const mockedSetFreigabeFindFirst = vi.mocked((prisma as any).setFreigabe.findFirst);
 
   mockedStropheFindUnique.mockImplementation(async (args: any) => {
     const stropheId = args?.where?.id;
@@ -111,6 +117,10 @@ function setupMocks() {
       interpretationen.find((i) => i.id === interpId) ?? null
     ) as any;
   });
+
+  // No freigabe exists for the intruder — access should be denied
+  mockedSongFreigabeFindUnique.mockResolvedValue(null);
+  mockedSetFreigabeFindFirst.mockResolvedValue(null);
 }
 
 // --- Seed helpers ---

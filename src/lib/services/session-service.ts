@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Lernmethode } from "@/generated/prisma/client";
 import type { Session } from "@/generated/prisma/client";
 import { updateStreak } from "@/lib/services/streak-service";
+import { hatSongZugriff } from "@/lib/services/freigabe-service";
 
 export interface SessionCreateResult {
   session: Session;
@@ -23,7 +24,8 @@ export async function createSession(
   if (!song) {
     throw new Error("Song nicht gefunden");
   }
-  if (song.userId !== userId) {
+  const hasAccess = await hatSongZugriff(songId, userId);
+  if (!hasAccess) {
     throw new Error("Zugriff verweigert");
   }
 
@@ -69,7 +71,8 @@ export async function createSessionWithStreak(
   if (!song) {
     throw new Error("Song nicht gefunden");
   }
-  if (song.userId !== userId) {
+  const hasAccess = await hatSongZugriff(songId, userId);
+  if (!hasAccess) {
     throw new Error("Zugriff verweigert");
   }
 

@@ -51,13 +51,55 @@ function DetailNode({
     return <span>{node.content}</span>;
   }
 
-  // chordpro-tag node: render icon + zusatztext annotation above the inline position
   const definition = tagDefinitions.find((d) => d.tag === node.tag);
   const icon = definition?.icon ?? "fa-solid fa-circle-question";
   const color = definition?.color ?? "#9ca3af";
   const label = definition?.label ?? node.tag;
   const zusatztext = node.zusatztext ?? "";
 
+  // Range tag: annotation above + highlighted text span
+  if (node.type === "chordpro-range") {
+    return (
+      <span
+        className="detail-range-marker relative inline-flex flex-col items-start"
+        style={{ verticalAlign: "top" }}
+      >
+        <span
+          className="detail-tag-annotation absolute flex items-center gap-0.5 whitespace-nowrap"
+          style={{
+            color,
+            top: "-1.4em",
+            left: 0,
+            pointerEvents: "none",
+          }}
+          aria-label={zusatztext ? `${label}: ${zusatztext}` : label}
+        >
+          <i
+            className={`${icon} text-[0.65rem] leading-none`}
+            aria-hidden="true"
+            role="img"
+          />
+          {zusatztext && (
+            <span className="detail-tag-zusatztext text-[0.55rem] leading-none">
+              {zusatztext}
+            </span>
+          )}
+        </span>
+        <span
+          style={{
+            backgroundColor: `${color}20`,
+            borderBottom: `2px solid ${color}`,
+            borderRadius: "2px",
+            padding: "0 2px",
+          }}
+        >
+          {node.rangeText}
+        </span>
+      </span>
+    );
+  }
+
+  // Inline tag: icon + zusatztext annotation above the inline position
   return (
     <span
       className="detail-tag-marker relative inline-flex flex-col items-start"

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { Fortschritt } from "@/generated/prisma/client";
 import type { StropheProgress } from "../../types/song";
+import { hatSongZugriff } from "@/lib/services/freigabe-service";
 
 export async function updateProgress(
   userId: string,
@@ -14,7 +15,8 @@ export async function updateProgress(
   if (!strophe) {
     throw new Error("Strophe nicht gefunden");
   }
-  if (strophe.song.userId !== userId) {
+  const hasAccess = await hatSongZugriff(strophe.song.id, userId);
+  if (!hasAccess) {
     throw new Error("Zugriff verweigert");
   }
 
@@ -37,7 +39,8 @@ export async function getSongProgress(
   if (!song) {
     throw new Error("Song nicht gefunden");
   }
-  if (song.userId !== userId) {
+  const hasAccess = await hatSongZugriff(songId, userId);
+  if (!hasAccess) {
     throw new Error("Zugriff verweigert");
   }
 

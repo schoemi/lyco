@@ -267,7 +267,7 @@ function setupMocks(sessionCount: number, progressValues: number[]) {
         };
       });
 
-    return { ...song, strophen: songStrophen, audioQuellen: [] } as any;
+    return { ...song, strophen: songStrophen, audioQuellen: [], sets: [] } as any;
   });
 }
 

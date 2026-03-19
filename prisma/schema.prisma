@@ -98,6 +98,10 @@ model User {
   interpretationen Interpretation[]
   wiederholungen   Wiederholung[]
   streak           Streak?
+  songFreigabenAlsEigentuemer SongFreigabe[] @relation("SongFreigabenAlsEigentuemer")
+  songFreigabenAlsEmpfaenger SongFreigabe[] @relation("SongFreigabenAlsEmpfaenger")
+  setFreigabenAlsEigentuemer  SetFreigabe[]  @relation("SetFreigabenAlsEigentuemer")
+  setFreigabenAlsEmpfaenger  SetFreigabe[]  @relation("SetFreigabenAlsEmpfaenger")
 
   @@map("users")
 }
@@ -124,8 +128,9 @@ model Set {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  user  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  songs SetSong[]
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  songs     SetSong[]
+  freigaben SetFreigabe[]
 
   @@map("sets")
 }
@@ -157,11 +162,12 @@ model Song {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   strophen     Strophe[]
   sets         SetSong[]
   sessions     Session[]
   audioQuellen AudioQuelle[]
+  freigaben    SongFreigabe[]
 
   @@map("songs")
 }
@@ -373,4 +379,34 @@ model PasswordResetAttempt {
 
   @@index([email, type, createdAt])
   @@map("password_reset_attempts")
+}
+
+model SongFreigabe {
+  id            String   @id @default(cuid())
+  songId        String
+  eigentuemerId String
+  empfaengerId  String
+  createdAt     DateTime @default(now())
+
+  song        Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+  eigentuemer User @relation("SongFreigabenAlsEigentuemer", fields: [eigentuemerId], references: [id], onDelete: Cascade)
+  empfaenger  User @relation("SongFreigabenAlsEmpfaenger", fields: [empfaengerId], references: [id], onDelete: Cascade)
+
+  @@unique([songId, empfaengerId])
+  @@map("song_freigaben")
+}
+
+model SetFreigabe {
+  id            String   @id @default(cuid())
+  setId         String
+  eigentuemerId String
+  empfaengerId  String
+  createdAt     DateTime @default(now())
+
+  set         Set  @relation(fields: [setId], references: [id], onDelete: Cascade)
+  eigentuemer User @relation("SetFreigabenAlsEigentuemer", fields: [eigentuemerId], references: [id], onDelete: Cascade)
+  empfaenger  User @relation("SetFreigabenAlsEmpfaenger", fields: [empfaengerId], references: [id], onDelete: Cascade)
+
+  @@unique([setId, empfaengerId])
+  @@map("set_freigaben")
 }

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { ChordProNode } from "@/lib/vocal-tag/chordpro-node-extension";
+import { ChordProMark } from "@/lib/vocal-tag/chordpro-mark-extension";
 import { AutocompletePlugin } from "@/lib/vocal-tag/autocomplete-plugin";
 import { suggestionRenderer } from "@/lib/vocal-tag/suggestion-renderer";
 import { VocalTagToolbar } from "@/components/vocal-tag/vocal-tag-toolbar";
@@ -58,6 +59,7 @@ export function ZeileTagInput({
           blockquote: false,
         }),
         ChordProNode.configure({ tagDefinitions }),
+        ChordProMark.configure({ tagDefinitions }),
         AutocompletePlugin.configure({
           tagDefinitions,
           suggestion: { render: suggestionRender },
@@ -151,7 +153,22 @@ function editorToChordPro(
           unknown: (attrs?.unknown as boolean) ?? false,
         });
       } else if (inline.type === "text") {
-        nodes.push({ type: "text", content: ((inline as Record<string, unknown>).text as string) ?? "" });
+        const text = ((inline as Record<string, unknown>).text as string) ?? "";
+        const marks = (inline as Record<string, unknown>).marks as Array<Record<string, unknown>> | undefined;
+        const chordProMark = marks?.find((m) => m.type === "chordProMark");
+
+        if (chordProMark) {
+          const markAttrs = chordProMark.attrs as Record<string, unknown> | undefined;
+          nodes.push({
+            type: "chordpro-range",
+            tag: (markAttrs?.tag as string) ?? "",
+            zusatztext: (markAttrs?.zusatztext as string) ?? "",
+            unknown: (markAttrs?.unknown as boolean) ?? false,
+            rangeText: text,
+          });
+        } else {
+          nodes.push({ type: "text", content: text });
+        }
       }
     }
   }
@@ -175,6 +192,21 @@ function chordProNodesToTipTap(nodes: ChordProNodeType[]): Record<string, unknow
           zusatztext: node.zusatztext ?? "",
           unknown: node.unknown ?? false,
         },
+      });
+    } else if (node.type === "chordpro-range") {
+      content.push({
+        type: "text",
+        text: node.rangeText ?? "",
+        marks: [
+          {
+            type: "chordProMark",
+            attrs: {
+              tag: node.tag ?? "",
+              zusatztext: node.zusatztext ?? "",
+              unknown: node.unknown ?? false,
+            },
+          },
+        ],
       });
     }
   }

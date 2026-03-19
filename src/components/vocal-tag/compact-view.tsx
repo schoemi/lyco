@@ -46,12 +46,35 @@ function CompactNode({
     return <span>{node.content}</span>;
   }
 
-  // chordpro-tag node: render icon above the inline position
   const definition = tagDefinitions.find((d) => d.tag === node.tag);
   const icon = definition?.icon ?? "fa-solid fa-circle-question";
   const color = definition?.color ?? "#9ca3af";
   const label = definition?.label ?? node.tag;
 
+  // Range tag: icon vorangestellt + Text mit farbigem Hintergrund
+  if (node.type === "chordpro-range") {
+    return (
+      <span
+        className="compact-range-marker inline-flex items-center gap-0.5"
+        style={{
+          backgroundColor: `${color}20`,
+          borderBottom: `2px solid ${color}`,
+          borderRadius: "2px",
+          padding: "0 2px",
+        }}
+        aria-label={label}
+      >
+        <i
+          className={`${icon} text-[0.65rem] leading-none`}
+          aria-hidden="true"
+          style={{ color }}
+        />
+        <span>{node.rangeText}</span>
+      </span>
+    );
+  }
+
+  // Inline tag: icon above the inline position
   return (
     <span
       className="compact-tag-marker relative inline-flex flex-col items-center"

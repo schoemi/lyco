@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { ChordProNode } from "@/lib/vocal-tag/chordpro-node-extension";
+import { ChordProMark } from "@/lib/vocal-tag/chordpro-mark-extension";
 import { AutocompletePlugin } from "@/lib/vocal-tag/autocomplete-plugin";
 import { suggestionRenderer } from "@/lib/vocal-tag/suggestion-renderer";
 import { VocalTagToolbar } from "./vocal-tag-toolbar";
@@ -108,6 +109,9 @@ export function VocalTagEditor({
           horizontalRule: false,
         }),
         ChordProNode.configure({
+          tagDefinitions,
+        }),
+        ChordProMark.configure({
           tagDefinitions,
         }),
         AutocompletePlugin.configure({
@@ -242,6 +246,7 @@ function editorToChordPro(editor: ReturnType<typeof useEditor>): string {
 
 /**
  * Extracts ChordProNode[] from the TipTap editor's JSON content.
+ * Handles both inline ChordProNode atoms and ChordProMark ranges.
  */
 function editorToChordProNodes(
   editor: NonNullable<ReturnType<typeof useEditor>>,
@@ -266,7 +271,22 @@ function editorToChordProNodes(
           unknown: (attrs?.unknown as boolean) ?? false,
         });
       } else if (inline.type === "text") {
-        result.push({ type: "text", content: ((inline as Record<string, unknown>).text as string) ?? "" });
+        const text = ((inline as Record<string, unknown>).text as string) ?? "";
+        const marks = (inline as Record<string, unknown>).marks as Array<Record<string, unknown>> | undefined;
+        const chordProMark = marks?.find((m) => m.type === "chordProMark");
+
+        if (chordProMark) {
+          const markAttrs = chordProMark.attrs as Record<string, unknown> | undefined;
+          result.push({
+            type: "chordpro-range",
+            tag: (markAttrs?.tag as string) ?? "",
+            zusatztext: (markAttrs?.zusatztext as string) ?? "",
+            unknown: (markAttrs?.unknown as boolean) ?? false,
+            rangeText: text,
+          });
+        } else {
+          result.push({ type: "text", content: text });
+        }
       }
     }
   }
@@ -329,6 +349,22 @@ function chordProNodesToTipTap(nodes: ChordProNodeType[]): Record<string, unknow
                   zusatztext: node.zusatztext ?? "",
                   unknown: node.unknown ?? false,
                 },
+              };
+            }
+            if (node.type === "chordpro-range") {
+              return {
+                type: "text",
+                text: node.rangeText ?? "",
+                marks: [
+                  {
+                    type: "chordProMark",
+                    attrs: {
+                      tag: node.tag ?? "",
+                      zusatztext: node.zusatztext ?? "",
+                      unknown: node.unknown ?? false,
+                    },
+                  },
+                ],
               };
             }
             return {

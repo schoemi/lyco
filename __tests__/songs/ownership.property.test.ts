@@ -63,12 +63,20 @@ const { mockPrisma } = vi.hoisted(() => {
     create: vi.fn(),
     deleteMany: vi.fn(),
   };
+  const _mockSongFreigabe = {
+    findUnique: vi.fn(),
+  };
+  const _mockSetFreigabe = {
+    findFirst: vi.fn(),
+  };
 
   const _mockPrisma: Record<string, unknown> = {
     set: _mockSet,
     song: _mockSong,
     session: _mockSession,
     setSong: _mockSetSong,
+    songFreigabe: _mockSongFreigabe,
+    setFreigabe: _mockSetFreigabe,
   };
 
   return { mockPrisma: _mockPrisma };
@@ -161,6 +169,10 @@ function setupMocks() {
   // Session count: always 0
   mockedSessionCount.mockResolvedValue(0);
   mockedSessionFindFirst.mockResolvedValue(null as any);
+
+  // SongFreigabe/SetFreigabe: no shares exist (for hatSongZugriff)
+  vi.mocked((prisma as any).songFreigabe.findUnique).mockResolvedValue(null as any);
+  vi.mocked((prisma as any).setFreigabe.findFirst).mockResolvedValue(null as any);
 }
 
 // Helper to seed a set owned by owner

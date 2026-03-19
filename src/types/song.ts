@@ -133,6 +133,9 @@ export interface SongDetail {
   coachTipp: string | null;
   strophen: StropheDetail[];
   audioQuellen: AudioQuelleResponse[];
+  sets: { id: string; name: string }[];
+  istFreigabe?: boolean;
+  eigentuemerName?: string;
 }
 
 export interface StropheDetail {
@@ -182,6 +185,42 @@ export interface StropheAnalyseResult {
   analyse: string;
 }
 
+// --- Freigabe-Typen ---
+
+export interface CreateSongFreigabeInput {
+  songId: string;
+  empfaengerEmail: string;
+}
+
+export interface CreateSetFreigabeInput {
+  setId: string;
+  empfaengerEmail: string;
+}
+
+export interface FreigabeEmpfaenger {
+  id: string;
+  empfaenger: { id: string; name: string; email: string };
+  erstelltAm: string;
+}
+
+export interface EmpfangenesSet {
+  freigabeId: string;
+  set: { id: string; name: string; description: string | null };
+  eigentuemerName: string;
+  songs: SongWithProgress[];
+}
+
+export interface EmpfangenerSong {
+  freigabeId: string;
+  song: SongWithProgress;
+  eigentuemerName: string;
+}
+
+export interface GeteilteInhalte {
+  sets: EmpfangenesSet[];
+  songs: EmpfangenerSong[];
+}
+
 // --- Dashboard ---
 
 export interface DashboardData {
@@ -193,6 +232,7 @@ export interface DashboardData {
   faelligeStrophenAnzahl: number;
   streak: number;
   activeSongCount: number;
+  geteilteInhalte: GeteilteInhalte;
 }
 
 export interface DashboardSet {

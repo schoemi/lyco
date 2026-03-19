@@ -15,7 +15,12 @@ const modes: { value: StrophenViewMode; label: string; icon: string }[] = [
   { value: "translation", label: "Übersetzung", icon: "🌐" },
 ];
 
-export function StrophenViewToggle({ mode, onChange, hasTranslations = true, hasMarkup = true }: StrophenViewToggleProps) {
+export function StrophenViewToggle({
+  mode,
+  onChange,
+  hasTranslations = true,
+  hasMarkup = true,
+}: StrophenViewToggleProps) {
   const available = modes.filter((m) => {
     if (m.value === "translation" && !hasTranslations) return false;
     return true;

@@ -9,6 +9,12 @@ vi.mock("@/lib/prisma", () => ({
     session: {
       create: vi.fn(),
     },
+    songFreigabe: {
+      findUnique: vi.fn(),
+    },
+    setFreigabe: {
+      findFirst: vi.fn(),
+    },
     $transaction: vi.fn(),
   },
 }));
@@ -49,6 +55,10 @@ describe("session-streak-integration", () => {
 
     // Default: song exists and belongs to user
     mockPrisma.song.findUnique.mockResolvedValue(mockSong as any);
+
+    // Default: no freigabe exists (for access control tests)
+    (mockPrisma as any).songFreigabe.findUnique.mockResolvedValue(null);
+    (mockPrisma as any).setFreigabe.findFirst.mockResolvedValue(null);
 
     // Default: $transaction executes the callback with a tx client
     mockPrisma.$transaction.mockImplementation(async (cb: any) => {

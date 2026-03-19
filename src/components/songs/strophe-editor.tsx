@@ -6,6 +6,7 @@ import ZeileEditor from "./zeile-editor";
 import TimecodeEingabe from "@/components/songs/timecode-eingabe";
 import { formatTimecode } from "@/lib/audio/timecode";
 import type { StrophenViewMode } from "./strophen-view-toggle";
+import { StrophenViewToggle } from "./strophen-view-toggle";
 import { ZeileMarkupView } from "./zeile-markup-view";
 import { stripChordPro } from "@/lib/vocal-tag/chordpro-parser";
 import type { TagDefinitionData } from "@/types/vocal-tag";
@@ -17,9 +18,11 @@ interface StropheEditorProps {
   editing?: boolean;
   viewMode?: StrophenViewMode;
   onSeekTo?: (timecodeMs: number) => void;
+  /** Controls whether translations are shown */
+  showTranslations?: boolean;
 }
 
-export default function StropheEditor({ songId, strophen, onStrophenChanged, editing: isEditing = true, viewMode = "normal", onSeekTo }: StropheEditorProps) {
+export default function StropheEditor({ songId, strophen, onStrophenChanged, editing: isEditing = true, viewMode = "normal", onSeekTo, showTranslations = true }: StropheEditorProps) {
   const [statusMessage, setStatusMessage] = useState("");
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [addName, setAddName] = useState("");
@@ -36,6 +39,10 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [reorderLoading, setReorderLoading] = useState(false);
   const [tagDefinitions, setTagDefinitions] = useState<TagDefinitionData[]>([]);
+  const [editViewMode, setEditViewMode] = useState<StrophenViewMode>("normal");
+
+  // In edit mode, derive showTranslations from editViewMode
+  const editShowTranslation = editViewMode === "translation";
 
   const addNameInputRef = useRef<HTMLInputElement>(null);
   const editNameInputRef = useRef<HTMLInputElement>(null);
@@ -77,9 +84,9 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
     return () => document.removeEventListener("keydown", handleKeyDown);
   });
 
-  // Fetch tag definitions for markup view
+  // Fetch tag definitions for markup view (both read-only and edit mode)
   useEffect(() => {
-    if (viewMode !== "markup") return;
+    if (tagDefinitions.length > 0) return;
     let cancelled = false;
     async function fetchTags() {
       try {
@@ -90,9 +97,9 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
         if (!cancelled) setTagDefinitions(defs);
       } catch { /* ignore */ }
     }
-    if (tagDefinitions.length === 0) fetchTags();
+    fetchTags();
     return () => { cancelled = true; };
-  }, [viewMode]);
+  }, []);
 
   function showStatus(msg: string) {
     setStatusMessage(msg);
@@ -288,6 +295,14 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
 
   const deleteStrophe = deleteConfirmId ? strophen.find((s) => s.id === deleteConfirmId) : null;
 
+  const hasTranslations = strophen.some((s) =>
+    s.zeilen.some((z) => z.uebersetzung != null && z.uebersetzung.trim() !== "")
+  );
+
+  // Determine effective view mode and translation visibility for zeile editors
+  const effectiveViewMode = isEditing ? editViewMode : viewMode;
+  const effectiveShowTranslations = isEditing ? editShowTranslation : showTranslations;
+
   // --- Read-only view ---
   if (!isEditing) {
     return (
@@ -328,7 +343,7 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
                         ) : (
                           <p className="text-sm text-neutral-900">{stripChordPro(zeile.text)}</p>
                         )}
-                        {viewMode === "translation" && zeile.uebersetzung && (
+                        {showTranslations && zeile.uebersetzung && (
                           <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
                         )}
                       </div>
@@ -348,6 +363,15 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
       {/* aria-live status region */}
       <div aria-live="polite" className="sr-only">
         {statusMessage}
+      </div>
+
+      {/* View toggle for edit mode */}
+      <div className="flex justify-end">
+        <StrophenViewToggle
+          mode={editViewMode}
+          onChange={setEditViewMode}
+          hasTranslations={hasTranslations}
+        />
       </div>
 
       {/* Strophe list */}
@@ -521,7 +545,8 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
               songId={songId}
               stropheId={strophe.id}
               zeilen={strophe.zeilen}
-              viewMode={viewMode}
+              viewMode={effectiveViewMode}
+              showTranslations={effectiveShowTranslations}
               onZeilenChanged={(updatedZeilen: ZeileDetail[]) => {
                 const updatedStrophen = strophen.map((s) =>
                   s.id === strophe.id ? { ...s, zeilen: updatedZeilen } : s

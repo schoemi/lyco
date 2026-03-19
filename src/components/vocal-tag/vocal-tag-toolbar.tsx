@@ -57,7 +57,18 @@ export function VocalTagToolbar({ editor, tagDefinitions }: VocalTagToolbarProps
   const insertTag = useCallback(
     (tag: string) => {
       if (!editor) return;
-      editor.chain().focus().insertChordProTag({ tag }).run();
+
+      const { from, to } = editor.state.selection;
+      const hasSelection = from !== to;
+
+      if (hasSelection) {
+        // Text is selected → apply range mark
+        editor.chain().focus().setChordProMark({ tag }).run();
+      } else {
+        // No selection → insert inline tag node
+        editor.chain().focus().insertChordProTag({ tag }).run();
+      }
+
       setDropdownOpen(false);
     },
     [editor],
