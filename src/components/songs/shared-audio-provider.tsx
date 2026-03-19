@@ -58,6 +58,16 @@ export function SharedAudioProvider({ audioQuellen, onTimeUpdate, children }: Sh
   const handleLoadedMetadata = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
+    // Firefox Mobile sometimes reports Infinity initially; wait for a real value
+    if (Number.isFinite(audio.duration)) {
+      setDurationMs(Math.round(audio.duration * 1000));
+    }
+  }, []);
+
+  // Firefox Mobile may resolve duration late via durationchange
+  const handleDurationChange = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio || !Number.isFinite(audio.duration)) return;
     setDurationMs(Math.round(audio.duration * 1000));
   }, []);
 
@@ -65,8 +75,12 @@ export function SharedAudioProvider({ audioQuellen, onTimeUpdate, children }: Sh
     const audio = audioRef.current;
     if (!audio) return;
     if (audio.paused) {
+      // Explicitly load if Firefox hasn't started network activity yet
+      if (audio.readyState === 0) {
+        audio.load();
+      }
       audio.play().catch(() => {
-        // iOS Safari rejects play() without user gesture — ignore gracefully
+        // iOS Safari / Firefox Mobile may reject play() — ignore gracefully
       });
     } else {
       audio.pause();
@@ -115,17 +129,20 @@ export function SharedAudioProvider({ audioQuellen, onTimeUpdate, children }: Sh
 
   return (
     <SharedAudioContext.Provider value={value}>
-      {/* Single shared audio element */}
+      {/* Single shared audio element — key forces remount on source change
+          so Firefox Mobile properly resets its internal decoder state. */}
       {isMp3 && activeQuelle && (
         <audio
+          key={activeQuelle.id}
           ref={audioRef}
           src={activeQuelle.url}
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
+          onDurationChange={handleDurationChange}
           onEnded={() => setIsPlaying(false)}
           onPause={() => setIsPlaying(false)}
           onPlay={() => setIsPlaying(true)}
-          preload="metadata"
+          preload="auto"
           playsInline
         />
       )}

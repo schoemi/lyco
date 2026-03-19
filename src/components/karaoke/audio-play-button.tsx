@@ -48,8 +48,12 @@ export const AudioPlayButton = forwardRef<AudioPlayButtonHandle, AudioPlayButton
       const audio = audioRef.current;
       if (!audio) return;
       if (audio.paused) {
+        // Firefox Mobile may not have started loading yet with preload="auto"
+        if (audio.readyState === 0) {
+          audio.load();
+        }
         audio.play().catch(() => {
-          // iOS Safari rejects play() without user gesture — ignore gracefully
+          // iOS Safari / Firefox Mobile may reject play() — ignore gracefully
         });
       } else {
         audio.pause();
@@ -67,7 +71,7 @@ export const AudioPlayButton = forwardRef<AudioPlayButtonHandle, AudioPlayButton
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           onEnded={() => setIsPlaying(false)}
-          preload="metadata"
+          preload="auto"
           playsInline
         />
         <button
