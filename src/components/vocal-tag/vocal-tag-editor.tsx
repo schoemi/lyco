@@ -257,15 +257,16 @@ function editorToChordProNodes(
     }
 
     for (const inline of block.content ?? []) {
+      const attrs = (inline as Record<string, unknown>).attrs as Record<string, unknown> | undefined;
       if (inline.type === "chordProNode") {
         result.push({
           type: "chordpro-tag",
-          tag: inline.attrs?.tag ?? "",
-          zusatztext: inline.attrs?.zusatztext ?? "",
-          unknown: inline.attrs?.unknown ?? false,
+          tag: (attrs?.tag as string) ?? "",
+          zusatztext: (attrs?.zusatztext as string) ?? "",
+          unknown: (attrs?.unknown as boolean) ?? false,
         });
       } else if (inline.type === "text") {
-        result.push({ type: "text", content: inline.text ?? "" });
+        result.push({ type: "text", content: ((inline as Record<string, unknown>).text as string) ?? "" });
       }
     }
   }
