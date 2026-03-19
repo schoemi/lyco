@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import type { ChordProNode } from "@/types/vocal-tag";
 import { exportChordPro } from "@/lib/vocal-tag/chordpro-export";
+import { AppIcon } from "@/components/ui/iconify-icon";
 
 /**
  * ChordProExportButton – Button zum Exportieren des Editor-Inhalts als `.chopro`-Datei.
@@ -36,7 +37,7 @@ export function ChordProExportButton({
       aria-label="Als ChordPro-Datei exportieren"
       className="inline-flex items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
     >
-      <i className="fa-solid fa-download" aria-hidden="true" />
+      <AppIcon icon="fa6-solid:download" />
       <span>ChordPro exportieren</span>
     </button>
   );

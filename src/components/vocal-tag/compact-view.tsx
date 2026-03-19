@@ -2,23 +2,17 @@
 
 import { parseChordPro } from "@/lib/vocal-tag/chordpro-parser";
 import type { TagDefinitionData, ChordProNode } from "@/types/vocal-tag";
+import { AppIcon } from "@/components/ui/iconify-icon";
+import { faClassToIconify, UNKNOWN_TAG_ICON } from "@/lib/icon-utils";
 
 /**
  * CompactView – Read-only compact rendering of a song text with vocal tags.
- *
- * - Renders song text without ChordPro raw syntax
- * - Shows only tag icons (in tag color) above text positions
- * - Ignores zusatztext entirely
- * - Uses a generic warning icon for unknown tags
- * - Does not interrupt text flow
  *
  * Validates: Requirements 9.1, 9.2, 9.3, 9.4, 9.5, 9.6
  */
 
 export interface CompactViewProps {
-  /** Raw song text potentially containing ChordPro tags */
   text: string;
-  /** Available tag definitions for resolving icons and colors */
   tagDefinitions: TagDefinitionData[];
 }
 
@@ -47,11 +41,10 @@ function CompactNode({
   }
 
   const definition = tagDefinitions.find((d) => d.tag === node.tag);
-  const icon = definition?.icon ?? "fa-solid fa-circle-question";
+  const icon = faClassToIconify(definition?.icon ?? UNKNOWN_TAG_ICON);
   const color = definition?.color ?? "#9ca3af";
   const label = definition?.label ?? node.tag;
 
-  // Range tag: icon vorangestellt + Text mit farbigem Hintergrund
   if (node.type === "chordpro-range") {
     return (
       <span
@@ -64,17 +57,12 @@ function CompactNode({
         }}
         aria-label={label}
       >
-        <i
-          className={`${icon} text-[0.65rem] leading-none`}
-          aria-hidden="true"
-          style={{ color }}
-        />
+        <AppIcon icon={icon} color={color} className="text-[0.65rem] leading-none" />
         <span>{node.rangeText}</span>
       </span>
     );
   }
 
-  // Inline tag: icon above the inline position
   return (
     <span
       className="compact-tag-marker relative inline-flex flex-col items-center"
@@ -83,10 +71,10 @@ function CompactNode({
       <span
         className="compact-tag-icon block text-[0.65rem] leading-none -mb-0.5"
         style={{ color }}
-        aria-label={label}
         role="img"
+        aria-label={label}
       >
-        <i className={icon} aria-hidden="true" />
+        <AppIcon icon={icon} />
       </span>
     </span>
   );

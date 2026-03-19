@@ -3,10 +3,11 @@
 import { useMemo } from "react";
 import { parseChordPro } from "@/lib/vocal-tag/chordpro-parser";
 import type { TagDefinitionData, ChordProNode } from "@/types/vocal-tag";
+import { AppIcon } from "@/components/ui/iconify-icon";
+import { faClassToIconify, UNKNOWN_TAG_ICON } from "@/lib/icon-utils";
 
 /**
  * ZeileMarkupView – Renders a single zeile text with ChordPro vocal tag badges inline.
- * Strips the raw ChordPro syntax and shows colored icons at tag positions.
  */
 
 export interface ZeileMarkupViewProps {
@@ -33,12 +34,11 @@ function MarkupNode({ node, tagDefinitions }: { node: ChordProNode; tagDefinitio
   }
 
   const def = tagDefinitions.find((d) => d.tag === node.tag);
-  const icon = def?.icon ?? "fa-solid fa-circle-question";
+  const icon = faClassToIconify(def?.icon ?? UNKNOWN_TAG_ICON);
   const color = def?.color ?? "#9ca3af";
   const label = def?.label ?? node.tag;
   const zusatztext = node.zusatztext;
 
-  // Range tag: icon + highlighted text span
   if (node.type === "chordpro-range") {
     return (
       <span
@@ -47,13 +47,12 @@ function MarkupNode({ node, tagDefinitions }: { node: ChordProNode; tagDefinitio
         aria-label={zusatztext ? `${label}: ${zusatztext}` : label}
         title={zusatztext ? `${label}: ${zusatztext}` : label}
       >
-        <i className={icon} aria-hidden="true" style={{ color, fontSize: "0.7em" }} />
+        <AppIcon icon={icon} color={color} style={{ fontSize: "0.7em" }} />
         <span>{node.rangeText}</span>
       </span>
     );
   }
 
-  // Inline tag: badge with icon
   return (
     <span
       className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-xs font-medium mx-0.5"
@@ -61,7 +60,7 @@ function MarkupNode({ node, tagDefinitions }: { node: ChordProNode; tagDefinitio
       aria-label={zusatztext ? `${label}: ${zusatztext}` : label}
       title={zusatztext ? `${label}: ${zusatztext}` : label}
     >
-      <i className={icon} aria-hidden="true" />
+      <AppIcon icon={icon} />
       {zusatztext && <span className="ml-0.5">{zusatztext}</span>}
     </span>
   );

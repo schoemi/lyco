@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { TagDefinitionData } from "@/types/vocal-tag";
+import { AppIcon } from "@/components/ui/iconify-icon";
+import { faClassToIconify } from "@/lib/icon-utils";
 
 /**
  * Bestätigungsdialog beim Löschen einer Tag-Definition.
@@ -80,10 +82,9 @@ export default function TagDeleteDialog({
         <p className="mb-1 text-sm text-gray-600">
           Möchten Sie den Tag{" "}
           <span className="font-medium">
-            <i
-              className={tag.icon}
-              style={{ color: tag.color }}
-              aria-hidden="true"
+            <AppIcon
+              icon={faClassToIconify(tag.icon)}
+              color={tag.color}
             />{" "}
             {tag.label}
           </span>{" "}
@@ -94,7 +95,7 @@ export default function TagDeleteDialog({
         {affectedSongs > 0 && (
           <div className="my-3 rounded-md bg-amber-50 border border-amber-200 p-3">
             <p className="text-sm font-medium text-amber-800">
-              <i className="fa-solid fa-triangle-exclamation mr-1.5" aria-hidden="true" />
+              <AppIcon icon="fa6-solid:triangle-exclamation" className="mr-1.5" />
               Dieser Tag wird in{" "}
               <span className="font-bold">{affectedSongs}</span>{" "}
               {affectedSongs === 1 ? "Song" : "Songs"} verwendet.

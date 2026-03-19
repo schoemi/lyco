@@ -9,6 +9,8 @@ import {
   TagConfigImportButton,
   type TagConfigImportResult,
 } from "@/components/vocal-tag/tag-config-import-button";
+import { AppIcon } from "@/components/ui/iconify-icon";
+import { faClassToIconify } from "@/lib/icon-utils";
 
 /**
  * Tag-Verwaltungsseite – Admin-Oberfläche zum Anzeigen und Inline-Bearbeiten
@@ -440,10 +442,9 @@ export default function VocalTagsPage() {
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-sm">
-                    <i
-                      className={tag.icon}
-                      style={{ color: tag.color }}
-                      aria-hidden="true"
+                    <AppIcon
+                      icon={faClassToIconify(tag.icon)}
+                      color={tag.color}
                     />
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-900">
@@ -471,7 +472,7 @@ export default function VocalTagsPage() {
                       {deleteLoading === tag.id ? (
                         <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" />
                       ) : (
-                        <i className="fa-solid fa-trash-can text-sm" aria-hidden="true" />
+                        <AppIcon icon="fa6-solid:trash-can" className="text-sm" />
                       )}
                     </button>
                   </td>

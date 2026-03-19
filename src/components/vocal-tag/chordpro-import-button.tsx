@@ -6,6 +6,7 @@ import {
   importChordProFile,
   formatImportErrors,
 } from "@/lib/vocal-tag/chordpro-import";
+import { AppIcon } from "@/components/ui/iconify-icon";
 
 /**
  * ChordProImportButton – Button zum Importieren einer `.chopro`-Datei in den Editor.
@@ -102,7 +103,7 @@ export function ChordProImportButton({
         aria-label="ChordPro-Datei importieren"
         className="inline-flex items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
       >
-        <i className="fa-solid fa-upload" aria-hidden="true" />
+        <AppIcon icon="fa6-solid:upload" />
         <span>ChordPro importieren</span>
       </button>
 

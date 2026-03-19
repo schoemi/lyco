@@ -2,23 +2,17 @@
 
 import { parseChordPro } from "@/lib/vocal-tag/chordpro-parser";
 import type { TagDefinitionData, ChordProNode } from "@/types/vocal-tag";
+import { AppIcon } from "@/components/ui/iconify-icon";
+import { faClassToIconify, UNKNOWN_TAG_ICON } from "@/lib/icon-utils";
 
 /**
  * DetailView – Read-only detail rendering of a song text with vocal tags.
- *
- * - Renders song text with increased line spacing for annotation layer
- * - Shows tag icon above word start, zusatztext in smaller font next to icon in tag color
- * - Annotation layer above text (dedicated inline layer, does not interrupt text flow)
- * - No ChordPro raw syntax shown
- * - Generic warning icon and gray text for unknown tags
  *
  * Validates: Requirements 10.1, 10.2, 10.3, 10.4, 10.5, 10.6
  */
 
 export interface DetailViewProps {
-  /** Raw song text potentially containing ChordPro tags */
   text: string;
-  /** Available tag definitions for resolving icons, colors, and labels */
   tagDefinitions: TagDefinitionData[];
 }
 
@@ -52,12 +46,11 @@ function DetailNode({
   }
 
   const definition = tagDefinitions.find((d) => d.tag === node.tag);
-  const icon = definition?.icon ?? "fa-solid fa-circle-question";
+  const icon = faClassToIconify(definition?.icon ?? UNKNOWN_TAG_ICON);
   const color = definition?.color ?? "#9ca3af";
   const label = definition?.label ?? node.tag;
   const zusatztext = node.zusatztext ?? "";
 
-  // Range tag: annotation above + highlighted text span
   if (node.type === "chordpro-range") {
     return (
       <span
@@ -66,19 +59,10 @@ function DetailNode({
       >
         <span
           className="detail-tag-annotation absolute flex items-center gap-0.5 whitespace-nowrap"
-          style={{
-            color,
-            top: "-1.4em",
-            left: 0,
-            pointerEvents: "none",
-          }}
+          style={{ color, top: "-1.4em", left: 0, pointerEvents: "none" }}
           aria-label={zusatztext ? `${label}: ${zusatztext}` : label}
         >
-          <i
-            className={`${icon} text-[0.65rem] leading-none`}
-            aria-hidden="true"
-            role="img"
-          />
+          <AppIcon icon={icon} className="text-[0.65rem] leading-none" />
           {zusatztext && (
             <span className="detail-tag-zusatztext text-[0.55rem] leading-none">
               {zusatztext}
@@ -99,7 +83,6 @@ function DetailNode({
     );
   }
 
-  // Inline tag: icon + zusatztext annotation above the inline position
   return (
     <span
       className="detail-tag-marker relative inline-flex flex-col items-start"
@@ -107,19 +90,10 @@ function DetailNode({
     >
       <span
         className="detail-tag-annotation absolute flex items-center gap-0.5 whitespace-nowrap"
-        style={{
-          color,
-          top: "-1.4em",
-          left: 0,
-          pointerEvents: "none",
-        }}
+        style={{ color, top: "-1.4em", left: 0, pointerEvents: "none" }}
         aria-label={zusatztext ? `${label}: ${zusatztext}` : label}
       >
-        <i
-          className={`${icon} text-[0.65rem] leading-none`}
-          aria-hidden="true"
-          role="img"
-        />
+        <AppIcon icon={icon} className="text-[0.65rem] leading-none" />
         {zusatztext && (
           <span className="detail-tag-zusatztext text-[0.55rem] leading-none">
             {zusatztext}

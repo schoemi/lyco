@@ -8,6 +8,7 @@ import {
   checkDuplicates,
   type TagConfigImportItem,
 } from "@/lib/vocal-tag/tag-config-export";
+import { AppIcon } from "@/components/ui/iconify-icon";
 
 /**
  * TagConfigImportButton – Button zum Importieren von Tag-Definitionen aus einer JSON-Datei.
@@ -144,7 +145,7 @@ export function TagConfigImportButton({
         aria-label="Tag-Konfiguration aus JSON importieren"
         className="inline-flex items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
       >
-        <i className="fa-solid fa-upload" aria-hidden="true" />
+        <AppIcon icon="fa6-solid:upload" />
         <span>Tags importieren</span>
       </button>
 

@@ -5,14 +5,11 @@ import { NodeViewWrapper } from "@tiptap/react";
 import type { ReactNodeViewProps } from "@tiptap/react";
 import type { TagDefinitionData } from "@/types/vocal-tag";
 import { TagPopover } from "@/components/vocal-tag/tag-popover";
+import { AppIcon } from "@/components/ui/iconify-icon";
+import { faClassToIconify, UNKNOWN_TAG_ICON } from "@/lib/icon-utils";
 
 /**
  * InlineBadge – NodeView component for ChordPro vocal tags.
- *
- * Renders a colored icon badge inline within the TipTap editor.
- * - Shows the tag icon in the tag's defined color
- * - Displays zusatztext as a native tooltip on hover
- * - Click opens a TagPopover to edit the zusatztext
  *
  * Validates: Requirements 5.2, 5.3, 5.4
  */
@@ -24,14 +21,13 @@ export function InlineBadge({ node, updateAttributes, extension }: ReactNodeView
 
   const tagDefinitions: TagDefinitionData[] = (extension.options as { tagDefinitions?: TagDefinitionData[] }).tagDefinitions ?? [];
   const definition = tagDefinitions.find((d) => d.tag === tag);
-  const icon = definition?.icon ?? "fa-solid fa-circle-question";
+  const icon = faClassToIconify(definition?.icon ?? UNKNOWN_TAG_ICON);
   const color = definition?.color ?? "#9ca3af";
   const label = definition?.label ?? tag;
 
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [currentZusatztext, setCurrentZusatztext] = useState(zusatztext);
 
-  // Sync local state when the node attribute changes externally
   useEffect(() => {
     if (!popoverOpen) {
       setCurrentZusatztext(zusatztext);
@@ -58,7 +54,6 @@ export function InlineBadge({ node, updateAttributes, extension }: ReactNodeView
   return (
     <NodeViewWrapper as="span" className="chordpro-tag inline" data-chordpro-tag={tag}>
       <span className="relative inline-flex items-center">
-        {/* Badge button */}
         <button
           type="button"
           onClick={handleBadgeClick}
@@ -74,10 +69,9 @@ export function InlineBadge({ node, updateAttributes, extension }: ReactNodeView
           `}
           style={{ color, backgroundColor: `${color}1a` }}
         >
-          <i className={icon} aria-hidden="true" />
+          <AppIcon icon={icon} />
         </button>
 
-        {/* Popover for editing zusatztext */}
         {popoverOpen && (
           <TagPopover
             label={label}

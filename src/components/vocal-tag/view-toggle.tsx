@@ -4,14 +4,10 @@ import { useState, useEffect, useCallback } from "react";
 import { CompactView } from "./compact-view";
 import { DetailView } from "./detail-view";
 import type { TagDefinitionData } from "@/types/vocal-tag";
+import { AppIcon } from "@/components/ui/iconify-icon";
 
 /**
  * ViewToggle – Wraps CompactView and DetailView with a toggle button.
- *
- * - Toggle button switches between compact and detail view
- * - Immediate switch without page reload
- * - Persists last mode per song in localStorage
- * - Key format: `vocal-tag-view-mode-{songId}`
  *
  * Validates: Requirements 11.1, 11.2, 11.3
  */
@@ -20,53 +16,39 @@ export type ViewMode = "compact" | "detail";
 
 const STORAGE_KEY_PREFIX = "vocal-tag-view-mode-";
 
-/**
- * Build the localStorage key for a given songId.
- */
 export function getStorageKey(songId: string): string {
   return `${STORAGE_KEY_PREFIX}${songId}`;
 }
 
-/**
- * Read the persisted view mode from localStorage.
- * Returns "compact" as default if nothing is stored or value is invalid.
- */
 export function readPersistedMode(songId: string): ViewMode {
   if (typeof window === "undefined") return "compact";
   try {
     const stored = localStorage.getItem(getStorageKey(songId));
     if (stored === "compact" || stored === "detail") return stored;
   } catch {
-    // localStorage may be unavailable (e.g. private browsing)
+    // localStorage may be unavailable
   }
   return "compact";
 }
 
-/**
- * Persist the view mode to localStorage for a given songId.
- */
 export function persistMode(songId: string, mode: ViewMode): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(getStorageKey(songId), mode);
   } catch {
-    // silently ignore storage errors
+    // silently ignore
   }
 }
 
 export interface ViewToggleProps {
-  /** Raw song text potentially containing ChordPro tags */
   text: string;
-  /** Available tag definitions for resolving icons and colors */
   tagDefinitions: TagDefinitionData[];
-  /** Unique song identifier for localStorage persistence */
   songId: string;
 }
 
 export function ViewToggle({ text, tagDefinitions, songId }: ViewToggleProps) {
   const [mode, setMode] = useState<ViewMode>(() => readPersistedMode(songId));
 
-  // Sync state when songId changes
   useEffect(() => {
     setMode(readPersistedMode(songId));
   }, [songId]);
@@ -93,14 +75,7 @@ export function ViewToggle({ text, tagDefinitions, songId }: ViewToggleProps) {
           }
           aria-pressed={mode === "detail"}
         >
-          <i
-            className={
-              mode === "compact"
-                ? "fa-solid fa-list"
-                : "fa-solid fa-compress"
-            }
-            aria-hidden="true"
-          />
+          <AppIcon icon={mode === "compact" ? "fa6-solid:list" : "fa6-solid:compress"} />
           <span>
             {mode === "compact" ? "Detail-Ansicht" : "Kompakt-Ansicht"}
           </span>

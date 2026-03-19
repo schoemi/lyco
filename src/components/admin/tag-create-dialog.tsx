@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import type { TagDefinitionData } from "@/types/vocal-tag";
+import { AppIcon } from "@/components/ui/iconify-icon";
 
 /**
  * Erstellungs-Dialog für neue Tag-Definitionen.
@@ -15,56 +16,56 @@ interface TagCreateDialogProps {
   onCreated: (tag: TagDefinitionData) => void;
 }
 
-/** Common FontAwesome v6 icon classes for the icon picker */
-const FA_ICONS: { cls: string; label: string }[] = [
-  { cls: "fa-solid fa-microphone", label: "Microphone" },
-  { cls: "fa-solid fa-music", label: "Music" },
-  { cls: "fa-solid fa-guitar", label: "Guitar" },
-  { cls: "fa-solid fa-drum", label: "Drum" },
-  { cls: "fa-solid fa-headphones", label: "Headphones" },
-  { cls: "fa-solid fa-volume-high", label: "Volume High" },
-  { cls: "fa-solid fa-volume-low", label: "Volume Low" },
-  { cls: "fa-solid fa-bell", label: "Bell" },
-  { cls: "fa-solid fa-bolt", label: "Bolt" },
-  { cls: "fa-solid fa-fire", label: "Fire" },
-  { cls: "fa-solid fa-heart", label: "Heart" },
-  { cls: "fa-solid fa-star", label: "Star" },
-  { cls: "fa-solid fa-sun", label: "Sun" },
-  { cls: "fa-solid fa-moon", label: "Moon" },
-  { cls: "fa-solid fa-cloud", label: "Cloud" },
-  { cls: "fa-solid fa-wind", label: "Wind" },
-  { cls: "fa-solid fa-water", label: "Water" },
-  { cls: "fa-solid fa-snowflake", label: "Snowflake" },
-  { cls: "fa-solid fa-feather", label: "Feather" },
-  { cls: "fa-solid fa-hand", label: "Hand" },
-  { cls: "fa-solid fa-face-smile", label: "Smile" },
-  { cls: "fa-solid fa-face-sad-tear", label: "Sad" },
-  { cls: "fa-solid fa-circle-exclamation", label: "Exclamation" },
-  { cls: "fa-solid fa-triangle-exclamation", label: "Warning" },
-  { cls: "fa-solid fa-circle-info", label: "Info" },
-  { cls: "fa-solid fa-arrow-up", label: "Arrow Up" },
-  { cls: "fa-solid fa-arrow-down", label: "Arrow Down" },
-  { cls: "fa-solid fa-arrows-up-down", label: "Arrows Up Down" },
-  { cls: "fa-solid fa-rotate", label: "Rotate" },
-  { cls: "fa-solid fa-repeat", label: "Repeat" },
-  { cls: "fa-solid fa-pause", label: "Pause" },
-  { cls: "fa-solid fa-play", label: "Play" },
-  { cls: "fa-solid fa-stop", label: "Stop" },
-  { cls: "fa-solid fa-forward", label: "Forward" },
-  { cls: "fa-solid fa-backward", label: "Backward" },
-  { cls: "fa-solid fa-lungs", label: "Lungs" },
-  { cls: "fa-solid fa-comment", label: "Comment" },
-  { cls: "fa-solid fa-quote-left", label: "Quote" },
-  { cls: "fa-solid fa-wand-magic-sparkles", label: "Magic" },
-  { cls: "fa-solid fa-explosion", label: "Explosion" },
-  { cls: "fa-solid fa-wave-square", label: "Wave" },
-  { cls: "fa-solid fa-signal", label: "Signal" },
-  { cls: "fa-solid fa-sliders", label: "Sliders" },
-  { cls: "fa-solid fa-gauge-high", label: "Gauge High" },
-  { cls: "fa-solid fa-gauge", label: "Gauge" },
-  { cls: "fa-solid fa-circle-half-stroke", label: "Half Circle" },
-  { cls: "fa-solid fa-diamond", label: "Diamond" },
-  { cls: "fa-solid fa-hashtag", label: "Hashtag" },
+/** Iconify icon names for the icon picker (FontAwesome 6 Solid via Iconify) */
+const ICON_CHOICES: { icon: string; label: string }[] = [
+  { icon: "fa6-solid:microphone", label: "Microphone" },
+  { icon: "fa6-solid:music", label: "Music" },
+  { icon: "fa6-solid:guitar", label: "Guitar" },
+  { icon: "fa6-solid:drum", label: "Drum" },
+  { icon: "fa6-solid:headphones", label: "Headphones" },
+  { icon: "fa6-solid:volume-high", label: "Volume High" },
+  { icon: "fa6-solid:volume-low", label: "Volume Low" },
+  { icon: "fa6-solid:bell", label: "Bell" },
+  { icon: "fa6-solid:bolt", label: "Bolt" },
+  { icon: "fa6-solid:fire", label: "Fire" },
+  { icon: "fa6-solid:heart", label: "Heart" },
+  { icon: "fa6-solid:star", label: "Star" },
+  { icon: "fa6-solid:sun", label: "Sun" },
+  { icon: "fa6-solid:moon", label: "Moon" },
+  { icon: "fa6-solid:cloud", label: "Cloud" },
+  { icon: "fa6-solid:wind", label: "Wind" },
+  { icon: "fa6-solid:water", label: "Water" },
+  { icon: "fa6-solid:snowflake", label: "Snowflake" },
+  { icon: "fa6-solid:feather", label: "Feather" },
+  { icon: "fa6-solid:hand", label: "Hand" },
+  { icon: "fa6-solid:face-smile", label: "Smile" },
+  { icon: "fa6-solid:face-sad-tear", label: "Sad" },
+  { icon: "fa6-solid:circle-exclamation", label: "Exclamation" },
+  { icon: "fa6-solid:triangle-exclamation", label: "Warning" },
+  { icon: "fa6-solid:circle-info", label: "Info" },
+  { icon: "fa6-solid:arrow-up", label: "Arrow Up" },
+  { icon: "fa6-solid:arrow-down", label: "Arrow Down" },
+  { icon: "fa6-solid:arrows-up-down", label: "Arrows Up Down" },
+  { icon: "fa6-solid:rotate", label: "Rotate" },
+  { icon: "fa6-solid:repeat", label: "Repeat" },
+  { icon: "fa6-solid:pause", label: "Pause" },
+  { icon: "fa6-solid:play", label: "Play" },
+  { icon: "fa6-solid:stop", label: "Stop" },
+  { icon: "fa6-solid:forward", label: "Forward" },
+  { icon: "fa6-solid:backward", label: "Backward" },
+  { icon: "fa6-solid:lungs", label: "Lungs" },
+  { icon: "fa6-solid:comment", label: "Comment" },
+  { icon: "fa6-solid:quote-left", label: "Quote" },
+  { icon: "fa6-solid:wand-magic-sparkles", label: "Magic" },
+  { icon: "fa6-solid:explosion", label: "Explosion" },
+  { icon: "fa6-solid:wave-square", label: "Wave" },
+  { icon: "fa6-solid:signal", label: "Signal" },
+  { icon: "fa6-solid:sliders", label: "Sliders" },
+  { icon: "fa6-solid:gauge-high", label: "Gauge High" },
+  { icon: "fa6-solid:gauge", label: "Gauge" },
+  { icon: "fa6-solid:circle-half-stroke", label: "Half Circle" },
+  { icon: "fa6-solid:diamond", label: "Diamond" },
+  { icon: "fa6-solid:hashtag", label: "Hashtag" },
 ];
 
 export default function TagCreateDialog({ open, onClose, onCreated }: TagCreateDialogProps) {
@@ -78,10 +79,10 @@ export default function TagCreateDialog({ open, onClose, onCreated }: TagCreateD
   const [loading, setLoading] = useState(false);
 
   const filteredIcons = useMemo(() => {
-    if (!iconSearch.trim()) return FA_ICONS;
+    if (!iconSearch.trim()) return ICON_CHOICES;
     const q = iconSearch.toLowerCase();
-    return FA_ICONS.filter(
-      (i) => i.label.toLowerCase().includes(q) || i.cls.toLowerCase().includes(q)
+    return ICON_CHOICES.filter(
+      (i) => i.label.toLowerCase().includes(q) || i.icon.toLowerCase().includes(q)
     );
   }, [iconSearch]);
 
@@ -148,11 +149,8 @@ export default function TagCreateDialog({ open, onClose, onCreated }: TagCreateD
       >
         <h2 className="mb-4 text-lg font-semibold text-gray-900">Neuen Tag erstellen</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Tag-Kürzel */}
           <div>
-            <label htmlFor="create-tag" className="block text-sm font-medium text-gray-700">
-              Kürzel
-            </label>
+            <label htmlFor="create-tag" className="block text-sm font-medium text-gray-700">Kürzel</label>
             <input
               id="create-tag"
               type="text"
@@ -168,11 +166,8 @@ export default function TagCreateDialog({ open, onClose, onCreated }: TagCreateD
             {error?.field === "tag" && <p className="mt-1 text-sm text-red-600">{error.message}</p>}
           </div>
 
-          {/* Label */}
           <div>
-            <label htmlFor="create-label" className="block text-sm font-medium text-gray-700">
-              Label
-            </label>
+            <label htmlFor="create-label" className="block text-sm font-medium text-gray-700">Label</label>
             <input
               id="create-label"
               type="text"
@@ -188,7 +183,6 @@ export default function TagCreateDialog({ open, onClose, onCreated }: TagCreateD
             {error?.field === "label" && <p className="mt-1 text-sm text-red-600">{error.message}</p>}
           </div>
 
-          {/* Icon-Picker */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Icon</label>
             <input
@@ -202,40 +196,33 @@ export default function TagCreateDialog({ open, onClose, onCreated }: TagCreateD
             <div className="grid grid-cols-8 gap-1 max-h-40 overflow-y-auto rounded-md border border-gray-200 p-2">
               {filteredIcons.map((ic) => (
                 <button
-                  key={ic.cls}
+                  key={ic.icon}
                   type="button"
-                  onClick={() => setIcon(ic.cls)}
+                  onClick={() => setIcon(ic.icon)}
                   title={ic.label}
                   aria-label={`Icon: ${ic.label}`}
                   className={`flex items-center justify-center rounded p-2 text-lg hover:bg-gray-100 ${
-                    icon === ic.cls
-                      ? "bg-blue-100 ring-2 ring-blue-500"
-                      : ""
+                    icon === ic.icon ? "bg-blue-100 ring-2 ring-blue-500" : ""
                   }`}
                 >
-                  <i className={ic.cls} style={{ color: color }} aria-hidden="true" />
+                  <AppIcon icon={ic.icon} color={color} />
                 </button>
               ))}
               {filteredIcons.length === 0 && (
-                <p className="col-span-8 py-2 text-center text-xs text-gray-400">
-                  Keine Icons gefunden
-                </p>
+                <p className="col-span-8 py-2 text-center text-xs text-gray-400">Keine Icons gefunden</p>
               )}
             </div>
             {icon && (
               <p className="mt-1 text-xs text-gray-500">
-                Gewählt: <i className={icon} style={{ color }} aria-hidden="true" />{" "}
+                Gewählt: <AppIcon icon={icon} color={color} />{" "}
                 <code className="rounded bg-gray-100 px-1">{icon}</code>
               </p>
             )}
             {error?.field === "icon" && <p className="mt-1 text-sm text-red-600">{error.message}</p>}
           </div>
 
-          {/* Color-Picker */}
           <div>
-            <label htmlFor="create-color" className="block text-sm font-medium text-gray-700">
-              Farbe
-            </label>
+            <label htmlFor="create-color" className="block text-sm font-medium text-gray-700">Farbe</label>
             <div className="mt-1 flex items-center gap-3">
               <input
                 id="create-color"
@@ -249,11 +236,8 @@ export default function TagCreateDialog({ open, onClose, onCreated }: TagCreateD
             </div>
           </div>
 
-          {/* IndexNr */}
           <div>
-            <label htmlFor="create-indexnr" className="block text-sm font-medium text-gray-700">
-              Sortierung (indexNr)
-            </label>
+            <label htmlFor="create-indexnr" className="block text-sm font-medium text-gray-700">Sortierung (indexNr)</label>
             <input
               id="create-indexnr"
               type="number"
@@ -266,10 +250,8 @@ export default function TagCreateDialog({ open, onClose, onCreated }: TagCreateD
             />
           </div>
 
-          {/* General error */}
           {error && !error.field && <p className="text-sm text-red-600">{error.message}</p>}
 
-          {/* Actions */}
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"

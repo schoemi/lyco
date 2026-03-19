@@ -5,27 +5,18 @@ import { CompactView } from "./compact-view";
 import { DetailView } from "./detail-view";
 import type { TagDefinitionData } from "@/types/vocal-tag";
 import type { ViewMode } from "./view-toggle";
+import { AppIcon } from "@/components/ui/iconify-icon";
 
 /**
  * LivePreview – Split-screen wrapper: editor on the left, render preview on the right.
- *
- * - Accepts `children` (editor content) on the left pane
- * - Shows CompactView or DetailView on the right pane based on `text` prop
- * - Real-time update: preview re-renders whenever `text` changes
- * - Toggle between compact/detail in the preview area
- * - Enable/disable button: when disabled, editor goes full width
  *
  * Validates: Requirements 12.1, 12.2, 12.3, 12.4, 12.5
  */
 
 export interface LivePreviewProps {
-  /** The editor content rendered on the left side */
   children: ReactNode;
-  /** Current raw song text for the preview (updated in real-time) */
   text: string;
-  /** Available tag definitions for resolving icons and colors */
   tagDefinitions: TagDefinitionData[];
-  /** Unique song identifier */
   songId: string;
 }
 
@@ -48,7 +39,6 @@ export function LivePreview({
 
   return (
     <div className="live-preview-container">
-      {/* Control bar */}
       <div className="live-preview-controls flex items-center gap-2 mb-2">
         <button
           type="button"
@@ -63,14 +53,7 @@ export function LivePreview({
           }
           aria-pressed={enabled}
         >
-          <i
-            className={
-              enabled
-                ? "fa-solid fa-eye"
-                : "fa-solid fa-eye-slash"
-            }
-            aria-hidden="true"
-          />
+          <AppIcon icon={enabled ? "fa6-solid:eye" : "fa6-solid:eye-slash"} />
           <span>{enabled ? "Vorschau an" : "Vorschau aus"}</span>
         </button>
 
@@ -85,14 +68,7 @@ export function LivePreview({
                 : "Zur Kompakt-Ansicht wechseln"
             }
           >
-            <i
-              className={
-                previewMode === "compact"
-                  ? "fa-solid fa-list"
-                  : "fa-solid fa-compress"
-              }
-              aria-hidden="true"
-            />
+            <AppIcon icon={previewMode === "compact" ? "fa6-solid:list" : "fa6-solid:compress"} />
             <span>
               {previewMode === "compact" ? "Detail" : "Kompakt"}
             </span>
@@ -100,13 +76,11 @@ export function LivePreview({
         )}
       </div>
 
-      {/* Split-screen layout */}
       <div
         className={`live-preview-layout flex gap-4 ${
           enabled ? "" : "flex-col"
         }`}
       >
-        {/* Left: Editor */}
         <div
           className={`live-preview-editor ${
             enabled ? "w-1/2" : "w-full"
@@ -115,7 +89,6 @@ export function LivePreview({
           {children}
         </div>
 
-        {/* Right: Preview (only when enabled) */}
         {enabled && (
           <div className="live-preview-pane w-1/2 min-w-0 border-l border-gray-200 dark:border-gray-700 pl-4 overflow-auto">
             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">

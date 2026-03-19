@@ -5,6 +5,7 @@ import { ViewToggle } from "./view-toggle";
 import { VocalTagEditor } from "./vocal-tag-editor";
 import type { TagDefinitionData } from "@/types/vocal-tag";
 import type { StropheDetail } from "@/types/song";
+import { AppIcon } from "@/components/ui/iconify-icon";
 
 /**
  * VocalTagSection – Integrates the Vocal Tag Editor and read-only views
@@ -149,7 +150,7 @@ export function VocalTagSection({
         <>
           {loadingTags ? (
             <div className="flex items-center justify-center p-4 text-sm text-neutral-500">
-              <i className="fa-solid fa-spinner fa-spin mr-2" aria-hidden="true" />
+              <AppIcon icon="fa6-solid:spinner" className="animate-spin mr-2" />
               Lade Tag-Definitionen…
             </div>
           ) : tagError ? (
@@ -157,7 +158,7 @@ export function VocalTagSection({
               role="alert"
               className="rounded-md border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-200"
             >
-              <i className="fa-solid fa-triangle-exclamation mr-2" aria-hidden="true" />
+              <AppIcon icon="fa6-solid:triangle-exclamation" className="mr-2" />
               {tagError}
             </div>
           ) : (
