@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import type { TagDefinitionData } from "@/types/vocal-tag";
 import { AppIcon } from "@/components/ui/iconify-icon";
+import { ICON_LIBRARIES, ALL_ICONS, type IconChoice } from "./icon-picker-data";
 
 /**
  * Erstellungs-Dialog für neue Tag-Definitionen.
@@ -16,58 +17,6 @@ interface TagCreateDialogProps {
   onCreated: (tag: TagDefinitionData) => void;
 }
 
-/** Iconify icon names for the icon picker (FontAwesome 6 Solid via Iconify) */
-const ICON_CHOICES: { icon: string; label: string }[] = [
-  { icon: "fa6-solid:microphone", label: "Microphone" },
-  { icon: "fa6-solid:music", label: "Music" },
-  { icon: "fa6-solid:guitar", label: "Guitar" },
-  { icon: "fa6-solid:drum", label: "Drum" },
-  { icon: "fa6-solid:headphones", label: "Headphones" },
-  { icon: "fa6-solid:volume-high", label: "Volume High" },
-  { icon: "fa6-solid:volume-low", label: "Volume Low" },
-  { icon: "fa6-solid:bell", label: "Bell" },
-  { icon: "fa6-solid:bolt", label: "Bolt" },
-  { icon: "fa6-solid:fire", label: "Fire" },
-  { icon: "fa6-solid:heart", label: "Heart" },
-  { icon: "fa6-solid:star", label: "Star" },
-  { icon: "fa6-solid:sun", label: "Sun" },
-  { icon: "fa6-solid:moon", label: "Moon" },
-  { icon: "fa6-solid:cloud", label: "Cloud" },
-  { icon: "fa6-solid:wind", label: "Wind" },
-  { icon: "fa6-solid:water", label: "Water" },
-  { icon: "fa6-solid:snowflake", label: "Snowflake" },
-  { icon: "fa6-solid:feather", label: "Feather" },
-  { icon: "fa6-solid:hand", label: "Hand" },
-  { icon: "fa6-solid:face-smile", label: "Smile" },
-  { icon: "fa6-solid:face-sad-tear", label: "Sad" },
-  { icon: "fa6-solid:circle-exclamation", label: "Exclamation" },
-  { icon: "fa6-solid:triangle-exclamation", label: "Warning" },
-  { icon: "fa6-solid:circle-info", label: "Info" },
-  { icon: "fa6-solid:arrow-up", label: "Arrow Up" },
-  { icon: "fa6-solid:arrow-down", label: "Arrow Down" },
-  { icon: "fa6-solid:arrows-up-down", label: "Arrows Up Down" },
-  { icon: "fa6-solid:rotate", label: "Rotate" },
-  { icon: "fa6-solid:repeat", label: "Repeat" },
-  { icon: "fa6-solid:pause", label: "Pause" },
-  { icon: "fa6-solid:play", label: "Play" },
-  { icon: "fa6-solid:stop", label: "Stop" },
-  { icon: "fa6-solid:forward", label: "Forward" },
-  { icon: "fa6-solid:backward", label: "Backward" },
-  { icon: "fa6-solid:lungs", label: "Lungs" },
-  { icon: "fa6-solid:comment", label: "Comment" },
-  { icon: "fa6-solid:quote-left", label: "Quote" },
-  { icon: "fa6-solid:wand-magic-sparkles", label: "Magic" },
-  { icon: "fa6-solid:explosion", label: "Explosion" },
-  { icon: "fa6-solid:wave-square", label: "Wave" },
-  { icon: "fa6-solid:signal", label: "Signal" },
-  { icon: "fa6-solid:sliders", label: "Sliders" },
-  { icon: "fa6-solid:gauge-high", label: "Gauge High" },
-  { icon: "fa6-solid:gauge", label: "Gauge" },
-  { icon: "fa6-solid:circle-half-stroke", label: "Half Circle" },
-  { icon: "fa6-solid:diamond", label: "Diamond" },
-  { icon: "fa6-solid:hashtag", label: "Hashtag" },
-];
-
 export default function TagCreateDialog({ open, onClose, onCreated }: TagCreateDialogProps) {
   const [tag, setTag] = useState("");
   const [label, setLabel] = useState("");
@@ -75,16 +24,22 @@ export default function TagCreateDialog({ open, onClose, onCreated }: TagCreateD
   const [color, setColor] = useState("#3b82f6");
   const [indexNr, setIndexNr] = useState(1);
   const [iconSearch, setIconSearch] = useState("");
+  const [activeLib, setActiveLib] = useState<string>("all");
   const [error, setError] = useState<{ message: string; field?: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
   const filteredIcons = useMemo(() => {
-    if (!iconSearch.trim()) return ICON_CHOICES;
+    const source: IconChoice[] =
+      activeLib === "all"
+        ? ALL_ICONS
+        : ICON_LIBRARIES.find((l) => l.id === activeLib)?.icons ?? ALL_ICONS;
+
+    if (!iconSearch.trim()) return source;
     const q = iconSearch.toLowerCase();
-    return ICON_CHOICES.filter(
-      (i) => i.label.toLowerCase().includes(q) || i.icon.toLowerCase().includes(q)
+    return source.filter(
+      (i) => i.label.toLowerCase().includes(q) || i.icon.toLowerCase().includes(q),
     );
-  }, [iconSearch]);
+  }, [iconSearch, activeLib]);
 
   if (!open) return null;
 
@@ -95,6 +50,7 @@ export default function TagCreateDialog({ open, onClose, onCreated }: TagCreateD
     setColor("#3b82f6");
     setIndexNr(1);
     setIconSearch("");
+    setActiveLib("all");
     setError(null);
   }
 
@@ -183,6 +139,7 @@ export default function TagCreateDialog({ open, onClose, onCreated }: TagCreateD
             {error?.field === "label" && <p className="mt-1 text-sm text-red-600">{error.message}</p>}
           </div>
 
+          {/* Icon-Picker mit Bibliotheks-Tabs */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Icon</label>
             <input
@@ -193,13 +150,51 @@ export default function TagCreateDialog({ open, onClose, onCreated }: TagCreateD
               aria-label="Icon-Suche"
               className="mb-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <div className="grid grid-cols-8 gap-1 max-h-40 overflow-y-auto rounded-md border border-gray-200 p-2">
+
+            {/* Bibliotheks-Tabs */}
+            <div className="mb-2 flex flex-wrap gap-1" role="tablist" aria-label="Icon-Bibliothek">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeLib === "all"}
+                onClick={() => setActiveLib("all")}
+                className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                  activeLib === "all"
+                    ? "bg-blue-100 text-blue-700"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                Alle
+              </button>
+              {ICON_LIBRARIES.map((lib) => (
+                <button
+                  key={lib.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeLib === lib.id}
+                  onClick={() => setActiveLib(lib.id)}
+                  className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                    activeLib === lib.id
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {lib.name}
+                </button>
+              ))}
+            </div>
+
+            <div
+              className="grid grid-cols-8 gap-1 max-h-40 overflow-y-auto rounded-md border border-gray-200 p-2"
+              role="tabpanel"
+              aria-label="Icon-Auswahl"
+            >
               {filteredIcons.map((ic) => (
                 <button
                   key={ic.icon}
                   type="button"
                   onClick={() => setIcon(ic.icon)}
-                  title={ic.label}
+                  title={`${ic.label} (${ic.icon})`}
                   aria-label={`Icon: ${ic.label}`}
                   className={`flex items-center justify-center rounded p-2 text-lg hover:bg-gray-100 ${
                     icon === ic.icon ? "bg-blue-100 ring-2 ring-blue-500" : ""

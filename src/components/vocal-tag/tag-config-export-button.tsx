@@ -34,7 +34,7 @@ export function TagConfigExportButton({
       aria-label="Tag-Konfiguration als JSON exportieren"
       className="inline-flex items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
     >
-      <AppIcon icon="fa6-solid:download" />
+      <AppIcon icon="lucide:download" />
       <span>Tags exportieren</span>
     </button>
   );

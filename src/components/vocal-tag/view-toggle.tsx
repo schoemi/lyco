@@ -75,7 +75,7 @@ export function ViewToggle({ text, tagDefinitions, songId }: ViewToggleProps) {
           }
           aria-pressed={mode === "detail"}
         >
-          <AppIcon icon={mode === "compact" ? "fa6-solid:list" : "fa6-solid:compress"} />
+          <AppIcon icon={mode === "compact" ? "lucide:list" : "lucide:minimize-2"} />
           <span>
             {mode === "compact" ? "Detail-Ansicht" : "Kompakt-Ansicht"}
           </span>

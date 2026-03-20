@@ -95,7 +95,7 @@ export default function TagDeleteDialog({
         {affectedSongs > 0 && (
           <div className="my-3 rounded-md bg-amber-50 border border-amber-200 p-3">
             <p className="text-sm font-medium text-amber-800">
-              <AppIcon icon="fa6-solid:triangle-exclamation" className="mr-1.5" />
+              <AppIcon icon="lucide:triangle-alert" className="mr-1.5" />
               Dieser Tag wird in{" "}
               <span className="font-bold">{affectedSongs}</span>{" "}
               {affectedSongs === 1 ? "Song" : "Songs"} verwendet.

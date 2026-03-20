@@ -53,7 +53,7 @@ export function LivePreview({
           }
           aria-pressed={enabled}
         >
-          <AppIcon icon={enabled ? "fa6-solid:eye" : "fa6-solid:eye-slash"} />
+          <AppIcon icon={enabled ? "lucide:eye" : "lucide:eye-off"} />
           <span>{enabled ? "Vorschau an" : "Vorschau aus"}</span>
         </button>
 
@@ -68,7 +68,7 @@ export function LivePreview({
                 : "Zur Kompakt-Ansicht wechseln"
             }
           >
-            <AppIcon icon={previewMode === "compact" ? "fa6-solid:list" : "fa6-solid:compress"} />
+            <AppIcon icon={previewMode === "compact" ? "lucide:list" : "lucide:minimize-2"} />
             <span>
               {previewMode === "compact" ? "Detail" : "Kompakt"}
             </span>

@@ -28,4 +28,4 @@ export function faClassToIconify(faClass: string): string {
 }
 
 /** Fallback-Icon für unbekannte Tags */
-export const UNKNOWN_TAG_ICON = "fa6-solid:circle-question";
+export const UNKNOWN_TAG_ICON = "lucide:circle-help";
