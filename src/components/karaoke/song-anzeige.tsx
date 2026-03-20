@@ -3,16 +3,27 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { SongDetail } from "@/types/song";
 import type { FlatLine } from "@/types/karaoke";
+import type { TagDefinitionData } from "@/types/vocal-tag";
 import { getLineOpacity } from "@/lib/karaoke/line-opacity";
 import { shouldFade } from "@/lib/karaoke/fade-visibility";
+import { stripChordPro } from "@/lib/vocal-tag/chordpro-parser";
+import { VocalTagZeile } from "@/components/karaoke/vocal-tag-zeile";
 
 interface SongAnzeigeProps {
   song: SongDetail;
   activeLineIndex: number;
   flatLines: FlatLine[];
+  showVocalTags?: boolean;
+  tagDefinitions?: TagDefinitionData[];
 }
 
-export function SongAnzeige({ song, activeLineIndex, flatLines }: SongAnzeigeProps) {
+export function SongAnzeige({
+  song,
+  activeLineIndex,
+  flatLines,
+  showVocalTags = false,
+  tagDefinitions = [],
+}: SongAnzeigeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const lineRefs = useRef<Map<number, HTMLParagraphElement>>(new Map());
   const [offsetY, setOffsetY] = useState(0);
@@ -98,7 +109,11 @@ export function SongAnzeige({ song, activeLineIndex, flatLines }: SongAnzeigePro
                         opacity: hasFade ? Math.min(opacity, 0.15) : opacity,
                       }}
                     >
-                      {zeile.text}
+                      {showVocalTags && tagDefinitions.length > 0 ? (
+                        <VocalTagZeile rawText={zeile.text} tagDefinitions={tagDefinitions} />
+                      ) : (
+                        stripChordPro(zeile.text)
+                      )}
                     </p>
                   );
                 })}

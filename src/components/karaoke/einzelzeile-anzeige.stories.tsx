@@ -18,6 +18,7 @@ export const Default: Story = {
     activeLine: {
       zeileId: "z1",
       text: "Don't wanna be an American idiot",
+      rawText: "Don't wanna be an American idiot",
       stropheId: "s1",
       stropheName: "Strophe 1",
       globalIndex: 0,

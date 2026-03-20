@@ -272,112 +272,117 @@ function validateKaraoke(raw: unknown, defaults: KaraokeTheme): KaraokeTheme {
  */
 export function themeToCssVars(config: ThemeConfig): string {
   const lines: string[] = [];
+  // Merge with defaults so newly added fields are always present
+  const defaults = getDefaultTheme();
+  const colors = { ...defaults.colors, ...config.colors };
+  const typography = { ...defaults.typography, ...config.typography };
+  const karaoke = { ...defaults.karaoke, ...config.karaoke };
 
   // Generate primary palette
-  const primaryPalette = generatePalette(config.colors.primary);
+  const primaryPalette = generatePalette(colors.primary);
   for (const step of PALETTE_STEPS) {
     lines.push(`--color-primary-${step}: ${primaryPalette[step]};`);
   }
 
   // Generate accent palette (fallback to primary if null)
-  const accentBase = config.colors.accent ?? config.colors.primary;
+  const accentBase = colors.accent ?? colors.primary;
   const accentPalette = generatePalette(accentBase);
   for (const step of PALETTE_STEPS) {
     lines.push(`--color-accent-${step}: ${accentPalette[step]};`);
   }
 
   // Generate newSongButton palette (used for general action buttons / links)
-  const newSongPalette = generatePalette(config.colors.newSongButton);
+  const newSongPalette = generatePalette(colors.newSongButton);
   for (const step of PALETTE_STEPS) {
     lines.push(`--color-newsong-${step}: ${newSongPalette[step]};`);
   }
 
   // Generate pillTag palette (used for pills, tags, badges)
-  const pillTagPalette = generatePalette(config.colors.pillTag);
+  const pillTagPalette = generatePalette(colors.pillTag);
   for (const step of PALETTE_STEPS) {
     lines.push(`--color-pill-${step}: ${pillTagPalette[step]};`);
   }
 
   // Generate success palette
-  const successPalette = generatePalette(config.colors.success);
+  const successPalette = generatePalette(colors.success);
   for (const step of PALETTE_STEPS) {
     lines.push(`--color-success-${step}: ${successPalette[step]};`);
   }
 
   // Generate warning palette
-  const warningPalette = generatePalette(config.colors.warning);
+  const warningPalette = generatePalette(colors.warning);
   for (const step of PALETTE_STEPS) {
     lines.push(`--color-warning-${step}: ${warningPalette[step]};`);
   }
 
   // Generate error palette
-  const errorPalette = generatePalette(config.colors.error);
+  const errorPalette = generatePalette(colors.error);
   for (const step of PALETTE_STEPS) {
     lines.push(`--color-error-${step}: ${errorPalette[step]};`);
   }
 
   // Generate info palette
-  const infoPalette = generatePalette(config.colors.info);
+  const infoPalette = generatePalette(colors.info);
   for (const step of PALETTE_STEPS) {
     lines.push(`--color-info-${step}: ${infoPalette[step]};`);
   }
 
   // Generate neutral palette
-  const neutralPalette = generatePalette(config.colors.neutral);
+  const neutralPalette = generatePalette(colors.neutral);
   for (const step of PALETTE_STEPS) {
     lines.push(`--color-neutral-${step}: ${neutralPalette[step]};`);
   }
 
   // Direct colour values
-  lines.push(`--color-border: ${config.colors.border};`);
-  lines.push(`--color-page-bg: ${config.colors.pageBg};`);
-  lines.push(`--color-card-bg: ${config.colors.cardBg};`);
-  lines.push(`--color-tab-active-bg: ${config.colors.tabActiveBg};`);
-  lines.push(`--color-tab-inactive-bg: ${config.colors.tabInactiveBg};`);
-  lines.push(`--color-control-bg: ${config.colors.controlBg};`);
-  lines.push(`--color-success: ${config.colors.success};`);
-  lines.push(`--color-warning: ${config.colors.warning};`);
-  lines.push(`--color-error: ${config.colors.error};`);
-  lines.push(`--color-info: ${config.colors.info};`);
-  lines.push(`--color-btn-primary: ${config.colors.primaryButton};`);
-  lines.push(`--color-btn-secondary: ${config.colors.secondaryButton};`);
-  lines.push(`--color-btn-new-song: ${config.colors.newSongButton};`);
-  lines.push(`--color-pill-tag: ${config.colors.pillTag};`);
-  lines.push(`--color-translation-toggle: ${config.colors.translationToggle};`);
+  lines.push(`--color-border: ${colors.border};`);
+  lines.push(`--color-page-bg: ${colors.pageBg};`);
+  lines.push(`--color-card-bg: ${colors.cardBg};`);
+  lines.push(`--color-tab-active-bg: ${colors.tabActiveBg};`);
+  lines.push(`--color-tab-inactive-bg: ${colors.tabInactiveBg};`);
+  lines.push(`--color-control-bg: ${colors.controlBg};`);
+  lines.push(`--color-success: ${colors.success};`);
+  lines.push(`--color-warning: ${colors.warning};`);
+  lines.push(`--color-error: ${colors.error};`);
+  lines.push(`--color-info: ${colors.info};`);
+  lines.push(`--color-btn-primary: ${colors.primaryButton};`);
+  lines.push(`--color-btn-secondary: ${colors.secondaryButton};`);
+  lines.push(`--color-btn-new-song: ${colors.newSongButton};`);
+  lines.push(`--color-pill-tag: ${colors.pillTag};`);
+  lines.push(`--color-translation-toggle: ${colors.translationToggle};`);
 
   // Text colours
-  lines.push(`--color-headline-text: ${config.colors.headlineColor};`);
-  lines.push(`--color-copy-text: ${config.colors.copyColor};`);
-  lines.push(`--color-label-text: ${config.colors.labelColor};`);
-  lines.push(`--color-link-text: ${config.colors.linkColor};`);
-  lines.push(`--color-muted-text: ${config.colors.mutedColor};`);
-  lines.push(`--color-button-text: ${config.colors.buttonTextColor};`);
-  lines.push(`--color-icon: ${config.colors.iconColor};`);
+  lines.push(`--color-headline-text: ${colors.headlineColor};`);
+  lines.push(`--color-copy-text: ${colors.copyColor};`);
+  lines.push(`--color-label-text: ${colors.labelColor};`);
+  lines.push(`--color-link-text: ${colors.linkColor};`);
+  lines.push(`--color-muted-text: ${colors.mutedColor};`);
+  lines.push(`--color-button-text: ${colors.buttonTextColor};`);
+  lines.push(`--color-icon: ${colors.iconColor};`);
 
   // Karaoke
-  lines.push(`--karaoke-active-color: ${config.karaoke.activeLineColor};`);
-  lines.push(`--karaoke-read-color: ${config.karaoke.readLineColor};`);
-  lines.push(`--karaoke-unread-color: ${config.karaoke.unreadLineColor};`);
-  lines.push(`--karaoke-active-size: ${config.karaoke.activeLineSize};`);
-  lines.push(`--karaoke-read-size: ${config.karaoke.readLineSize};`);
-  lines.push(`--karaoke-unread-size: ${config.karaoke.unreadLineSize};`);
-  lines.push(`--karaoke-bg-from: ${config.karaoke.bgFrom};`);
-  lines.push(`--karaoke-bg-via: ${config.karaoke.bgVia};`);
-  lines.push(`--karaoke-bg-to: ${config.karaoke.bgTo};`);
+  lines.push(`--karaoke-active-color: ${karaoke.activeLineColor};`);
+  lines.push(`--karaoke-read-color: ${karaoke.readLineColor};`);
+  lines.push(`--karaoke-unread-color: ${karaoke.unreadLineColor};`);
+  lines.push(`--karaoke-active-size: ${karaoke.activeLineSize};`);
+  lines.push(`--karaoke-read-size: ${karaoke.readLineSize};`);
+  lines.push(`--karaoke-unread-size: ${karaoke.unreadLineSize};`);
+  lines.push(`--karaoke-bg-from: ${karaoke.bgFrom};`);
+  lines.push(`--karaoke-bg-via: ${karaoke.bgVia};`);
+  lines.push(`--karaoke-bg-to: ${karaoke.bgTo};`);
 
   // Typography
-  lines.push(`--font-headline: ${config.typography.headlineFont};`);
-  lines.push(`--font-headline-weight: ${config.typography.headlineWeight};`);
-  lines.push(`--font-copy: ${config.typography.copyFont};`);
-  lines.push(`--font-copy-weight: ${config.typography.copyWeight};`);
-  lines.push(`--font-label: ${config.typography.labelFont};`);
-  lines.push(`--font-label-weight: ${config.typography.labelWeight};`);
-  lines.push(`--font-song-line: ${config.typography.songLineFont};`);
-  lines.push(`--font-song-line-weight: ${config.typography.songLineWeight};`);
-  lines.push(`--font-song-line-size: ${config.typography.songLineSize};`);
-  lines.push(`--font-translation-line: ${config.typography.translationLineFont};`);
-  lines.push(`--font-translation-line-weight: ${config.typography.translationLineWeight};`);
-  lines.push(`--font-translation-line-size: ${config.typography.translationLineSize};`);
+  lines.push(`--font-headline: ${typography.headlineFont};`);
+  lines.push(`--font-headline-weight: ${typography.headlineWeight};`);
+  lines.push(`--font-copy: ${typography.copyFont};`);
+  lines.push(`--font-copy-weight: ${typography.copyWeight};`);
+  lines.push(`--font-label: ${typography.labelFont};`);
+  lines.push(`--font-label-weight: ${typography.labelWeight};`);
+  lines.push(`--font-song-line: ${typography.songLineFont};`);
+  lines.push(`--font-song-line-weight: ${typography.songLineWeight};`);
+  lines.push(`--font-song-line-size: ${typography.songLineSize};`);
+  lines.push(`--font-translation-line: ${typography.translationLineFont};`);
+  lines.push(`--font-translation-line-weight: ${typography.translationLineWeight};`);
+  lines.push(`--font-translation-line-size: ${typography.translationLineSize};`);
 
   // App name
   lines.push(`--app-name: '${config.appName}';`);

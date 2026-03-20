@@ -5,22 +5,30 @@ import type { DisplayMode } from "@/types/karaoke";
 interface ModusUmschalterProps {
   activeMode: DisplayMode;
   onChange: (mode: DisplayMode) => void;
+  /** When true, includes the "Kein Text" option */
+  showKeinText?: boolean;
 }
 
-const MODE_OPTIONS: { value: DisplayMode; label: string }[] = [
+const DEFAULT_MODE_OPTIONS: { value: DisplayMode; label: string }[] = [
   { value: "einzelzeile", label: "Einzelzeile" },
   { value: "strophe", label: "Strophe" },
   { value: "song", label: "Song" },
 ];
 
-export function ModusUmschalter({ activeMode, onChange }: ModusUmschalterProps) {
+const EXTENDED_MODE_OPTIONS: { value: DisplayMode; label: string }[] = [
+  ...DEFAULT_MODE_OPTIONS,
+  { value: "keinText", label: "Kein Text" },
+];
+
+export function ModusUmschalter({ activeMode, onChange, showKeinText = false }: ModusUmschalterProps) {
+  const options = showKeinText ? EXTENDED_MODE_OPTIONS : DEFAULT_MODE_OPTIONS;
   return (
     <div
       role="radiogroup"
       aria-label="Darstellungsmodus"
       className="inline-flex rounded-full bg-white/10 p-1"
     >
-      {MODE_OPTIONS.map(({ value, label }) => {
+      {options.map(({ value, label }) => {
         const isActive = value === activeMode;
         return (
           <button

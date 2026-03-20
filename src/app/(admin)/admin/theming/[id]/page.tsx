@@ -343,8 +343,24 @@ export default function ThemeEditPage() {
 
       const light: ThemeConfig = JSON.parse(data.lightConfig);
       const dark: ThemeConfig = JSON.parse(data.darkConfig);
-      setLightConfig(light);
-      setDarkConfig(dark);
+      // Merge with defaults so newly added fields (e.g. iconColor) are filled
+      const defaults = getDefaultTheme();
+      const mergedLight: ThemeConfig = {
+        ...defaults,
+        ...light,
+        colors: { ...defaults.colors, ...light.colors },
+        typography: { ...defaults.typography, ...light.typography },
+        karaoke: { ...defaults.karaoke, ...light.karaoke },
+      };
+      const mergedDark: ThemeConfig = {
+        ...defaults,
+        ...dark,
+        colors: { ...defaults.colors, ...dark.colors },
+        typography: { ...defaults.typography, ...dark.typography },
+        karaoke: { ...defaults.karaoke, ...dark.karaoke },
+      };
+      setLightConfig(mergedLight);
+      setDarkConfig(mergedDark);
 
       savedLightRef.current = JSON.stringify(light);
       savedDarkRef.current = JSON.stringify(dark);

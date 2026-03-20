@@ -27,5 +27,7 @@ export function getLineOpacity(
       return line.stropheId === activeLine.stropheId ? 0.4 : 0;
     case "song":
       return line.stropheId === activeLine.stropheId ? 0.6 : 0.3;
+    case "keinText":
+      return 0;
   }
 }

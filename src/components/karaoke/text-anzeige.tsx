@@ -2,6 +2,7 @@
 
 import type { FlatLine, DisplayMode } from "@/types/karaoke";
 import type { SongDetail } from "@/types/song";
+import type { TagDefinitionData } from "@/types/vocal-tag";
 import { EinzelzeileAnzeige } from "@/components/karaoke/einzelzeile-anzeige";
 import { StrophenAnzeige } from "@/components/karaoke/strophen-anzeige";
 import { SongAnzeige } from "@/components/karaoke/song-anzeige";
@@ -11,6 +12,10 @@ interface TextAnzeigeProps {
   activeLineIndex: number;
   displayMode: DisplayMode;
   song: SongDetail;
+  /** When true, renders vocal tags inline (compact icons) */
+  showVocalTags?: boolean;
+  /** Tag definitions needed for vocal tag rendering */
+  tagDefinitions?: TagDefinitionData[];
 }
 
 export function TextAnzeige({
@@ -18,6 +23,8 @@ export function TextAnzeige({
   activeLineIndex,
   displayMode,
   song,
+  showVocalTags = false,
+  tagDefinitions = [],
 }: TextAnzeigeProps) {
   const activeLine = flatLines[activeLineIndex];
 
@@ -27,7 +34,13 @@ export function TextAnzeige({
 
   switch (displayMode) {
     case "einzelzeile":
-      return <EinzelzeileAnzeige activeLine={activeLine} />;
+      return (
+        <EinzelzeileAnzeige
+          activeLine={activeLine}
+          showVocalTags={showVocalTags}
+          tagDefinitions={tagDefinitions}
+        />
+      );
 
     case "strophe": {
       const activeStrophe = song.strophen.find(
@@ -38,6 +51,8 @@ export function TextAnzeige({
         <StrophenAnzeige
           strophe={activeStrophe}
           activeZeileId={activeLine.zeileId}
+          showVocalTags={showVocalTags}
+          tagDefinitions={tagDefinitions}
         />
       );
     }
@@ -48,7 +63,12 @@ export function TextAnzeige({
           song={song}
           activeLineIndex={activeLineIndex}
           flatLines={flatLines}
+          showVocalTags={showVocalTags}
+          tagDefinitions={tagDefinitions}
         />
       );
+
+    case "keinText":
+      return null;
   }
 }

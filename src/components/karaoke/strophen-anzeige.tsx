@@ -2,13 +2,23 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { StropheDetail } from "@/types/song";
+import type { TagDefinitionData } from "@/types/vocal-tag";
+import { stripChordPro } from "@/lib/vocal-tag/chordpro-parser";
+import { VocalTagZeile } from "@/components/karaoke/vocal-tag-zeile";
 
 interface StrophenAnzeigeProps {
   strophe: StropheDetail;
   activeZeileId: string;
+  showVocalTags?: boolean;
+  tagDefinitions?: TagDefinitionData[];
 }
 
-export function StrophenAnzeige({ strophe, activeZeileId }: StrophenAnzeigeProps) {
+export function StrophenAnzeige({
+  strophe,
+  activeZeileId,
+  showVocalTags = false,
+  tagDefinitions = [],
+}: StrophenAnzeigeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const lineRefs = useRef<Map<string, HTMLParagraphElement>>(new Map());
   const [offsetY, setOffsetY] = useState(0);
@@ -63,7 +73,11 @@ export function StrophenAnzeige({ strophe, activeZeileId }: StrophenAnzeigeProps
                   : "text-xl opacity-40"
               }`}
             >
-              {zeile.text}
+              {showVocalTags && tagDefinitions.length > 0 ? (
+                <VocalTagZeile rawText={zeile.text} tagDefinitions={tagDefinitions} />
+              ) : (
+                stripChordPro(zeile.text)
+              )}
             </p>
           );
         })}

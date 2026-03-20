@@ -14,13 +14,15 @@ import type {
   ReferenzDaten,
   WorkerResponse,
 } from "@/types/vocal-trainer";
-import type { FlatLine } from "@/types/karaoke";
+import type { FlatLine, DisplayMode } from "@/types/karaoke";
+import type { TagDefinitionData } from "@/types/vocal-tag";
 import { flattenLines } from "@/lib/karaoke/flatten-lines";
 import { messeLatenz, kompensiere } from "@/lib/vocal-trainer/latenz";
 import { TextAnzeige } from "@/components/karaoke/text-anzeige";
 import { StrophenTitel } from "@/components/karaoke/strophen-titel";
 import { SongInfo } from "@/components/karaoke/song-info";
 import { ZurueckButton } from "@/components/karaoke/zurueck-button";
+import { ModusUmschalter } from "@/components/karaoke/modus-umschalter";
 import { AufnahmeControls } from "@/components/vocal-trainer/aufnahme-controls";
 import { FeedbackAnsicht } from "@/components/vocal-trainer/feedback-ansicht";
 import { KopfhoererHinweis } from "@/components/vocal-trainer/kopfhoerer-hinweis";
@@ -35,6 +37,9 @@ interface VocalTrainerViewProps {
 
 /** Minimum percentage of voiced frames required to consider the recording valid. */
 const MIN_VOICED_RATIO = 0.2;
+
+/** Advance stanza switch 1.5 seconds before the timecode marker. */
+const STROPHE_VORLAUF_MS = 1500;
 
 /** Status labels for aria-live announcements. */
 const ZUSTAND_LABELS: Record<AufnahmeZustand, string> = {
@@ -58,6 +63,9 @@ export function VocalTrainerView({
   const [activeLineIndex, setActiveLineIndex] = useState(0);
   const [kopfhoererBestaetigt, setKopfhoererBestaetigt] = useState(false);
   const [warnungWenigGesang, setWarnungWenigGesang] = useState(false);
+  const [displayMode, setDisplayMode] = useState<DisplayMode>("strophe");
+  const [showVocalTags, setShowVocalTags] = useState(false);
+  const [tagDefinitions, setTagDefinitions] = useState<TagDefinitionData[]>([]);
 
   // --- Refs ---
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -131,6 +139,26 @@ export function VocalTrainerView({
   const flatLines: FlatLine[] = useMemo(() => flattenLines(song), [song]);
   const activeLine = flatLines[activeLineIndex];
 
+  // --- Load tag definitions when vocal tag display is enabled ---
+  useEffect(() => {
+    if (!showVocalTags || tagDefinitions.length > 0) return;
+    let cancelled = false;
+    async function loadTags() {
+      try {
+        const res = await fetch("/api/tag-definitions");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) {
+          setTagDefinitions(data.definitions ?? []);
+        }
+      } catch {
+        // Silently fail — tags just won't render
+      }
+    }
+    loadTags();
+    return () => { cancelled = true; };
+  }, [showVocalTags, tagDefinitions.length]);
+
   // Build timecode map: sorted list of { timeMs, lineIndex }
   const timecodeMap = useMemo(() => {
     const entries: { timeMs: number; lineIndex: number }[] = [];
@@ -199,10 +227,12 @@ export function VocalTrainerView({
       if (!audio) return;
       const currentMs = audio.currentTime * 1000;
 
-      // Find the last timecode entry that has been passed
+      // Find the last timecode entry that has been passed,
+      // applying a 1.5s lookahead so the stanza switches early
+      // and the user has time to read the upcoming text.
       let targetIdx = 0;
       for (const entry of timecodeMap) {
-        if (currentMs >= entry.timeMs) {
+        if (currentMs >= entry.timeMs - STROPHE_VORLAUF_MS) {
           targetIdx = entry.lineIndex;
         } else {
           break;
@@ -593,13 +623,31 @@ export function VocalTrainerView({
         {/* AUFNAHME state: Karaoke text display */}
         {zustand === "AUFNAHME" && (
           <div className="flex w-full max-w-2xl flex-1 flex-col items-center justify-center">
-            <TextAnzeige
-              flatLines={flatLines}
-              activeLineIndex={activeLineIndex}
-              displayMode="strophe"
-              song={song}
-            />
+            {displayMode !== "keinText" && (
+              <TextAnzeige
+                flatLines={flatLines}
+                activeLineIndex={activeLineIndex}
+                displayMode={displayMode}
+                song={song}
+                showVocalTags={showVocalTags}
+                tagDefinitions={tagDefinitions}
+              />
+            )}
             <div className="mt-4 flex flex-col items-center gap-2">
+              <ModusUmschalter
+                activeMode={displayMode}
+                onChange={setDisplayMode}
+                showKeinText
+              />
+              <label className="flex items-center gap-1.5 text-xs text-white/60">
+                <input
+                  type="checkbox"
+                  checked={showVocalTags}
+                  onChange={(e) => setShowVocalTags(e.target.checked)}
+                  className="accent-primary-500"
+                />
+                Vocal Tags
+              </label>
               <VuMeter analyser={analyserNode} active={zustand === "AUFNAHME"} />
               <div className="flex w-48 items-center gap-2">
                 <label htmlFor="gain-slider-rec" className="text-xs text-white/40">
