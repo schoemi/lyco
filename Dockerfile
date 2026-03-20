@@ -46,6 +46,9 @@ RUN npm install --no-save prisma@7
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 
+# Create upload directories so the volume mount inherits correct ownership
+RUN mkdir -p /app/data/uploads/audio /app/data/uploads/covers
+
 # Ensure nextjs user owns the app directory for prisma migrations
 RUN chown -R nextjs:nodejs /app
 

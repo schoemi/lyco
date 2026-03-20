@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { updateUser, deleteUser } from "@/lib/services/user-service";
 import { validateEmail } from "@/lib/services/auth-service";
+import { logAudit, USER_UPDATED, USER_DELETED } from "@/lib/services/log-service";
 
 async function getAdminSession() {
   const session = await auth();
@@ -41,6 +42,16 @@ export async function PUT(
     }
 
     const user = await updateUser(id, { email, name, role });
+
+    // Fire-and-forget: log user update
+    logAudit({
+      action: USER_UPDATED,
+      actorId: result.session!.user.id,
+      targetEntity: "User",
+      targetId: id,
+      details: { email, name, role },
+    });
+
     return NextResponse.json({ user });
   } catch (error) {
     if (error instanceof Error) {
@@ -71,6 +82,15 @@ export async function DELETE(
     const requestingUserId = result.session!.user.id;
 
     await deleteUser(id, requestingUserId);
+
+    // Fire-and-forget: log user deletion
+    logAudit({
+      action: USER_DELETED,
+      actorId: requestingUserId,
+      targetEntity: "User",
+      targetId: id,
+    });
+
     return NextResponse.json({ message: "Benutzer gelöscht" });
   } catch (error) {
     if (error instanceof Error) {

@@ -109,6 +109,8 @@ model User {
   songFreigabenAlsEmpfaenger SongFreigabe[] @relation("SongFreigabenAlsEmpfaenger")
   setFreigabenAlsEigentuemer  SetFreigabe[]  @relation("SetFreigabenAlsEigentuemer")
   setFreigabenAlsEmpfaenger  SetFreigabe[]  @relation("SetFreigabenAlsEmpfaenger")
+  auditLogs    AuditLog[]    @relation("AuditLogActor")
+  serverErrors ServerError[] @relation("ServerErrorUser")
 
   @@map("users")
 }
@@ -417,4 +419,43 @@ model SetFreigabe {
 
   @@unique([setId, empfaengerId])
   @@map("set_freigaben")
+}
+
+enum ErrorSeverity {
+  ERROR
+  WARN
+  FATAL
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  action       String
+  actorId      String?
+  targetEntity String?
+  targetId     String?
+  details      Json?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+
+  actor User? @relation("AuditLogActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([action, createdAt])
+  @@map("audit_logs")
+}
+
+model ServerError {
+  id         String        @id @default(cuid())
+  severity   ErrorSeverity
+  message    String
+  stackTrace String?
+  apiPath    String?
+  httpMethod String?
+  statusCode Int?
+  userId     String?
+  createdAt  DateTime      @default(now())
+
+  user User? @relation("ServerErrorUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([severity, createdAt])
+  @@map("server_errors")
 }

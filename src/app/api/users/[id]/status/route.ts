@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { suspendUser, activateUser } from "@/lib/services/user-service";
+import { logAudit, ACCOUNT_STATUS_CHANGED } from "@/lib/services/log-service";
 
 async function getAdminSession() {
   const session = await auth();
@@ -39,6 +40,15 @@ export async function PATCH(
     } else {
       user = await activateUser(id);
     }
+
+    // Fire-and-forget: log account status change
+    logAudit({
+      action: ACCOUNT_STATUS_CHANGED,
+      actorId: result.session!.user.id,
+      targetEntity: "User",
+      targetId: id,
+      details: { newStatus: status },
+    });
 
     return NextResponse.json({ user });
   } catch (error) {

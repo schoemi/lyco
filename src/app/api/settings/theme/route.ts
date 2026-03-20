@@ -4,6 +4,7 @@ import {
   getThemeConfig,
   saveThemeConfig,
 } from "@/lib/services/theme-service";
+import { logAudit, SETTING_CHANGED } from "@/lib/services/log-service";
 
 async function getAdminSession() {
   const session = await auth();
@@ -49,6 +50,16 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     await saveThemeConfig(body);
+
+    // Fire-and-forget audit log
+    logAudit({
+      action: SETTING_CHANGED,
+      actorId: result.session!.user!.id,
+      targetEntity: "SystemSetting",
+      targetId: "theme-config",
+      details: { key: "theme-config", value: body },
+    });
+
     return NextResponse.json(body);
   } catch (error) {
     if (error instanceof Error && error.message.startsWith("Invalid")) {

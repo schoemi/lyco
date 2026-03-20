@@ -4,6 +4,7 @@ import {
   getRequireApproval,
   setRequireApproval,
 } from "@/lib/services/system-setting-service";
+import { logAudit, SETTING_CHANGED } from "@/lib/services/log-service";
 
 async function getAdminSession() {
   const session = await auth();
@@ -58,6 +59,16 @@ export async function PUT(request: NextRequest) {
     }
 
     await setRequireApproval(value);
+
+    // Fire-and-forget audit log
+    logAudit({
+      action: SETTING_CHANGED,
+      actorId: result.session!.user!.id,
+      targetEntity: "SystemSetting",
+      targetId: "require-approval",
+      details: { key: "require-approval", value },
+    });
+
     return NextResponse.json({ value });
   } catch (error) {
     console.error("PUT /api/settings/require-approval error:", error);

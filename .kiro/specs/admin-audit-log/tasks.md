@@ -6,8 +6,8 @@ Schrittweise Implementierung des Audit-Log- und Server-Fehler-Log-Features: Pris
 
 ## Tasks
 
-- [ ] 1. Prisma-Modelle und Datenbankschema erweitern
-  - [ ] 1.1 `AuditLog`-Modell, `ServerError`-Modell und `ErrorSeverity`-Enum in `prisma/schema.prisma` hinzufügen
+- [x] 1. Prisma-Modelle und Datenbankschema erweitern
+  - [x] 1.1 `AuditLog`-Modell, `ServerError`-Modell und `ErrorSeverity`-Enum in `prisma/schema.prisma` hinzufügen
     - `AuditLog` mit Feldern: id, action, actorId, targetEntity, targetId, details (Json), ipAddress, createdAt
     - Relation `actor` auf `User` mit `onDelete: SetNull`
     - Index auf `[action, createdAt]`, `@@map("audit_logs")`
@@ -19,18 +19,18 @@ Schrittweise Implementierung des Audit-Log- und Server-Fehler-Log-Features: Pris
     - Prisma-Migration ausführen
     - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 2. Log-Service implementieren
-  - [ ] 2.1 `src/lib/services/log-service.ts` erstellen mit TypeScript-Interfaces und Aktionstyp-Konstanten
+- [x] 2. Log-Service implementieren
+  - [x] 2.1 `src/lib/services/log-service.ts` erstellen mit TypeScript-Interfaces und Aktionstyp-Konstanten
     - `AuditLogEntry`, `LogAuditParams`, `ServerErrorEntry`, `LogServerErrorParams`, `PaginatedResponse<T>` Interfaces
     - Aktionstyp-Konstanten: `LOGIN_SUCCESS`, `LOGIN_FAILED`, `USER_CREATED`, `USER_UPDATED`, `USER_DELETED`, `SETTING_CHANGED`, `ACCOUNT_STATUS_CHANGED`
     - _Requirements: 1.6, 2.3_
 
-  - [ ] 2.2 `logAudit(params)` und `logServerError(params)` Funktionen implementieren
+  - [x] 2.2 `logAudit(params)` und `logServerError(params)` Funktionen implementieren
     - Fire-and-Forget-Muster: DB-Fehler abfangen und via `console.error` loggen, keine Exception werfen
     - Prisma `create` für jeweiliges Modell
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.4_
 
-  - [ ] 2.3 `getAuditLogs({ page, limit, action? })` und `getServerErrors({ page, limit, severity? })` implementieren
+  - [x] 2.3 `getAuditLogs({ page, limit, action? })` und `getServerErrors({ page, limit, severity? })` implementieren
     - Paginierung mit `skip`/`take`, absteigend nach `createdAt` sortiert
     - Optionaler Filter auf `action` bzw. `severity`
     - Rückgabe: `{ entries, total, page, limit }`
@@ -52,18 +52,18 @@ Schrittweise Implementierung des Audit-Log- und Server-Fehler-Log-Features: Pris
     - **Validates: Requirements 2.4**
     - Datei: `__tests__/admin/log-error-resilience.property.test.ts`
 
-- [ ] 3. Checkpoint – Sicherstellen, dass alle Tests bestehen
+- [x] 3. Checkpoint – Sicherstellen, dass alle Tests bestehen
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 4. API-Endpunkte implementieren
-  - [ ] 4.1 `src/app/api/audit-log/route.ts` – GET-Endpunkt erstellen
+- [x] 4. API-Endpunkte implementieren
+  - [x] 4.1 `src/app/api/audit-log/route.ts` – GET-Endpunkt erstellen
     - `getAdminSession()` für Authentifizierung/Autorisierung (401/403)
     - Query-Parameter: `page`, `limit`, `action` (optional)
     - Standardwerte: page=1, limit=25; ungültige Werte auf Standardwerte zurücksetzen
     - `getAuditLogs` aus Log-Service aufrufen und JSON-Response zurückgeben
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 7.3_
 
-  - [ ] 4.2 `src/app/api/server-errors/route.ts` – GET-Endpunkt erstellen
+  - [x] 4.2 `src/app/api/server-errors/route.ts` – GET-Endpunkt erstellen
     - `getAdminSession()` für Authentifizierung/Autorisierung (401/403)
     - Query-Parameter: `page`, `limit`, `severity` (optional)
     - Standardwerte: page=1, limit=25; ungültige Werte auf Standardwerte zurücksetzen
@@ -95,11 +95,11 @@ Schrittweise Implementierung des Audit-Log- und Server-Fehler-Log-Features: Pris
     - Edge Cases: ungültige Query-Parameter, leere Ergebnisse, Fehlerbehandlung
     - _Requirements: 3.1, 3.2, 3.3, 4.1, 4.2, 4.3_
 
-- [ ] 5. Checkpoint – Sicherstellen, dass alle Tests bestehen
+- [x] 5. Checkpoint – Sicherstellen, dass alle Tests bestehen
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 6. Admin Log-Seite mit Tab-Navigation, Filterung und Paginierung
-  - [ ] 6.1 `src/app/(admin)/admin/logs/page.tsx` erstellen – Client-Komponente mit Tab-Navigation
+- [x] 6. Admin Log-Seite mit Tab-Navigation, Filterung und Paginierung
+  - [x] 6.1 `src/app/(admin)/admin/logs/page.tsx` erstellen – Client-Komponente mit Tab-Navigation
     - "use client" Direktive
     - Zwei Tabs: "Audit Log" (Standard) und "Server-Fehler"
     - State für aktiven Tab, Daten, Ladestand, Fehler, Paginierung und Filter
@@ -107,19 +107,19 @@ Schrittweise Implementierung des Audit-Log- und Server-Fehler-Log-Features: Pris
     - Fehlermeldung "Logs konnten nicht geladen werden." bei Netzwerkfehler
     - _Requirements: 5.1, 5.2, 5.6_
 
-  - [ ] 6.2 Audit-Log-Tabelle implementieren
+  - [x] 6.2 Audit-Log-Tabelle implementieren
     - Tabelle im bestehenden Stil (rounded borders, gray-50 header, divide-y rows, hover states)
     - Spalten: Zeitstempel, Aktion, Akteur (Name/E-Mail), Ziel, Details
     - Dropdown-Filter für Aktionstyp (alle Aktionstypen + "Alle")
     - _Requirements: 5.3, 6.1_
 
-  - [ ] 6.3 Server-Fehler-Tabelle implementieren
+  - [x] 6.3 Server-Fehler-Tabelle implementieren
     - Tabelle im bestehenden Stil
     - Spalten: Zeitstempel, Schweregrad, Nachricht, API-Pfad, Statuscode
     - Dropdown-Filter für Schweregrad (ERROR, WARN, FATAL + "Alle")
     - _Requirements: 5.4, 6.2_
 
-  - [ ] 6.4 Paginierung implementieren
+  - [x] 6.4 Paginierung implementieren
     - "Zurück"- und "Weiter"-Buttons mit Deaktivierung an den Grenzen
     - Anzeige: aktuelle Seite / Gesamtseiten
     - 25 Einträge pro Seite
@@ -131,29 +131,29 @@ Schrittweise Implementierung des Audit-Log- und Server-Fehler-Log-Features: Pris
     - **Validates: Requirements 6.5**
     - Datei: `__tests__/admin/log-filter-reset.property.test.ts`
 
-- [ ] 7. Navigation erweitern
-  - [ ] 7.1 "Logs"-Link in `src/app/(admin)/layout.tsx` hinzufügen
+- [x] 7. Navigation erweitern
+  - [x] 7.1 "Logs"-Link in `src/app/(admin)/layout.tsx` hinzufügen
     - Nach "Vocal Tags" einfügen
     - Aktive Hervorhebung mit `pathname?.startsWith("/admin/logs")`
     - Bestehenden Stil der anderen Links übernehmen
     - _Requirements: 5.5_
 
-- [ ] 8. Audit-Logging in bestehende API-Routes integrieren
-  - [ ] 8.1 Login-Audit-Logging integrieren
+- [x] 8. Audit-Logging in bestehende API-Routes integrieren
+  - [x] 8.1 Login-Audit-Logging integrieren
     - In der Login-API-Route `logAudit` mit `LOGIN_SUCCESS` bzw. `LOGIN_FAILED` aufrufen
     - _Requirements: 1.1, 1.2_
 
-  - [ ] 8.2 Benutzer-CRUD-Audit-Logging integrieren
+  - [x] 8.2 Benutzer-CRUD-Audit-Logging integrieren
     - In den User-API-Routes `logAudit` mit `USER_CREATED`, `USER_UPDATED`, `USER_DELETED` aufrufen
     - Akteur-ID, Ziel-Benutzer-ID und relevante Details übergeben
     - _Requirements: 1.3_
 
-  - [ ] 8.3 Einstellungs-Audit-Logging integrieren
+  - [x] 8.3 Einstellungs-Audit-Logging integrieren
     - In der Settings-API-Route `logAudit` mit `SETTING_CHANGED` aufrufen
     - Einstellungsschlüssel und neuen Wert in Details übergeben
     - _Requirements: 1.4_
 
-  - [ ] 8.4 Kontostatus-Audit-Logging integrieren
+  - [x] 8.4 Kontostatus-Audit-Logging integrieren
     - In der Account-Status-API-Route `logAudit` mit `ACCOUNT_STATUS_CHANGED` aufrufen
     - Akteur-ID, Ziel-Benutzer-ID und neuen Status übergeben
     - _Requirements: 1.5_
@@ -163,7 +163,7 @@ Schrittweise Implementierung des Audit-Log- und Server-Fehler-Log-Features: Pris
     - Testen, dass `logAudit` mit korrekten Parametern für jeden Aktionstyp aufgerufen wird
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 9. Abschluss-Checkpoint – Sicherstellen, dass alle Tests bestehen
+- [x] 9. Abschluss-Checkpoint – Sicherstellen, dass alle Tests bestehen
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Hinweise

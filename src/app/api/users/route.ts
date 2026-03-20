@@ -5,6 +5,7 @@ import {
   validateEmail,
   validatePassword,
 } from "@/lib/services/auth-service";
+import { logAudit, USER_CREATED } from "@/lib/services/log-service";
 
 async function getAdminSession() {
   const session = await auth();
@@ -65,6 +66,15 @@ export async function POST(request: NextRequest) {
       name: name ?? undefined,
       password,
       role: role ?? "USER",
+    });
+
+    // Fire-and-forget: log user creation
+    logAudit({
+      action: USER_CREATED,
+      actorId: result.session!.user.id,
+      targetEntity: "User",
+      targetId: user.id,
+      details: { email, name: name ?? null, role: role ?? "USER" },
     });
 
     return NextResponse.json({ user }, { status: 201 });
