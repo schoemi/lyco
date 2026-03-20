@@ -27,6 +27,7 @@ import { AufnahmeControls } from "@/components/vocal-trainer/aufnahme-controls";
 import { FeedbackAnsicht } from "@/components/vocal-trainer/feedback-ansicht";
 import { KopfhoererHinweis } from "@/components/vocal-trainer/kopfhoerer-hinweis";
 import { VuMeter } from "@/components/vocal-trainer/vu-meter";
+import { AppIcon } from "@/components/ui/iconify-icon";
 
 interface VocalTrainerViewProps {
   song: SongDetail;
@@ -634,20 +635,27 @@ export function VocalTrainerView({
               />
             )}
             <div className="mt-4 flex flex-col items-center gap-2">
-              <ModusUmschalter
-                activeMode={displayMode}
-                onChange={setDisplayMode}
-                showKeinText
-              />
-              <label className="flex items-center gap-1.5 text-xs text-white/60">
-                <input
-                  type="checkbox"
-                  checked={showVocalTags}
-                  onChange={(e) => setShowVocalTags(e.target.checked)}
-                  className="accent-primary-500"
+              <div className="flex items-center gap-2">
+                <ModusUmschalter
+                  activeMode={displayMode}
+                  onChange={setDisplayMode}
+                  showKeinText
                 />
-                Vocal Tags
-              </label>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={showVocalTags}
+                  aria-label="Vocal Tags"
+                  onClick={() => setShowVocalTags((v) => !v)}
+                  className={`inline-flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                    showVocalTags
+                      ? "bg-white text-neutral-900 shadow-sm"
+                      : "bg-white/10 text-white/80 hover:text-white"
+                  }`}
+                >
+                  <AppIcon icon="lucide:tag" className="text-base text-current" />
+                </button>
+              </div>
               <VuMeter analyser={analyserNode} active={zustand === "AUFNAHME"} />
               <div className="flex w-48 items-center gap-2">
                 <label htmlFor="gain-slider-rec" className="text-xs text-white/40">
