@@ -20,6 +20,7 @@ RUN npm run build
 
 # ---- Stage 3: Runtime ----
 FROM node:current-alpine AS runner
+RUN apk add --no-cache ffmpeg
 WORKDIR /app
 
 ENV NODE_ENV=production
