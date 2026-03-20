@@ -4,6 +4,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 
 // ---------------------------------------------------------------------------
 // Aktionstyp-Konstanten
@@ -83,7 +84,7 @@ export async function logAudit(params: LogAuditParams): Promise<void> {
         actorId: params.actorId,
         targetEntity: params.targetEntity,
         targetId: params.targetId,
-        details: params.details ?? undefined,
+        details: (params.details ?? undefined) as Prisma.InputJsonValue | undefined,
         ipAddress: params.ipAddress,
       },
     });
