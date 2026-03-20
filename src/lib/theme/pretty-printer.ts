@@ -72,6 +72,8 @@ const COLOR_DESCRIPTIONS: Record<keyof ThemeColors, string> = {
     'Textfarbe für sekundäre Informationen wie Künstlername, Hinweise und Zeitangaben',
   buttonTextColor:
     'Textfarbe auf primären Buttons und Aktions-Schaltflächen',
+  iconColor:
+    'Einheitliche Farbe für alle Icons in der Anwendung',
 };
 
 const TYPOGRAPHY_DESCRIPTIONS: Record<keyof ThemeTypography, string> = {

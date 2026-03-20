@@ -51,6 +51,7 @@ export function getDefaultDarkConfig(): ThemeConfig {
       linkColor: "#a78bfa",
       mutedColor: "#9ca3af",
       buttonTextColor: "#ffffff",
+      iconColor: "#a78bfa",
     },
     typography: {
       headlineFont: DEFAULT_FONT,

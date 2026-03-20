@@ -18,7 +18,7 @@ export async function GET(
     const { id } = await params;
     const zipBuffer = await exportSet(session.user.id, id);
 
-    return new NextResponse(zipBuffer, {
+    return new NextResponse(new Uint8Array(zipBuffer), {
       status: 200,
       headers: {
         "Content-Type": "application/zip",
