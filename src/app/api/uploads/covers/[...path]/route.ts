@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFile, stat } from "fs/promises";
 import { join } from "path";
+import { COVERS_DIR } from "@/lib/storage";
 
 const MIME_TYPES: Record<string, string> = {
   ".jpg": "image/jpeg",
@@ -28,7 +29,7 @@ export async function GET(
       return NextResponse.json({ error: "Nicht gefunden" }, { status: 404 });
     }
 
-    const filepath = join(process.cwd(), "data", "uploads", "covers", filename);
+    const filepath = join(COVERS_DIR, filename);
 
     // Check file exists
     try {

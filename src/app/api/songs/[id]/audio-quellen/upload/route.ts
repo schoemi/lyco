@@ -4,6 +4,7 @@ import { createAudioQuelle } from "@/lib/services/audio-quelle-service";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { randomUUID } from "crypto";
+import { AUDIO_DIR } from "@/lib/storage";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 const ALLOWED_TYPES = new Set([
@@ -72,7 +73,7 @@ export async function POST(
     }
 
     // Save file to disk
-    const uploadDir = join(process.cwd(), "data", "uploads", "audio");
+    const uploadDir = AUDIO_DIR;
     await mkdir(uploadDir, { recursive: true });
 
     const safeExt = ALLOWED_EXTENSIONS.has(ext) ? ext : ".mp3";

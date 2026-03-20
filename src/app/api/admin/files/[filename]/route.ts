@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { unlink } from "fs/promises";
 import { join } from "path";
+import { AUDIO_DIR, COVERS_DIR } from "@/lib/storage";
 
 async function getAdminSession() {
   const session = await auth();
@@ -60,7 +61,7 @@ export async function DELETE(
     }
 
     const subdir = type === "audio" ? "audio" : "covers";
-    const filepath = join(process.cwd(), "data", "uploads", subdir, filename);
+    const filepath = join(subdir === "audio" ? AUDIO_DIR : COVERS_DIR, filename);
 
     try {
       await unlink(filepath);

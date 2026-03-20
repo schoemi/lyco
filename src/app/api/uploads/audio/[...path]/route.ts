@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { open, stat } from "fs/promises";
 import { join } from "path";
+import { AUDIO_DIR } from "@/lib/storage";
 
 const MIME_TYPES: Record<string, string> = {
   ".mp3": "audio/mpeg",
@@ -16,7 +17,7 @@ function resolveFile(segments: string[]): { filepath: string; filename: string }
   if (segments.length !== 1) return null;
   const filename = segments[0];
   if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) return null;
-  return { filepath: join(process.cwd(), "data", "uploads", "audio", filename), filename };
+  return { filepath: join(AUDIO_DIR, filename), filename };
 }
 
 function contentTypeFor(filename: string): string {

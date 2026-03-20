@@ -4,6 +4,7 @@ import { join } from "path";
 import { promisify } from "util";
 import { extrahierePitch } from "@/lib/vocal-trainer/pitch-extraktor";
 import { hzToMidi } from "@/lib/vocal-trainer/frequenz-utils";
+import { AUDIO_DIR, REFERENZ_DATEN_DIR } from "@/lib/storage";
 import type { ReferenzDaten, ReferenzFrame } from "@/types/vocal-trainer";
 import type { PitchFrame } from "@/types/vocal-trainer";
 
@@ -66,7 +67,7 @@ function pitchFramesToReferenz(frames: PitchFrame[]): ReferenzFrame[] {
 function resolveAudioPath(url: string): string {
   if (url.startsWith("/api/uploads/audio/")) {
     const filename = url.replace("/api/uploads/audio/", "");
-    return join(process.cwd(), "data", "uploads", "audio", filename);
+    return join(AUDIO_DIR, filename);
   }
   // For external URLs, we can't process them server-side
   throw new Error(
@@ -79,7 +80,7 @@ function resolveAudioPath(url: string): string {
  * Stored inside data/uploads/ so it's covered by the Docker volume mount.
  */
 function getReferenzDatenPath(songId: string): string {
-  return join(process.cwd(), "data", "uploads", "referenz-daten", `${songId}.json`);
+  return join(REFERENZ_DATEN_DIR, `${songId}.json`);
 }
 
 /**
@@ -138,8 +139,7 @@ export async function generiereReferenzDaten(
 
   // 7. Save to disk (inside uploads volume for persistence)
   const outputPath = getReferenzDatenPath(songId);
-  const outputDir = join(process.cwd(), "data", "uploads", "referenz-daten");
-  await mkdir(outputDir, { recursive: true });
+  await mkdir(REFERENZ_DATEN_DIR, { recursive: true });
   await writeFile(outputPath, JSON.stringify(referenzDaten), "utf-8");
 
   return referenzDaten;

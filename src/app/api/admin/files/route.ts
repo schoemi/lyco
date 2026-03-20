@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { readdir, stat } from "fs/promises";
 import { join } from "path";
+import { AUDIO_DIR, COVERS_DIR } from "@/lib/storage";
 
 interface FileInfo {
   filename: string;
@@ -56,12 +57,10 @@ export async function GET() {
     const result = await getAdminSession();
     if ("error" in result && result.error) return result.error;
 
-    const baseDir = join(process.cwd(), "data", "uploads");
-
     // Scan both directories
     const [audioFiles, coverFiles] = await Promise.all([
-      scanDirectory(join(baseDir, "audio"), "audio"),
-      scanDirectory(join(baseDir, "covers"), "cover"),
+      scanDirectory(AUDIO_DIR, "audio"),
+      scanDirectory(COVERS_DIR, "cover"),
     ]);
 
     // Fetch all audio quellen with song info (for audio files)

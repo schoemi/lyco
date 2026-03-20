@@ -4,6 +4,7 @@ import { readFile } from "fs/promises";
 import { join } from "path";
 import { prisma } from "@/lib/prisma";
 import { generiereReferenzDaten } from "@/lib/vocal-trainer/referenz-generator";
+import { REFERENZ_DATEN_DIR } from "@/lib/storage";
 
 /**
  * GET: Load existing referenz-daten for a song.
@@ -24,14 +25,14 @@ export async function GET(
 
     const { id } = await params;
 
-    // Try data/uploads/ directory first (generated files, persisted via Docker volume)
-    const dataPath = join(process.cwd(), "data", "uploads", "referenz-daten", `${id}.json`);
+    // Try uploads volume first (generated files, persisted via Docker volume)
+    const dataPath = join(REFERENZ_DATEN_DIR, `${id}.json`);
     try {
       const content = await readFile(dataPath, "utf-8");
       const data = JSON.parse(content);
       return NextResponse.json(data);
     } catch {
-      // Not found in data/uploads/, try legacy data/ path
+      // Not found in uploads volume, try legacy paths
     }
 
     // Legacy fallback: data/referenz-daten/ (old path before volume fix)
