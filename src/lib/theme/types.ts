@@ -89,6 +89,8 @@ export interface ThemeColors {
   secondaryButton: string;
   /** "+ Neuer Song" button colour (Anforderung 9.2) */
   newSongButton: string;
+  /** Pill / tag background colour for sets, emotions, badges */
+  pillTag: string;
   /** Translation toggle colour (Anforderung 9.5) */
   translationToggle: string;
   /** Info / hint colour for informational messages */
@@ -107,6 +109,8 @@ export interface ThemeColors {
   mutedColor: string;
   /** Text colour on primary buttons */
   buttonTextColor: string;
+  /** Monochrome icon colour – one colour for all icons */
+  iconColor: string;
 }
 
 // ---------------------------------------------------------------------------

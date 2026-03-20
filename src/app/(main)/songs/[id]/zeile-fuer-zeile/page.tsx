@@ -8,7 +8,7 @@ import { StrophenNavigator } from "@/components/zeile-fuer-zeile/strophen-naviga
 import { KumulativeAnsicht } from "@/components/zeile-fuer-zeile/kumulative-ansicht";
 import { AktiveZeile } from "@/components/zeile-fuer-zeile/aktive-zeile";
 import { EingabeBereich } from "@/components/zeile-fuer-zeile/eingabe-bereich";
-import { StrophenAuswahlDialog } from "@/components/cloze/strophen-auswahl-dialog";
+import { AppIcon } from "@/components/ui/iconify-icon";import { StrophenAuswahlDialog } from "@/components/cloze/strophen-auswahl-dialog";
 import { validateLine } from "@/lib/zeile-fuer-zeile/validate-line";
 import { calculateStropheProgress } from "@/lib/zeile-fuer-zeile/progress";
 import { SchwierigkeitsAuswahl } from "@/components/zeile-fuer-zeile/schwierigkeits-auswahl";
@@ -437,7 +437,7 @@ export default function ZeileFuerZeilePage() {
 
         {stropheAbgeschlossen ? (
           <div className="rounded-lg border border-success-200 bg-success-50 px-6 py-4 text-center text-sm font-medium text-success-700">
-            🎉 Strophe abgeschlossen!
+            <AppIcon icon="lucide:party-popper" className="inline mr-1.5 text-base align-[-2px]" /> Strophe abgeschlossen!
           </div>
         ) : (
           <>

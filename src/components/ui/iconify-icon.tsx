@@ -5,16 +5,17 @@ import { Icon } from "@iconify/react";
 /**
  * Zentrale Icon-Komponente basierend auf Iconify.
  *
- * Unterstützt das gesamte Iconify-Ökosystem (200k+ Icons).
- * FontAwesome 6 Solid Icons sind unter dem Prefix `fa6-solid:` verfügbar.
+ * Nutzt standardmäßig die Theme-Variable `--color-icon` für eine
+ * einheitliche, monochrome Icon-Darstellung. Die Farbe kann über
+ * das Admin-Theming global gesteuert werden.
  *
- * Beispiel: <AppIcon icon="fa6-solid:microphone" color="#e53e3e" />
+ * Beispiel: <AppIcon icon="lucide:search" />
  */
 
 export interface AppIconProps {
-  /** Iconify icon name, z.B. "fa6-solid:microphone" */
+  /** Iconify icon name, z.B. "lucide:search" */
   icon: string;
-  /** CSS color */
+  /** CSS color – überschreibt die Theme-Farbe */
   color?: string;
   /** CSS class names */
   className?: string;
@@ -29,7 +30,7 @@ export function AppIcon({ icon, color, className, label, style }: AppIconProps) 
     <Icon
       icon={icon}
       className={className}
-      style={{ color, ...style }}
+      style={{ color: color ?? "var(--color-icon)", ...style }}
       aria-hidden={!label}
       aria-label={label || undefined}
       role={label ? "img" : undefined}

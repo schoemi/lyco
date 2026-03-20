@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import CoachBereich from "@/components/songs/coach-bereich";
 import type { SongDetail } from "@/types/song";
+import { AppIcon } from "@/components/ui/iconify-icon";
 
 export default function CoachPage() {
   const params = useParams();
@@ -74,7 +75,7 @@ export default function CoachPage() {
           {song.titel}
         </h1>
         <span className="text-sm font-medium text-success-700 whitespace-nowrap">
-          🎤 Gesangstechnik-Coach
+          <AppIcon icon="lucide:mic-vocal" className="inline mr-1.5 text-base align-[-2px]" /> Gesangstechnik-Coach
         </span>
       </nav>
 

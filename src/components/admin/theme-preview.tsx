@@ -193,6 +193,25 @@ export default function ThemePreview({ themeConfig }: ThemePreviewProps) {
           85 %
         </span>
       </section>
+
+      {/* Pill / Tag preview */}
+      <section>
+        <h3 style={hl} className="text-sm mb-2">Pills &amp; Tags</h3>
+        <div className="flex flex-wrap gap-2">
+          <span
+            style={{ backgroundColor: "var(--color-pill-50)", color: "var(--color-pill-700)" }}
+            className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+          >
+            Set-Beispiel
+          </span>
+          <span
+            style={{ backgroundColor: "var(--color-pill-50)", color: "var(--color-pill-700)" }}
+            className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+          >
+            Emotion-Tag
+          </span>
+        </div>
+      </section>
     </div>
   );
 }

@@ -10,6 +10,7 @@ import SetEditDialog from "@/components/songs/set-edit-dialog";
 import SetDeleteDialog from "@/components/songs/set-delete-dialog";
 import FreigabeDialog from "@/components/sharing/freigabe-dialog";
 import FreigabeUebersicht from "@/components/sharing/freigabe-uebersicht";
+import SetExportButton from "@/components/songs/set-export-button";
 
 export default function SetDetailPage() {
   const params = useParams();
@@ -89,6 +90,7 @@ export default function SetDetailPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <SetExportButton setId={id} />
           <button
             type="button"
             onClick={() => setFreigabeDialogOpen(true)}

@@ -7,7 +7,7 @@ import type { StrophenViewMode } from "./strophen-view-toggle";
 import { ZeileTagInput } from "./zeile-tag-input";
 import { ZeileMarkupView } from "./zeile-markup-view";
 import { stripChordPro } from "@/lib/vocal-tag/chordpro-parser";
-
+import { AppIcon } from "@/components/ui/iconify-icon";
 interface ZeileEditorProps {
   songId: string;
   stropheId: string;
@@ -455,7 +455,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
                   className="rounded p-1 text-newsong-600 hover:bg-newsong-50"
                   aria-label={`Zeile ${idx + 1} bearbeiten`}
                 >
-                  ✏️
+                  <AppIcon icon="lucide:pencil" className="text-sm" />
                 </button>
                 <button
                   type="button"
@@ -463,7 +463,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
                   className="rounded p-1 text-error-600 hover:bg-error-50"
                   aria-label={`Zeile ${idx + 1} löschen`}
                 >
-                  🗑️
+                  <AppIcon icon="lucide:trash-2" className="text-sm" />
                 </button>
               </div>
             </div>

@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import LanguageSelector from "./language-selector";
 import TranslateButton from "./translate-button";
+import { AppIcon } from "@/components/ui/iconify-icon";
 
 interface SongActionMenuProps {
+  songId: string;
   analyzing: boolean;
   translating: boolean;
   zielsprache: string;
@@ -18,6 +20,7 @@ interface SongActionMenuProps {
 }
 
 export default function SongActionMenu({
+  songId,
   analyzing,
   translating,
   zielsprache,
@@ -30,8 +33,38 @@ export default function SongActionMenu({
   onZielspracheChange,
 }: SongActionMenuProps) {
   const [open, setOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  async function handleExport() {
+    setExporting(true);
+    setOpen(false);
+    try {
+      const res = await fetch(`/api/songs/${songId}/export`);
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error ?? `Export fehlgeschlagen (${res.status})`);
+      }
+      const blob = await res.blob();
+      const disposition = res.headers.get("Content-Disposition");
+      const filenameMatch = disposition?.match(/filename="?([^"]+)"?/);
+      const filename = filenameMatch?.[1] ?? `song-${songId}.zip`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export error:", err);
+      alert(err instanceof Error ? err.message : "Export fehlgeschlagen");
+    } finally {
+      setExporting(false);
+    }
+  }
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -102,7 +135,7 @@ export default function SongActionMenu({
             disabled={analyzing}
             className="flex w-full items-center px-4 py-2.5 text-sm text-primary-700 hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {analyzing ? "Analysiert…" : "🔍 Analysieren"}
+            {analyzing ? "Analysiert…" : <><AppIcon icon="lucide:search" className="inline mr-1.5 text-base align-[-2px]" /> Analysieren</>}
           </button>
 
           <div className="border-t border-neutral-100 my-1" />
@@ -132,7 +165,7 @@ export default function SongActionMenu({
             }}
             className="flex w-full items-center px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50"
           >
-            ✏️ Bearbeiten
+            <AppIcon icon="lucide:pencil" className="inline mr-1.5 text-base align-[-2px]" /> Bearbeiten
           </button>
 
           {/* Volltext bearbeiten */}
@@ -145,7 +178,20 @@ export default function SongActionMenu({
             }}
             className="flex w-full items-center px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50"
           >
-            📝 Text bearbeiten
+            <AppIcon icon="lucide:file-text" className="inline mr-1.5 text-base align-[-2px]" /> Text bearbeiten
+          </button>
+
+          <div className="border-t border-neutral-100 my-1" />
+
+          {/* Exportieren */}
+          <button
+            type="button"
+            role="menuitem"
+            onClick={handleExport}
+            disabled={exporting}
+            className="flex w-full items-center px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {exporting ? "Exportiert…" : <><AppIcon icon="lucide:package" className="inline mr-1.5 text-base align-[-2px]" /> Exportieren</>}
           </button>
 
           {/* Löschen */}
@@ -158,7 +204,7 @@ export default function SongActionMenu({
             }}
             className="flex w-full items-center px-4 py-2.5 text-sm text-error-700 hover:bg-error-50"
           >
-            🗑️ Löschen
+            <AppIcon icon="lucide:trash-2" className="inline mr-1.5 text-base align-[-2px]" /> Löschen
           </button>
         </div>
       )}

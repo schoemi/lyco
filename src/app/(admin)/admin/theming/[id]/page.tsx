@@ -224,6 +224,7 @@ function ColorsEditor({
       <ColorField label="Primär-Button" value={colors.primaryButton} onChange={(v) => set("primaryButton", v)} />
       <ColorField label="Sekundär-Button" value={colors.secondaryButton} onChange={(v) => set("secondaryButton", v)} />
       <ColorField label="Neuer-Song-Button" value={colors.newSongButton} onChange={(v) => set("newSongButton", v)} />
+      <ColorField label="Pill / Tag" value={colors.pillTag} onChange={(v) => set("pillTag", v)} />
       <ColorField label="Übersetzungs-Toggle" value={colors.translationToggle} onChange={(v) => set("translationToggle", v)} />
       <ColorField label="Info" value={colors.info} onChange={(v) => set("info", v)} />
       <ColorField label="Neutral" value={colors.neutral} onChange={(v) => set("neutral", v)} />
@@ -233,6 +234,7 @@ function ColorsEditor({
       <ColorField label="Link-Text" value={colors.linkColor ?? "#7c3aed"} onChange={(v) => set("linkColor", v)} />
       <ColorField label="Gedämpfter Text" value={colors.mutedColor ?? "#6b7280"} onChange={(v) => set("mutedColor", v)} />
       <ColorField label="Button-Text" value={colors.buttonTextColor ?? "#ffffff"} onChange={(v) => set("buttonTextColor", v)} />
+      <ColorField label="Icon-Farbe" value={colors.iconColor ?? "#7c3aed"} onChange={(v) => set("iconColor", v)} />
     </Section>
   );
 }

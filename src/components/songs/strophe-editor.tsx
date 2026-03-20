@@ -10,6 +10,7 @@ import { StrophenViewToggle } from "./strophen-view-toggle";
 import { ZeileMarkupView } from "./zeile-markup-view";
 import { stripChordPro } from "@/lib/vocal-tag/chordpro-parser";
 import type { TagDefinitionData } from "@/types/vocal-tag";
+import { AppIcon } from "@/components/ui/iconify-icon";
 
 interface StropheEditorProps {
   songId: string;
@@ -525,7 +526,7 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
                   className="rounded p-1 text-newsong-600 hover:bg-newsong-50"
                   aria-label={`Strophe ${strophe.name} bearbeiten`}
                 >
-                  ✏️
+                  <AppIcon icon="lucide:pencil" className="text-sm" />
                 </button>
                 <button
                   type="button"
@@ -533,7 +534,7 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
                   className="rounded p-1 text-error-600 hover:bg-error-50"
                   aria-label={`Strophe ${strophe.name} löschen`}
                 >
-                  🗑️
+                  <AppIcon icon="lucide:trash-2" className="text-sm" />
                 </button>
               </div>
             </div>

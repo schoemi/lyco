@@ -18,9 +18,11 @@ import CoverManager from "@/components/songs/cover-manager";
 import { usePlayerVisibility } from "@/hooks/use-player-visibility";
 import { useTranslation } from "@/hooks/use-translation";
 import { StrophenViewToggle, type StrophenViewMode } from "@/components/songs/strophen-view-toggle";
+import { AppIcon } from "@/components/ui/iconify-icon";
 import FreigabeDialog from "@/components/sharing/freigabe-dialog";
 import FreigabeUebersicht from "@/components/sharing/freigabe-uebersicht";
 import GeteilterSongBadge from "@/components/sharing/geteilter-song-badge";
+import SetZuweisenDialog from "@/components/songs/set-zuweisen-dialog";
 import type { SongDetail, StropheDetail } from "../../../../types/song";
 import type { SongAnalyseResult } from "@/types/song";
 
@@ -47,6 +49,7 @@ export default function SongDetailPage() {
 
   const [viewMode, setViewMode] = useState<StrophenViewMode>("normal");
   const [freigabeDialogOpen, setFreigabeDialogOpen] = useState(false);
+  const [setDialogOpen, setSetDialogOpen] = useState(false);
 
   // showTranslations is derived from viewMode — "translation" mode shows translations
   const showTranslations = viewMode === "translation";
@@ -237,6 +240,7 @@ export default function SongDetailPage() {
             )}
             {!istFreigabe && !editing && !editingText && (
               <SongActionMenu
+                songId={id}
                 analyzing={analyzing}
                 translating={translating}
                 zielsprache={zielsprache}
@@ -303,14 +307,28 @@ export default function SongDetailPage() {
 
                 {/* Set card */}
                 <div className="rounded-lg border border-neutral-200 bg-white px-4 py-3">
-                  <p className="text-xs text-neutral-500">Set</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-neutral-500">Set</p>
+                    {!istFreigabe && !editing && (
+                      <button
+                        type="button"
+                        onClick={() => setSetDialogOpen(true)}
+                        className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+                        aria-label="Sets verwalten"
+                      >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                   {song.sets.length > 0 ? (
                     <div className="flex flex-wrap gap-2 mt-1">
                       {song.sets.map((s) => (
                         <Link
                           key={s.id}
                           href={`/sets/${s.id}`}
-                          className="text-sm font-medium text-newsong-600 hover:text-newsong-800"
+                          className="inline-flex items-center rounded-full bg-pill-50 px-3 py-1 text-xs font-medium text-pill-700 hover:bg-pill-100 transition-colors"
                         >
                           {s.name}
                         </Link>
@@ -393,6 +411,17 @@ export default function SongDetailPage() {
         />
       )}
 
+      {/* Set-Zuweisen Dialog */}
+      {!istFreigabe && (
+        <SetZuweisenDialog
+          open={setDialogOpen}
+          songId={id}
+          currentSetIds={song.sets.map((s) => s.id)}
+          onClose={() => setSetDialogOpen(false)}
+          onChanged={refreshSong}
+        />
+      )}
+
       {/* Freigabe-Übersicht (owner only) */}
       {!istFreigabe && (
         <FreigabeUebersicht type="song" itemId={id} />
@@ -424,19 +453,19 @@ export default function SongDetailPage() {
               href={`/songs/${id}/karaoke`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
             >
-              🎤 Lesemodus
+              <AppIcon icon="lucide:mic" className="inline mr-1.5 text-base align-[-2px]" /> Lesemodus
             </Link>
             <Link
               href={`/songs/${id}/emotional`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
             >
-              🎭 Inhalt &amp; Bedeutung
+              <AppIcon icon="lucide:heart" className="inline mr-1.5 text-base align-[-2px]" /> Inhalt &amp; Bedeutung
             </Link>
             <Link
               href={`/songs/${id}/coach`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
             >
-              🎤 Gesangstechnik-Coach
+              <AppIcon icon="lucide:mic-vocal" className="inline mr-1.5 text-base align-[-2px]" /> Gesangstechnik-Coach
             </Link>
             {song.audioQuellen.some((q) => q.rolle === "INSTRUMENTAL") && (
               <Link
@@ -444,7 +473,7 @@ export default function SongDetailPage() {
                 className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
                 aria-label="Vocal Trainer öffnen"
               >
-                🎙️ Vocal Trainer
+                <AppIcon icon="lucide:audio-waveform" className="inline mr-1.5 text-base align-[-2px]" /> Vocal Trainer
               </Link>
             )}
           </div>
@@ -459,31 +488,31 @@ export default function SongDetailPage() {
               disabled={enrolling}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50"
             >
-              {enrolling ? "Wird vorbereitet…" : "🧠 Spaced Repetition"}
+              {enrolling ? "Wird vorbereitet…" : <><AppIcon icon="lucide:brain" className="inline mr-1.5 text-base align-[-2px]" /> Spaced Repetition</>}
             </button>
             <Link
               href={`/songs/${id}/quiz`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
             >
-              🧩 Quiz
+              <AppIcon icon="lucide:puzzle" className="inline mr-1.5 text-base align-[-2px]" /> Quiz
             </Link>
             <Link
               href={`/songs/${id}/cloze`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
             >
-              ✏️ Lückentext
+              <AppIcon icon="lucide:pencil" className="inline mr-1.5 text-base align-[-2px]" /> Lückentext
             </Link>
             <Link
               href={`/songs/${id}/zeile-fuer-zeile`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
             >
-              📝 Zeile für Zeile
+              <AppIcon icon="lucide:list" className="inline mr-1.5 text-base align-[-2px]" /> Zeile für Zeile
             </Link>
             <Link
               href={`/songs/${id}/rueckwaerts`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
             >
-              🔄 Rückwärts lernen
+              <AppIcon icon="lucide:arrow-down-up" className="inline mr-1.5 text-base align-[-2px]" /> Rückwärts lernen
             </Link>
           </div>
         </div>

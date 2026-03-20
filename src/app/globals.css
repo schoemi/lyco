@@ -48,6 +48,19 @@
   --color-newsong-900: var(--color-newsong-900);
   --color-newsong-950: var(--color-newsong-950);
 
+  /* Pill / Tag palette */
+  --color-pill-50:  var(--color-pill-50);
+  --color-pill-100: var(--color-pill-100);
+  --color-pill-200: var(--color-pill-200);
+  --color-pill-300: var(--color-pill-300);
+  --color-pill-400: var(--color-pill-400);
+  --color-pill-500: var(--color-pill-500);
+  --color-pill-600: var(--color-pill-600);
+  --color-pill-700: var(--color-pill-700);
+  --color-pill-800: var(--color-pill-800);
+  --color-pill-900: var(--color-pill-900);
+  --color-pill-950: var(--color-pill-950);
+
   /* Success palette */
   --color-success-50:  var(--color-success-50);
   --color-success-100: var(--color-success-100);
@@ -130,6 +143,7 @@
   --color-link-text:     var(--color-link-text);
   --color-muted-text:    var(--color-muted-text);
   --color-button-text:   var(--color-button-text);
+  --color-icon:          var(--color-icon);
 }
 
 body {

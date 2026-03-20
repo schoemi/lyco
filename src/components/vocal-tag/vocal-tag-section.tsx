@@ -132,7 +132,7 @@ export function VocalTagSection({
           }
           aria-pressed={editingVocalTags}
         >
-          {editingVocalTags ? "✏️ Bearbeitung beenden" : "✏️ Vocal Tags bearbeiten"}
+          {editingVocalTags ? <><AppIcon icon="lucide:pencil" className="inline mr-1.5 text-base align-[-2px]" /> Bearbeitung beenden</> : <><AppIcon icon="lucide:pencil" className="inline mr-1.5 text-base align-[-2px]" /> Vocal Tags bearbeiten</>}
         </button>
       </div>
 

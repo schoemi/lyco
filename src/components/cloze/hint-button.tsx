@@ -1,5 +1,7 @@
 "use client";
 
+import { AppIcon } from "@/components/ui/iconify-icon";
+
 interface HintButtonProps {
   disabled: boolean;
   onClick: () => void;
@@ -20,7 +22,7 @@ export function HintButton({ disabled, onClick }: HintButtonProps) {
         "disabled:opacity-40 disabled:cursor-not-allowed",
       ].join(" ")}
     >
-      💡
+      <AppIcon icon="lucide:lightbulb" className="text-base" />
     </button>
   );
 }

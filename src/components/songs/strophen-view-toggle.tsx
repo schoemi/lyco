@@ -1,5 +1,7 @@
 "use client";
 
+import { AppIcon } from "@/components/ui/iconify-icon";
+
 export type StrophenViewMode = "normal" | "markup" | "translation";
 
 export interface StrophenViewToggleProps {
@@ -10,9 +12,9 @@ export interface StrophenViewToggleProps {
 }
 
 const modes: { value: StrophenViewMode; label: string; icon: string }[] = [
-  { value: "normal", label: "Normal", icon: "📄" },
-  { value: "markup", label: "Vocal Tags", icon: "🎤" },
-  { value: "translation", label: "Übersetzung", icon: "🌐" },
+  { value: "normal", label: "Normal", icon: "lucide:file-text" },
+  { value: "markup", label: "Vocal Tags", icon: "lucide:mic" },
+  { value: "translation", label: "Übersetzung", icon: "lucide:globe" },
 ];
 
 export function StrophenViewToggle({
@@ -43,7 +45,7 @@ export function StrophenViewToggle({
               : "text-neutral-600 hover:bg-neutral-50"
           }`}
         >
-          <span aria-hidden="true">{m.icon}</span>
+          <AppIcon icon={m.icon} className="text-sm" />
           <span>{m.label}</span>
         </button>
       ))}

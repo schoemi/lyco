@@ -1,5 +1,7 @@
 "use client";
 
+import { AppIcon } from "@/components/ui/iconify-icon";
+
 export interface StreakPillProps {
   streak: number;
 }
@@ -15,7 +17,7 @@ export function StreakPill({ streak }: StreakPillProps) {
       aria-label={text}
       role="status"
     >
-      <span aria-hidden="true">🔥</span>
+      <span aria-hidden="true"><AppIcon icon="lucide:flame" className="text-base" /></span>
       {text}
     </span>
   );

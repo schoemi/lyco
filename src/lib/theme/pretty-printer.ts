@@ -52,6 +52,8 @@ const COLOR_DESCRIPTIONS: Record<keyof ThemeColors, string> = {
     'Hintergrundfarbe sekundärer Buttons und Methoden-Buttons',
   newSongButton:
     'Hintergrundfarbe des „Neuer Song"-Buttons und allgemeiner Aktions-Links',
+  pillTag:
+    'Basisfarbe für Pill-/Tag-Elemente wie Set-Zuordnungen, Emotions-Tags und Badges',
   translationToggle:
     'Farbe des Übersetzungs-Toggle-Schalters',
   info:

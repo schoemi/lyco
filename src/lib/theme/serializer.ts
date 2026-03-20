@@ -41,6 +41,7 @@ export function getDefaultTheme(): ThemeConfig {
       primaryButton: '#7c3aed',
       secondaryButton: '#3b82f6',
       newSongButton: '#7c3aed',
+      pillTag: '#8b5cf6',
       translationToggle: '#3b82f6',
       info: '#eab308',
       neutral: '#6b7280',
@@ -50,6 +51,7 @@ export function getDefaultTheme(): ThemeConfig {
       linkColor: '#7c3aed',
       mutedColor: '#6b7280',
       buttonTextColor: '#ffffff',
+      iconColor: '#7c3aed',
     },
     typography: {
       headlineFont: DEFAULT_FONT,
@@ -179,6 +181,7 @@ function validateColors(raw: unknown, defaults: ThemeColors): ThemeColors {
     primaryButton: hexField('primaryButton'),
     secondaryButton: hexField('secondaryButton'),
     newSongButton: hexField('newSongButton'),
+    pillTag: hexField('pillTag'),
     translationToggle: hexField('translationToggle'),
     info: hexField('info'),
     neutral: hexField('neutral'),
@@ -188,6 +191,7 @@ function validateColors(raw: unknown, defaults: ThemeColors): ThemeColors {
     linkColor: hexField('linkColor'),
     mutedColor: hexField('mutedColor'),
     buttonTextColor: hexField('buttonTextColor'),
+    iconColor: hexField('iconColor'),
   };
 }
 
@@ -288,6 +292,12 @@ export function themeToCssVars(config: ThemeConfig): string {
     lines.push(`--color-newsong-${step}: ${newSongPalette[step]};`);
   }
 
+  // Generate pillTag palette (used for pills, tags, badges)
+  const pillTagPalette = generatePalette(config.colors.pillTag);
+  for (const step of PALETTE_STEPS) {
+    lines.push(`--color-pill-${step}: ${pillTagPalette[step]};`);
+  }
+
   // Generate success palette
   const successPalette = generatePalette(config.colors.success);
   for (const step of PALETTE_STEPS) {
@@ -332,6 +342,7 @@ export function themeToCssVars(config: ThemeConfig): string {
   lines.push(`--color-btn-primary: ${config.colors.primaryButton};`);
   lines.push(`--color-btn-secondary: ${config.colors.secondaryButton};`);
   lines.push(`--color-btn-new-song: ${config.colors.newSongButton};`);
+  lines.push(`--color-pill-tag: ${config.colors.pillTag};`);
   lines.push(`--color-translation-toggle: ${config.colors.translationToggle};`);
 
   // Text colours
@@ -341,6 +352,7 @@ export function themeToCssVars(config: ThemeConfig): string {
   lines.push(`--color-link-text: ${config.colors.linkColor};`);
   lines.push(`--color-muted-text: ${config.colors.mutedColor};`);
   lines.push(`--color-button-text: ${config.colors.buttonTextColor};`);
+  lines.push(`--color-icon: ${config.colors.iconColor};`);
 
   // Karaoke
   lines.push(`--karaoke-active-color: ${config.karaoke.activeLineColor};`);
@@ -531,8 +543,8 @@ export function deserializeThemeJson(json: string): {
 const HEX_COLOR_KEYS: (keyof ThemeColors)[] = [
   'primary', 'border', 'pageBg', 'cardBg', 'tabActiveBg', 'tabInactiveBg',
   'controlBg', 'success', 'warning', 'error', 'primaryButton',
-  'secondaryButton', 'newSongButton', 'translationToggle', 'info', 'neutral',
-  'headlineColor', 'copyColor', 'labelColor', 'linkColor', 'mutedColor', 'buttonTextColor',
+  'secondaryButton', 'newSongButton', 'pillTag', 'translationToggle', 'info', 'neutral',
+  'headlineColor', 'copyColor', 'labelColor', 'linkColor', 'mutedColor', 'buttonTextColor', 'iconColor',
 ];
 
 /**

@@ -9,6 +9,7 @@ import { StreakPill } from "@/components/gamification/streak-pill";
 import { SpacedRepetitionWidget } from "@/components/spaced-repetition/spaced-repetition-widget";
 import SetEditDialog from "@/components/songs/set-edit-dialog";
 import GeteilteInhalteSektion from "@/components/sharing/geteilte-inhalte-sektion";
+import BackupImportButton from "@/components/import/backup-import-button";
 import type { DashboardData } from "../../../types/song";
 
 export default function DashboardPage() {
@@ -71,7 +72,10 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-neutral-900">Dashboard</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold text-neutral-900">Dashboard</h1>
+        <BackupImportButton />
+      </div>
 
       {/* Spaced Repetition Widget */}
       <SpacedRepetitionWidget faelligeAnzahl={data.faelligeStrophenAnzahl} />
