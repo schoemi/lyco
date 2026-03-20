@@ -40,7 +40,7 @@ services:
       - path: .env
         required: false
     volumes:
-      - uploads:/app/data/uploads
+      - ./data/uploads:/app/data/uploads
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
@@ -58,4 +58,3 @@ services:
 
 volumes:
   pgdata:
-  uploads:

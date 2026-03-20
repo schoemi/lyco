@@ -1,5 +1,5 @@
 import { execFile } from "child_process";
-import { readFile, writeFile, mkdir } from "fs/promises";
+import { access, readFile, writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { promisify } from "util";
 import { extrahierePitch } from "@/lib/vocal-trainer/pitch-extraktor";
@@ -76,9 +76,10 @@ function resolveAudioPath(url: string): string {
 
 /**
  * Get the output path for referenz-daten JSON.
+ * Stored inside data/uploads/ so it's covered by the Docker volume mount.
  */
 function getReferenzDatenPath(songId: string): string {
-  return join(process.cwd(), "data", "referenz-daten", `${songId}.json`);
+  return join(process.cwd(), "data", "uploads", "referenz-daten", `${songId}.json`);
 }
 
 /**
@@ -87,7 +88,7 @@ function getReferenzDatenPath(songId: string): string {
  * 1. Decodes the audio file to PCM via ffmpeg
  * 2. Runs YIN pitch extraction
  * 3. Converts to ReferenzFrame format with onset detection
- * 4. Saves as JSON to data/referenz-daten/{songId}.json
+ * 4. Saves as JSON to data/uploads/referenz-daten/{songId}.json
  *
  * @returns The generated ReferenzDaten
  */
@@ -98,7 +99,17 @@ export async function generiereReferenzDaten(
   // 1. Resolve file path
   const audioPath = resolveAudioPath(audioUrl);
 
-  // 2. Decode audio to Float32Array
+  // 2. Verify file exists before calling ffmpeg
+  try {
+    await access(audioPath);
+  } catch {
+    throw new Error(
+      `Audio-Datei nicht gefunden: ${audioPath}. ` +
+      `Bitte stelle sicher, dass die Datei hochgeladen wurde und das Volume korrekt gemountet ist.`
+    );
+  }
+
+  // 3. Decode audio to Float32Array
   let pcmData: Float32Array;
   try {
     pcmData = await decodeAudioToFloat32(audioPath);
@@ -125,9 +136,9 @@ export async function generiereReferenzDaten(
     frames: referenzFrames,
   };
 
-  // 6. Save to disk
+  // 7. Save to disk (inside uploads volume for persistence)
   const outputPath = getReferenzDatenPath(songId);
-  const outputDir = join(process.cwd(), "data", "referenz-daten");
+  const outputDir = join(process.cwd(), "data", "uploads", "referenz-daten");
   await mkdir(outputDir, { recursive: true });
   await writeFile(outputPath, JSON.stringify(referenzDaten), "utf-8");
 

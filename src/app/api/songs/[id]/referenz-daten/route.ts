@@ -7,7 +7,7 @@ import { generiereReferenzDaten } from "@/lib/vocal-trainer/referenz-generator";
 
 /**
  * GET: Load existing referenz-daten for a song.
- * Checks data/referenz-daten/{id}.json first, then public/referenz-daten/{id}.json as fallback.
+ * Checks data/uploads/referenz-daten/{id}.json first, then legacy paths as fallback.
  */
 export async function GET(
   _request: NextRequest,
@@ -24,14 +24,24 @@ export async function GET(
 
     const { id } = await params;
 
-    // Try data/ directory first (generated files)
-    const dataPath = join(process.cwd(), "data", "referenz-daten", `${id}.json`);
+    // Try data/uploads/ directory first (generated files, persisted via Docker volume)
+    const dataPath = join(process.cwd(), "data", "uploads", "referenz-daten", `${id}.json`);
     try {
       const content = await readFile(dataPath, "utf-8");
       const data = JSON.parse(content);
       return NextResponse.json(data);
     } catch {
-      // Not found in data/, try public/ as fallback
+      // Not found in data/uploads/, try legacy data/ path
+    }
+
+    // Legacy fallback: data/referenz-daten/ (old path before volume fix)
+    const legacyPath = join(process.cwd(), "data", "referenz-daten", `${id}.json`);
+    try {
+      const content = await readFile(legacyPath, "utf-8");
+      const data = JSON.parse(content);
+      return NextResponse.json(data);
+    } catch {
+      // Not found in legacy path, try public/
     }
 
     // Fallback: public/ directory (manually placed files)

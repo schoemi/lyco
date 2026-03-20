@@ -43,6 +43,8 @@ export function SharedAudioProvider({ audioQuellen, onTimeUpdate, children }: Sh
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTimeMs, setCurrentTimeMs] = useState(0);
   const [durationMs, setDurationMs] = useState(0);
+  const pendingSeekRef = useRef<number | null>(null);
+  const wasPlayingRef = useRef(false);
 
   const activeQuelle = audioQuellen[activeIndex] ?? null;
   const isMp3 = activeQuelle?.typ === "MP3";
@@ -61,6 +63,22 @@ export function SharedAudioProvider({ audioQuellen, onTimeUpdate, children }: Sh
     // Firefox Mobile sometimes reports Infinity initially; wait for a real value
     if (Number.isFinite(audio.duration)) {
       setDurationMs(Math.round(audio.duration * 1000));
+    }
+    // Resume position from previous track after source switch
+    const pendingMs = pendingSeekRef.current;
+    if (pendingMs != null && pendingMs > 0) {
+      const durationSec = audio.duration;
+      const targetSec = pendingMs / 1000;
+      // Only seek if within the new track's duration (with small tolerance)
+      if (Number.isFinite(durationSec) && targetSec < durationSec) {
+        audio.currentTime = targetSec;
+      }
+      // Auto-resume playback if the user was playing before switching
+      if (wasPlayingRef.current) {
+        audio.play().catch(() => {});
+        wasPlayingRef.current = false;
+      }
+      pendingSeekRef.current = null;
     }
   }, []);
 
@@ -95,12 +113,17 @@ export function SharedAudioProvider({ audioQuellen, onTimeUpdate, children }: Sh
 
   const switchSource = useCallback((index: number) => {
     const audio = audioRef.current;
+    const wasPlaying = audio ? !audio.paused : false;
+    // Capture current position before switching
+    const positionMs = audio ? Math.round(audio.currentTime * 1000) : 0;
     if (audio && !audio.paused) {
       audio.pause();
     }
+    pendingSeekRef.current = positionMs;
+    wasPlayingRef.current = wasPlaying;
     setActiveIndex(index);
     setIsPlaying(false);
-    setCurrentTimeMs(0);
+    setCurrentTimeMs(positionMs);
     setDurationMs(0);
   }, []);
 

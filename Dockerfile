@@ -43,18 +43,20 @@ COPY prisma.config.docker.ts ./prisma.config.docker.ts
 # Install only prisma CLI for runtime migrations
 RUN npm install --no-save prisma@7
 
+# su-exec for dropping privileges in entrypoint (bind mount permission fix)
+RUN apk add --no-cache su-exec
+
 # Copy entrypoint script
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 
-# Create upload directories so the volume mount inherits correct ownership
-RUN mkdir -p /app/data/uploads/audio /app/data/uploads/covers
+# Create upload directories (will be overlaid by bind mount at runtime)
+RUN mkdir -p /app/data/uploads/audio /app/data/uploads/covers /app/data/uploads/referenz-daten
 
 # Ensure nextjs user owns the app directory for prisma migrations
 RUN chown -R nextjs:nodejs /app
 
-USER nextjs
-
+# Start as root so entrypoint can fix bind mount permissions, then drop to nextjs
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
