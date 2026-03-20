@@ -1,12 +1,12 @@
 # ---- Stage 1: Dependencies ----
-FROM node:current-alpine AS deps
+FROM node:22-alpine AS deps
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
 # ---- Stage 2: Build ----
-FROM node:current-alpine AS builder
+FROM node:22-alpine AS builder
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -19,7 +19,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # ---- Stage 3: Runtime ----
-FROM node:current-alpine AS runner
+FROM node:22-alpine AS runner
 RUN apk add --no-cache ffmpeg
 WORKDIR /app
 
