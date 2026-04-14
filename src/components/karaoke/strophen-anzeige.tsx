@@ -11,6 +11,7 @@ interface StrophenAnzeigeProps {
   activeZeileId: string;
   showVocalTags?: boolean;
   tagDefinitions?: TagDefinitionData[];
+  getLineColor?: (stropheId: string) => string;
 }
 
 export function StrophenAnzeige({
@@ -18,6 +19,7 @@ export function StrophenAnzeige({
   activeZeileId,
   showVocalTags = false,
   tagDefinitions = [],
+  getLineColor,
 }: StrophenAnzeigeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const lineRefs = useRef<Map<string, HTMLParagraphElement>>(new Map());
@@ -67,11 +69,14 @@ export function StrophenAnzeige({
             <p
               key={zeile.id}
               ref={(el) => setLineRef(zeile.id, el)}
-              className={`text-center text-white transition-all duration-300 ${
+              className={`text-center transition-all duration-300 ${
+                getLineColor ? "" : "text-white"
+              } ${
                 isActive
                   ? "text-2xl font-bold opacity-100"
                   : "text-xl opacity-40"
               }`}
+              style={getLineColor ? { color: getLineColor(strophe.id) } : undefined}
             >
               {showVocalTags && tagDefinitions.length > 0 ? (
                 <VocalTagZeile rawText={zeile.text} tagDefinitions={tagDefinitions} />

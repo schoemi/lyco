@@ -15,6 +15,7 @@ interface SongAnzeigeProps {
   flatLines: FlatLine[];
   showVocalTags?: boolean;
   tagDefinitions?: TagDefinitionData[];
+  getLineColor?: (stropheId: string) => string;
 }
 
 export function SongAnzeige({
@@ -23,6 +24,7 @@ export function SongAnzeige({
   flatLines,
   showVocalTags = false,
   tagDefinitions = [],
+  getLineColor,
 }: SongAnzeigeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const lineRefs = useRef<Map<number, HTMLParagraphElement>>(new Map());
@@ -102,11 +104,14 @@ export function SongAnzeige({
                     <p
                       key={zeile.id}
                       ref={(el) => setLineRef(flatLine.globalIndex, el)}
-                      className={`text-center text-white transition-all duration-300 ${
+                      className={`text-center transition-all duration-300 ${
+                        getLineColor ? "" : "text-white"
+                      } ${
                         isActive ? "text-2xl font-bold" : "text-xl"
                       }`}
                       style={{
                         opacity: hasFade ? Math.min(opacity, 0.15) : opacity,
+                        ...(getLineColor ? { color: getLineColor(strophe.id) } : {}),
                       }}
                     >
                       {showVocalTags && tagDefinitions.length > 0 ? (
