@@ -4,4 +4,4 @@
 
 ## Improvements
 - Einzelansicht einer Strophe
-- Abspielmöglichkeit des Zeitraums von Startmarke der Strophe bis Anfang 
+- Abspielmöglichkeit des Zeitraums von Startmarke der Strophe bis Anfang n

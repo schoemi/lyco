@@ -29,6 +29,7 @@ interface KaraokeViewProps {
   onModeChange: (mode: DisplayMode) => void;
   onOpenSettings: () => void;
   onBack: () => void;
+  onAudioTimeUpdate?: (currentTimeMs: number) => void;
 }
 
 export const KaraokeView = forwardRef<AudioPlayButtonHandle, KaraokeViewProps>(
@@ -48,6 +49,7 @@ export const KaraokeView = forwardRef<AudioPlayButtonHandle, KaraokeViewProps>(
     onModeChange,
     onOpenSettings,
     onBack,
+    onAudioTimeUpdate,
   }, ref) {
   const activeLine = flatLines[activeLineIndex];
   const isFirstLine = activeLineIndex === 0;
@@ -102,7 +104,7 @@ export const KaraokeView = forwardRef<AudioPlayButtonHandle, KaraokeViewProps>(
         {/* Controls row: Audio | AutoScroll | Navigation */}
         <div className="flex items-center justify-center gap-3">
           {/* Audio player button (MP3 only) */}
-          <AudioPlayButton ref={ref} audioQuellen={song.audioQuellen} activeQuelleId={activeAudioQuelleId} />
+          <AudioPlayButton ref={ref} audioQuellen={song.audioQuellen} activeQuelleId={activeAudioQuelleId} onTimeUpdate={onAudioTimeUpdate} />
 
           <PlayPauseButton
             isPlaying={isAutoScrolling}

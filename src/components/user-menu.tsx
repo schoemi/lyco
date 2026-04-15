@@ -17,7 +17,8 @@ export default function UserMenu({ userName, isAdmin }: UserMenuProps) {
 
   // Fetch current variant from profile on mount
   useEffect(() => {
-    fetch("/api/profile")
+    const controller = new AbortController();
+    fetch("/api/profile", { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => {
         if (data?.profile?.themeVariant === "dark") {
@@ -25,6 +26,7 @@ export default function UserMenu({ userName, isAdmin }: UserMenuProps) {
         }
       })
       .catch(() => {});
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {

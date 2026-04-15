@@ -14,6 +14,7 @@ import { useAutoScroll } from "@/lib/karaoke/use-auto-scroll";
 import { useKaraokeKeyboard } from "@/lib/karaoke/use-karaoke-keyboard";
 import { useKaraokeWheel } from "@/lib/karaoke/use-karaoke-wheel";
 import { useKaraokeSwipe } from "@/lib/karaoke/use-karaoke-swipe";
+import { useTimecodeScroll } from "@/lib/karaoke/use-timecode-scroll";
 import { KaraokeView } from "@/components/karaoke/karaoke-view";
 import { EinstellungsDialog } from "@/components/karaoke/einstellungs-dialog";
 import type { AudioPlayButtonHandle } from "@/components/karaoke/audio-play-button";
@@ -31,6 +32,8 @@ export default function KaraokePage() {
   const [scrollSpeed, setScrollSpeed] = useState(3);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [activeAudioQuelleId, setActiveAudioQuelleId] = useState<string | null>(null);
+  const [audioTimeMs, setAudioTimeMs] = useState(0);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const audioRef = useRef<AudioPlayButtonHandle>(null);
 
   // Load persisted settings from localStorage on mount
@@ -101,6 +104,27 @@ export default function KaraokePage() {
     isLastLine,
     onAdvance: onAutoAdvance,
   });
+
+  // Timecode-based scrolling: overrides auto-scroll when audio is playing
+  const onTimecodeLineChange = useCallback((index: number) => {
+    setActiveLineIndex(index);
+  }, []);
+
+  const { isActive: isTimecodeScrollActive } = useTimecodeScroll({
+    flatLines,
+    strophen: song?.strophen ?? [],
+    currentTimeMs: audioTimeMs,
+    durationMs: audioRef.current?.getDurationMs() ?? 0,
+    isAudioPlaying,
+    onLineChange: onTimecodeLineChange,
+  });
+
+  // Track audio state from the AudioPlayButton
+  const handleAudioTimeUpdate = useCallback((ms: number) => {
+    setAudioTimeMs(ms);
+    const playing = audioRef.current?.getIsPlaying() ?? false;
+    setIsAudioPlaying(playing);
+  }, []);
 
   // Manual navigation stops auto-scroll (Req 9.5)
   const onNext = useCallback(() => {
@@ -252,7 +276,7 @@ export default function KaraokePage() {
         flatLines={flatLines}
         activeLineIndex={activeLineIndex}
         displayMode={displayMode}
-        isAutoScrolling={isPlaying}
+        isAutoScrolling={isPlaying && !isTimecodeScrollActive}
         scrollSpeed={scrollSpeed}
         activeAudioQuelleId={activeAudioQuelleId}
         onNext={onNext}
@@ -263,6 +287,7 @@ export default function KaraokePage() {
         onModeChange={handleModeChange}
         onOpenSettings={() => setSettingsOpen(true)}
         onBack={onBack}
+        onAudioTimeUpdate={handleAudioTimeUpdate}
       />
       <EinstellungsDialog
         isOpen={settingsOpen}

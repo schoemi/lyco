@@ -18,13 +18,15 @@ export default function MainLayout({
   const appName = useAppName();
 
   useEffect(() => {
-    fetch("/api/auth/session")
+    const controller = new AbortController();
+    fetch("/api/auth/session", { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => {
         setIsAdmin(data?.user?.role === "ADMIN");
         setUserName(data?.user?.name ?? "");
       })
       .catch(() => {});
+    return () => controller.abort();
   }, []);
 
   return (

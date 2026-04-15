@@ -5,11 +5,15 @@ import type { AudioQuelleResponse } from "@/types/audio";
 
 export interface AudioPlayButtonHandle {
   seekTo: (ms: number) => boolean;
+  getCurrentTimeMs: () => number;
+  getDurationMs: () => number;
+  getIsPlaying: () => boolean;
 }
 
 interface AudioPlayButtonProps {
   audioQuellen: AudioQuelleResponse[];
   activeQuelleId: string | null;
+  onTimeUpdate?: (currentTimeMs: number) => void;
 }
 
 /**
@@ -18,7 +22,7 @@ interface AudioPlayButtonProps {
  * Renders nothing if no playable source is selected.
  */
 export const AudioPlayButton = forwardRef<AudioPlayButtonHandle, AudioPlayButtonProps>(
-  function AudioPlayButton({ audioQuellen, activeQuelleId }, ref) {
+  function AudioPlayButton({ audioQuellen, activeQuelleId, onTimeUpdate }, ref) {
     const activeQuelle = activeQuelleId
       ? audioQuellen.find((q) => q.id === activeQuelleId && q.typ === "MP3")
       : audioQuellen.find((q) => q.typ === "MP3");
@@ -32,7 +36,17 @@ export const AudioPlayButton = forwardRef<AudioPlayButtonHandle, AudioPlayButton
         audio.currentTime = ms / 1000;
         return true;
       },
-    }), [activeQuelle]);
+      getCurrentTimeMs(): number {
+        return audioRef.current ? Math.round(audioRef.current.currentTime * 1000) : 0;
+      },
+      getDurationMs(): number {
+        const d = audioRef.current?.duration;
+        return d && Number.isFinite(d) ? Math.round(d * 1000) : 0;
+      },
+      getIsPlaying(): boolean {
+        return isPlaying;
+      },
+    }), [activeQuelle, isPlaying]);
 
     // Stop playback when source changes
     useEffect(() => {
@@ -68,6 +82,12 @@ export const AudioPlayButton = forwardRef<AudioPlayButtonHandle, AudioPlayButton
           key={activeQuelle.id}
           ref={audioRef}
           src={activeQuelle.url}
+          onTimeUpdate={() => {
+            const audio = audioRef.current;
+            if (audio) {
+              onTimeUpdate?.(Math.round(audio.currentTime * 1000));
+            }
+          }}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           onEnded={() => setIsPlaying(false)}
