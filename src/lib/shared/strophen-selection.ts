@@ -1,5 +1,5 @@
 import { WEAKNESS_THRESHOLD } from "./constants";
-import type { StropheProgress } from "@/types/song";
+import type { StropheDetail, StropheProgress, ZeileDetail } from "@/types/song";
 
 /** Gibt die IDs aller Strophen mit Fortschritt < WEAKNESS_THRESHOLD zurück */
 export function getWeakStrophenIds(progress: StropheProgress[]): Set<string> {
@@ -13,4 +13,16 @@ export function getWeakStrophenIds(progress: StropheProgress[]): Set<string> {
 /** Prüft ob mindestens eine Strophe unter der Schwelle liegt */
 export function hasWeaknesses(progress: StropheProgress[]): boolean {
   return progress.some((p) => p.prozent < WEAKNESS_THRESHOLD);
+}
+
+/** Filtert Strophen mit istInstrumental === true heraus */
+export function filterLernbareStrophen(
+  strophen: StropheDetail[],
+): StropheDetail[] {
+  return strophen.filter((s) => !s.istInstrumental);
+}
+
+/** Filtert Zeilen mit istKommentar === true heraus */
+export function filterLernbareZeilen(zeilen: ZeileDetail[]): ZeileDetail[] {
+  return zeilen.filter((z) => !z.istKommentar);
 }

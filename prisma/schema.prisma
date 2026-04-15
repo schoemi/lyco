@@ -182,12 +182,13 @@ model Song {
 }
 
 model Strophe {
-  id         String   @id @default(cuid())
-  name       String
-  orderIndex Int
-  songId     String
-  analyse    String?
-  createdAt  DateTime @default(now())
+  id              String   @id @default(cuid())
+  name            String
+  orderIndex      Int
+  songId          String
+  analyse         String?
+  istInstrumental Boolean  @default(false)
+  createdAt       DateTime @default(now())
 
   song         Song          @relation(fields: [songId], references: [id], onDelete: Cascade)
   zeilen       Zeile[]
@@ -206,6 +207,7 @@ model Zeile {
   uebersetzung String?
   orderIndex   Int
   stropheId    String
+  istKommentar Boolean @default(false)
 
   strophe Strophe  @relation(fields: [stropheId], references: [id], onDelete: Cascade)
   markups Markup[]

@@ -15,13 +15,15 @@ import { calculateProgress } from "@/lib/cloze/score";
 import { dispatchStreakUpdate } from "@/lib/dispatch-streak-update";
 import type { SongDetail } from "@/types/song";
 import type { DifficultyLevel, GapData } from "@/types/cloze";
+import { filterLernbareStrophen, filterLernbareZeilen } from "@/lib/shared/strophen-selection";
 
 function getZeilenFromSong(song: SongDetail, activeStrophenIds?: Set<string> | null) {
+  const lernbare = filterLernbareStrophen(song.strophen);
   const strophen = activeStrophenIds
-    ? song.strophen.filter((s) => activeStrophenIds.has(s.id))
-    : song.strophen;
+    ? lernbare.filter((s) => activeStrophenIds.has(s.id))
+    : lernbare;
   return strophen.flatMap((s) =>
-    s.zeilen.map((z) => ({ id: z.id, text: z.text }))
+    filterLernbareZeilen(s.zeilen).map((z) => ({ id: z.id, text: z.text }))
   );
 }
 

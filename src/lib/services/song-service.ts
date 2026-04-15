@@ -37,10 +37,11 @@ export async function listSongs(userId: string): Promise<SongWithProgress[]> {
   });
 
   return songs.map((song) => {
-    const strophenCount = song.strophen.length;
+    const lernbareStrophen = song.strophen.filter((s) => !s.istInstrumental);
+    const strophenCount = lernbareStrophen.length;
     let progress = 0;
     if (strophenCount > 0) {
-      const totalProgress = song.strophen.reduce((sum, s) => {
+      const totalProgress = lernbareStrophen.reduce((sum, s) => {
         const fort = s.fortschritte[0];
         return sum + (fort ? fort.prozent : 0);
       }, 0);
@@ -114,6 +115,7 @@ export async function importSong(
         data: {
           name: stropheInput.name,
           orderIndex: si,
+          istInstrumental: stropheInput.istInstrumental ?? false,
           songId: createdSong.id,
         },
       });
@@ -141,6 +143,7 @@ export async function importSong(
           data: {
             text: zeileInput.text,
             uebersetzung: zeileInput.uebersetzung ?? null,
+            istKommentar: zeileInput.istKommentar ?? false,
             orderIndex: zi,
             stropheId: createdStrophe.id,
           },
@@ -231,6 +234,7 @@ export async function getSongDetail(
       text: z.text,
       uebersetzung: z.uebersetzung,
       orderIndex: z.orderIndex,
+      istKommentar: z.istKommentar,
       markups: z.markups.map(
         (m): MarkupResponse => ({
           id: m.id,
@@ -259,15 +263,17 @@ export async function getSongDetail(
       progress: fort ? fort.prozent : 0,
       notiz: notiz ? notiz.text : null,
       analyse: s.analyse ?? null,
+      istInstrumental: s.istInstrumental,
       zeilen,
       markups: stropheMarkups,
     };
   });
 
-  const strophenCount = strophen.length;
+  const lernbareStrophenDetail = strophen.filter((s) => !s.istInstrumental);
+  const strophenCount = lernbareStrophenDetail.length;
   let progress = 0;
   if (strophenCount > 0) {
-    const totalProgress = strophen.reduce((sum, s) => sum + s.progress, 0);
+    const totalProgress = lernbareStrophenDetail.reduce((sum, s) => sum + s.progress, 0);
     progress = Math.round(totalProgress / strophenCount);
   }
 

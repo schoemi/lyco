@@ -1,5 +1,6 @@
 import type { SongDetail, StropheDetail } from '@/types/song';
 import type { MCQuestion, ReihenfolgeQuestion, DiktatQuestion } from '@/types/quiz';
+import { filterLernbareStrophen, filterLernbareZeilen } from '@/lib/shared/strophen-selection';
 
 /**
  * Seeded PRNG (mulberry32).
@@ -18,12 +19,14 @@ function mulberry32(seed: number): () => number {
 /**
  * Filters strophes to only those in activeStrophenIds (if provided).
  * Skips strophes with no lines (Req 11.4).
+ * Skips instrumental strophes (istInstrumental === true).
  */
 export function filterActiveStrophen(
   song: SongDetail,
   activeStrophenIds?: Set<string>,
 ): StropheDetail[] {
-  return song.strophen.filter((s) => {
+  const learnable = filterLernbareStrophen(song.strophen);
+  return learnable.filter((s) => {
     if (s.zeilen.length === 0) return false;
     if (activeStrophenIds && !activeStrophenIds.has(s.id)) return false;
     return true;
@@ -32,6 +35,7 @@ export function filterActiveStrophen(
 
 /**
  * Collects all unique words from active strophes.
+ * Skips kommentar zeilen (istKommentar === true).
  */
 export function collectWords(
   song: SongDetail,
@@ -40,7 +44,8 @@ export function collectWords(
   const strophen = filterActiveStrophen(song, activeStrophenIds);
   const wordSet = new Set<string>();
   for (const strophe of strophen) {
-    for (const zeile of strophe.zeilen) {
+    const learnableZeilen = filterLernbareZeilen(strophe.zeilen);
+    for (const zeile of learnableZeilen) {
       const words = zeile.text.split(/\s+/).filter((w) => w.length > 0);
       for (const word of words) {
         wordSet.add(word);
@@ -104,10 +109,11 @@ export function generateMCQuestions(
   const strophen = filterActiveStrophen(song, activeStrophenIds);
   const wordPool = collectWords(song, activeStrophenIds);
 
-  // Collect all candidate lines with their strophe context
+  // Collect all candidate lines with their strophe context (skip kommentar zeilen)
   const candidates: { strophe: StropheDetail; zeile: typeof strophen[0]['zeilen'][0]; zeileIndex: number }[] = [];
   for (const strophe of strophen) {
-    const sorted = [...strophe.zeilen].sort((a, b) => a.orderIndex - b.orderIndex);
+    const learnableZeilen = filterLernbareZeilen(strophe.zeilen);
+    const sorted = [...learnableZeilen].sort((a, b) => a.orderIndex - b.orderIndex);
     for (let i = 0; i < sorted.length; i++) {
       const words = sorted[i].text.split(/\s+/).filter((w) => w.length > 0);
       if (words.length === 0) continue;
@@ -187,11 +193,14 @@ export function generateReihenfolgeQuestions(
   const questions: ReihenfolgeQuestion[] = [];
 
   for (const strophe of strophen) {
-    // Skip strophes with ≤1 line (Req 4.7)
-    if (strophe.zeilen.length <= 1) continue;
+    // Filter out kommentar zeilen before building the question
+    const learnableZeilen = filterLernbareZeilen(strophe.zeilen);
+
+    // Skip strophes with ≤1 learnable line (Req 4.7)
+    if (learnableZeilen.length <= 1) continue;
 
     // Correct order by orderIndex
-    const sorted = [...strophe.zeilen].sort((a, b) => a.orderIndex - b.orderIndex);
+    const sorted = [...learnableZeilen].sort((a, b) => a.orderIndex - b.orderIndex);
     const correctOrder = sorted.map((z) => z.id);
 
     const zeilenItems = sorted.map((z) => ({ zeileId: z.id, text: z.text }));
@@ -224,7 +233,8 @@ export function generateDiktatQuestions(
   const questions: DiktatQuestion[] = [];
 
   for (const strophe of strophen) {
-    for (const zeile of strophe.zeilen) {
+    const learnableZeilen = filterLernbareZeilen(strophe.zeilen);
+    for (const zeile of learnableZeilen) {
       questions.push({
         id: `dk-${strophe.id}-${zeile.id}`,
         stropheId: strophe.id,

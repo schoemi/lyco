@@ -35,6 +35,7 @@ export interface UpdateSongInput {
 
 export interface ImportStropheInput {
   name: string;
+  istInstrumental?: boolean;
   zeilen: ImportZeileInput[];
   markups?: ImportMarkupInput[];
 }
@@ -42,6 +43,7 @@ export interface ImportStropheInput {
 export interface ImportZeileInput {
   text: string;
   uebersetzung?: string;
+  istKommentar?: boolean;
   markups?: ImportMarkupInput[];
 }
 
@@ -145,6 +147,7 @@ export interface StropheDetail {
   progress: number;
   notiz: string | null;
   analyse: string | null;
+  istInstrumental: boolean;
   zeilen: ZeileDetail[];
   markups: MarkupResponse[];
 }
@@ -154,6 +157,7 @@ export interface ZeileDetail {
   text: string;
   uebersetzung: string | null;
   orderIndex: number;
+  istKommentar: boolean;
   markups: MarkupResponse[];
 }
 
@@ -250,6 +254,7 @@ export interface CreateStropheInput {
 
 export interface UpdateStropheInput {
   name?: string;
+  istInstrumental?: boolean;
 }
 
 export interface ReorderItem {
@@ -267,6 +272,7 @@ export interface CreateZeileInput {
 export interface UpdateZeileInput {
   text?: string;
   uebersetzung?: string;
+  istKommentar?: boolean;
 }
 
 // --- Übersetzungs-Typen ---

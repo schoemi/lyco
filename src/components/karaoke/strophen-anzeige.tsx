@@ -40,9 +40,18 @@ export function StrophenAnzeige({
     []
   );
 
+  // Find the effective active zeile id — skip kommentar zeilen
+  const effectiveActiveZeileId = (() => {
+    const zeile = sortedZeilen.find((z) => z.id === activeZeileId);
+    if (zeile && !zeile.istKommentar) return activeZeileId;
+    // If the active zeile is a kommentar, don't scroll to it
+    return null;
+  })();
+
   useEffect(() => {
     const container = containerRef.current;
-    const activeEl = lineRefs.current.get(activeZeileId);
+    if (!effectiveActiveZeileId) return;
+    const activeEl = lineRefs.current.get(effectiveActiveZeileId);
     if (!container || !activeEl) return;
 
     const containerHeight = container.clientHeight;
@@ -52,7 +61,7 @@ export function StrophenAnzeige({
     const activeCenter = activeTop + activeHeight / 2;
 
     setOffsetY(centerY - activeCenter);
-  }, [activeZeileId, strophe.id]);
+  }, [effectiveActiveZeileId, strophe.id]);
 
   return (
     <div
@@ -64,7 +73,9 @@ export function StrophenAnzeige({
         style={{ transform: `translateY(${offsetY}px)` }}
       >
         {sortedZeilen.map((zeile) => {
-          const isActive = zeile.id === activeZeileId;
+          const isKommentar = zeile.istKommentar;
+          // Kommentar zeilen are never treated as active
+          const isActive = !isKommentar && zeile.id === effectiveActiveZeileId;
           return (
             <p
               key={zeile.id}
@@ -72,9 +83,11 @@ export function StrophenAnzeige({
               className={`text-center transition-all duration-300 ${
                 getLineColor ? "" : "text-white"
               } ${
-                isActive
-                  ? "text-2xl font-bold opacity-100"
-                  : "text-xl opacity-40"
+                isKommentar
+                  ? "text-xl italic opacity-30"
+                  : isActive
+                    ? "text-2xl font-bold opacity-100"
+                    : "text-xl opacity-40"
               }`}
               style={getLineColor ? { color: getLineColor(strophe.id) } : undefined}
             >

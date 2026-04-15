@@ -13,6 +13,7 @@ function mapZeile(z: {
   text: string;
   uebersetzung: string | null;
   orderIndex: number;
+  istKommentar: boolean;
   markups: { id: string; typ: string; ziel: string; wert: string | null; timecodeMs: number | null; wortIndex: number | null }[];
 }): ZeileDetail {
   return {
@@ -20,6 +21,7 @@ function mapZeile(z: {
     text: z.text,
     uebersetzung: z.uebersetzung,
     orderIndex: z.orderIndex,
+    istKommentar: z.istKommentar,
     markups: z.markups.map(
       (m): MarkupResponse => ({
         id: m.id,
@@ -37,6 +39,7 @@ function mapStrophe(s: {
   id: string;
   name: string;
   orderIndex: number;
+  istInstrumental: boolean;
   analyse?: string | null;
   zeilen: Parameters<typeof mapZeile>[0][];
   markups: { id: string; typ: string; ziel: string; wert: string | null; timecodeMs: number | null; wortIndex: number | null }[];
@@ -60,6 +63,7 @@ function mapStrophe(s: {
     id: s.id,
     name: s.name,
     orderIndex: s.orderIndex,
+    istInstrumental: s.istInstrumental,
     progress: fort ? fort.prozent : 0,
     notiz: notiz ? notiz.text : null,
     analyse: s.analyse ?? null,
@@ -145,6 +149,7 @@ export async function updateStrophe(
 
   const updateData: Record<string, unknown> = {};
   if (data.name !== undefined) updateData.name = data.name.trim();
+  if (data.istInstrumental !== undefined) updateData.istInstrumental = data.istInstrumental;
 
   const updated = await prisma.strophe.update({
     where: { id: stropheId },

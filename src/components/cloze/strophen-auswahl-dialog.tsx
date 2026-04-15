@@ -6,6 +6,7 @@ import {
   getWeakStrophenIds,
   hasWeaknesses,
 } from "@/lib/cloze/strophen-selection";
+import { filterLernbareStrophen } from "@/lib/shared/strophen-selection";
 import type { StropheDetail, StropheProgress } from "@/types/song";
 
 interface StrophenAuswahlDialogProps {
@@ -106,8 +107,11 @@ export function StrophenAuswahlDialog({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [open, onCancel]);
 
+  // Filter out instrumental strophes — only learnable strophes shown
+  const lernbareStrophen = filterLernbareStrophen(strophen);
+
   // Sorted strophen by orderIndex
-  const sortedStrophen = [...strophen].sort(
+  const sortedStrophen = [...lernbareStrophen].sort(
     (a, b) => a.orderIndex - b.orderIndex
   );
 
@@ -119,9 +123,13 @@ export function StrophenAuswahlDialog({
     }
   }
 
-  // Weakness detection
-  const weakIds = progress ? getWeakStrophenIds(progress) : new Set<string>();
-  const hasAnyWeakness = progress ? hasWeaknesses(progress) : false;
+  // Weakness detection — only consider learnable strophes
+  const lernbareIds = new Set(lernbareStrophen.map((s) => s.id));
+  const lernbareProgress = progress
+    ? progress.filter((p) => lernbareIds.has(p.stropheId))
+    : [];
+  const weakIds = lernbareProgress.length > 0 ? getWeakStrophenIds(lernbareProgress) : new Set<string>();
+  const hasAnyWeakness = lernbareProgress.length > 0 ? hasWeaknesses(lernbareProgress) : false;
 
   // Handlers
   const handleToggle = useCallback(
@@ -141,9 +149,9 @@ export function StrophenAuswahlDialog({
   );
 
   const handleSelectAll = useCallback(() => {
-    setLocalSelection(new Set(strophen.map((s) => s.id)));
+    setLocalSelection(new Set(lernbareStrophen.map((s) => s.id)));
     setValidationError(null);
-  }, [strophen]);
+  }, [lernbareStrophen]);
 
   const handleDeselectAll = useCallback(() => {
     setLocalSelection(new Set());
@@ -152,10 +160,13 @@ export function StrophenAuswahlDialog({
 
   const handlePracticeWeaknesses = useCallback(() => {
     if (!progress) return;
-    const weak = getWeakStrophenIds(progress);
+    // Only consider progress for learnable strophes
+    const lernbareIds = new Set(lernbareStrophen.map((s) => s.id));
+    const lernbareProgress = progress.filter((p) => lernbareIds.has(p.stropheId));
+    const weak = getWeakStrophenIds(lernbareProgress);
     setLocalSelection(weak);
     setValidationError(null);
-  }, [progress]);
+  }, [progress, lernbareStrophen]);
 
   const handleConfirm = useCallback(() => {
     if (localSelection.size === 0) {
@@ -241,6 +252,11 @@ export function StrophenAuswahlDialog({
           )}
 
           <ul className="space-y-1">
+            {sortedStrophen.length === 0 && (
+              <li className="py-4 text-center text-sm text-neutral-500">
+                Keine lernbaren Strophen vorhanden
+              </li>
+            )}
             {sortedStrophen.map((strophe) => {
               const isChecked = localSelection.has(strophe.id);
               const prozent = progressMap.get(strophe.id) ?? 0;

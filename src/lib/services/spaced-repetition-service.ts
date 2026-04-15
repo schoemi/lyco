@@ -132,6 +132,10 @@ export async function erstelleWiederholung(
     throw new Error("Zugriff verweigert");
   }
 
+  if (strophe.istInstrumental) {
+    throw new Error("Instrumentale Strophen können nicht zur Wiederholung hinzugefügt werden");
+  }
+
   return prisma.wiederholung.create({
     data: {
       userId,

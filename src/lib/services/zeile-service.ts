@@ -12,6 +12,7 @@ function mapZeile(z: {
   text: string;
   uebersetzung: string | null;
   orderIndex: number;
+  istKommentar: boolean;
   markups: { id: string; typ: string; ziel: string; wert: string | null; timecodeMs: number | null; wortIndex: number | null }[];
 }): ZeileDetail {
   return {
@@ -19,6 +20,7 @@ function mapZeile(z: {
     text: z.text,
     uebersetzung: z.uebersetzung,
     orderIndex: z.orderIndex,
+    istKommentar: z.istKommentar,
     markups: z.markups.map(
       (m): MarkupResponse => ({
         id: m.id,
@@ -116,6 +118,7 @@ export async function updateZeile(
   const updateData: Record<string, unknown> = {};
   if (data.text !== undefined) updateData.text = data.text.trim();
   if (data.uebersetzung !== undefined) updateData.uebersetzung = data.uebersetzung;
+  if (data.istKommentar !== undefined) updateData.istKommentar = data.istKommentar;
 
   const updated = await prisma.zeile.update({
     where: { id: zeileId },
