@@ -35,7 +35,7 @@ describe("Property 3: Alle auswählen / Alle abwählen", () => {
 
   it("handleSelectAll sets localSelection to all strophe IDs", () => {
     expect(source).toMatch(
-      /handleSelectAll[\s\S]*?setLocalSelection\(new Set\(strophen\.map\(\(?s\)?\s*=>\s*s\.id\)\)\)/
+      /handleSelectAll[\s\S]*?setLocalSelection\(new Set\(lernbareStrophen\.map\(\(?s\)?\s*=>\s*s\.id\)\)\)/
     );
   });
 

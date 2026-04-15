@@ -19,8 +19,9 @@ const source = fs.readFileSync(COMPONENT_PATH, "utf-8");
 describe("TranslateButton component source", () => {
   // --- Button text switches between "🌐 Übersetzen" and "Übersetze…" (Req 1.3) ---
 
-  it('shows "🌐 Übersetzen" when not translating', () => {
-    expect(source).toContain("🌐 Übersetzen");
+  it('shows AppIcon globe and "Übersetzen" when not translating', () => {
+    expect(source).toContain('icon="lucide:globe"');
+    expect(source).toContain("Übersetzen");
   });
 
   it('shows "Übersetze…" when translating', () => {
@@ -28,7 +29,10 @@ describe("TranslateButton component source", () => {
   });
 
   it("toggles text based on translating prop", () => {
-    expect(source).toMatch(/translating\s*\?\s*"Übersetze…"\s*:\s*"🌐 Übersetzen"/);
+    expect(source).toContain('"Übersetze…"');
+    expect(source).toMatch(/translating\s*\?/);
+    expect(source).toContain("AppIcon");
+    expect(source).toContain("Übersetzen");
   });
 
   // --- Button is disabled when translating=true (Req 1.3) ---

@@ -45,7 +45,7 @@ describe("ClozePage completion handling", () => {
 
   it("iterates over strophen to PUT progress for each", () => {
     // Must loop over song strophen
-    expect(source).toMatch(/for\s*\(\s*(const|let|var)\s+\w+\s+of\s+song.*strophen\s*\)/);
+    expect(source).toMatch(/for\s*\(\s*const\s+strophe\s+of\s+strophenToUpdate\s*\)/);
   });
 
   // --- Session API call (Req 5.4) ---

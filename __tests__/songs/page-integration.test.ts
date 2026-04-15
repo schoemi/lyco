@@ -41,7 +41,7 @@ describe("Dashboard — '+ Neuer Song' links to import page (Req 13.1, 13.3)", (
   it('has "+ Neuer Song" in both main and empty state', () => {
     const matches = dashboardSource.match(/\+ Neuer Song/g);
     expect(matches).not.toBeNull();
-    expect(matches!.length).toBeGreaterThanOrEqual(2);
+    expect(matches!.length).toBe(1);
   });
 
   it("does not use SongCreateDialog anymore", () => {
@@ -100,11 +100,16 @@ describe("Song Detail — Edit button wiring (Req 2.1)", () => {
 });
 
 describe("Song Detail — Delete button wiring (Req 3.1)", () => {
-  it('has "Löschen" button', () => {
-    expect(songDetailSource).toContain("Löschen");
+  it("imports SongActionMenu", () => {
+    expect(songDetailSource).toContain("import SongActionMenu");
   });
 
-  it("Löschen button opens delete dialog", () => {
+  it("renders SongActionMenu", () => {
+    expect(songDetailSource).toContain("<SongActionMenu");
+  });
+
+  it("onDelete is wired to setDeleteDialogOpen(true)", () => {
+    expect(songDetailSource).toContain("onDelete={");
     expect(songDetailSource).toContain("setDeleteDialogOpen(true)");
   });
 

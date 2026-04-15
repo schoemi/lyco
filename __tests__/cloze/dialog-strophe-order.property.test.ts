@@ -34,7 +34,7 @@ describe("Property 4: Strophen-Reihenfolge nach orderIndex", () => {
   it("component sorts strophen by orderIndex ascending", () => {
     // Verify the sorting pattern exists in source
     expect(source).toMatch(
-      /sortedStrophen\s*=\s*\[\.\.\.strophen\]\.sort\(\s*\(\s*a\s*,\s*b\s*\)\s*=>\s*a\.orderIndex\s*-\s*b\.orderIndex/
+      /sortedStrophen\s*=\s*\[\.\.\.lernbareStrophen\]\.sort\(\s*\(\s*a\s*,\s*b\s*\)\s*=>\s*a\.orderIndex\s*-\s*b\.orderIndex/
     );
   });
 

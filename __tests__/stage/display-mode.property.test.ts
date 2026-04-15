@@ -1,19 +1,17 @@
-// Feature: lyco-stage, Property 9: DisplayMode-Unterstützung
+// Feature: lyco-stage, Property 9: DisplayMode-Unterstützung (aktualisiert)
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
 import fs from "fs";
 import path from "path";
 
 /**
- * Property 9: DisplayMode-Unterstützung
+ * Property 9: DisplayMode-Unterstützung (aktualisiert)
  *
- * Für jeden gültigen DisplayMode-Wert (einzelzeile, strophe, song) soll die
- * Prompter-Ansicht eine nicht-leere Darstellung rendern, wenn mindestens eine
- * Zeile vorhanden ist.
+ * Die Stage-Seite verwendet ausschließlich StageSongAnzeige als
+ * Darstellungskomponente. Die alten Display-Modi (einzelzeile, strophe)
+ * und die zugehörige Umschaltlogik (settings.displayMode) wurden entfernt.
  *
- * Tested via source-code inspection: the page must contain all three display modes.
- *
- * **Validates: Requirement 6.2**
+ * **Validates: Requirement 2.4**
  */
 
 const PAGE_PATH = path.resolve(
@@ -22,37 +20,45 @@ const PAGE_PATH = path.resolve(
 );
 const source = fs.readFileSync(PAGE_PATH, "utf-8");
 
-const PBT_CONFIG = { numRuns: 100 };
-
-describe("Property 9 – DisplayMode-Unterstützung", () => {
-  it("Seite enthält alle drei DisplayMode-Werte", () => {
-    fc.assert(
-      fc.property(
-        fc.constantFrom("einzelzeile" as const, "strophe" as const, "song" as const),
-        (mode) => {
-          expect(source).toContain(`"${mode}"`);
-        },
-      ),
-      PBT_CONFIG,
-    );
-  });
-
-  it("Seite enthält Rendering-Logik für 'einzelzeile'", () => {
-    expect(source).toContain("einzelzeile");
-    expect(source).toContain("EinzelzeileAnzeige");
-  });
-
-  it("Seite enthält Rendering-Logik für 'strophe'", () => {
-    expect(source).toContain("strophe");
-    expect(source).toContain("StrophenAnzeige");
-  });
-
-  it("Seite enthält Rendering-Logik für 'song'", () => {
-    expect(source).toContain("song");
+describe("Property 9 – StageSongAnzeige als einzige Darstellungskomponente", () => {
+  it("StageSongAnzeige ist in der Quelle vorhanden", () => {
     expect(source).toContain("StageSongAnzeige");
   });
 
-  it("Seite verwendet displayMode aus den Settings", () => {
-    expect(source).toContain("settings.displayMode");
+  it("Quelle enthält NICHT EinzelzeileAnzeige oder StrophenAnzeige", () => {
+    const removedComponents = ["EinzelzeileAnzeige", "StrophenAnzeige"] as const;
+
+    fc.assert(
+      fc.property(
+        fc.constantFrom(...removedComponents),
+        (component) => {
+          expect(source).not.toContain(component);
+        },
+      ),
+      { numRuns: 10 },
+    );
+  });
+
+  it("Quelle enthält NICHT settings.displayMode", () => {
+    expect(source).not.toContain("settings.displayMode");
+  });
+
+  it("StageSongAnzeige erhält song, flatLines, activeLineIndex und getLineColor Props", () => {
+    const requiredProps = ["song", "flatLines", "activeLineIndex", "getLineColor"] as const;
+
+    fc.assert(
+      fc.property(
+        fc.constantFrom(...requiredProps),
+        (prop) => {
+          // The component usage should contain each prop as an attribute
+          // e.g. <StageSongAnzeige song={...} flatLines={...} ...>
+          const usagePattern = new RegExp(
+            `<StageSongAnzeige[\\s\\S]*?${prop}[={]`,
+          );
+          expect(source).toMatch(usagePattern);
+        },
+      ),
+      { numRuns: 20 },
+    );
   });
 });
