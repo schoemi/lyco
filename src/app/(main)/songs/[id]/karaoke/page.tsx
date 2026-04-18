@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import type { SongDetail } from "@/types/song";
+import type { ReferenzDaten } from "@/types/vocal-trainer";
 import type { DisplayMode } from "@/types/karaoke";
 import { flattenLines } from "@/lib/karaoke/flatten-lines";
 import {
@@ -32,6 +33,7 @@ export default function KaraokePage() {
   const [scrollSpeed, setScrollSpeed] = useState(3);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [activeAudioQuelleId, setActiveAudioQuelleId] = useState<string | null>(null);
+  const [referenzDaten, setReferenzDaten] = useState<ReferenzDaten | null>(null);
   const [audioTimeMs, setAudioTimeMs] = useState(0);
   const [audioDurationMs, setAudioDurationMs] = useState(0);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
@@ -72,6 +74,17 @@ export default function KaraokePage() {
         );
         if (firstMp3) {
           setActiveAudioQuelleId(firstMp3.id);
+        }
+
+        // Load reference data for pitch display (optional, non-blocking)
+        try {
+          const refRes = await fetch(`/api/songs/${id}/referenz-daten`);
+          if (refRes.ok) {
+            const refJson: ReferenzDaten = await refRes.json();
+            setReferenzDaten(refJson);
+          }
+        } catch {
+          // Referenzdaten nicht verfügbar — Pitch-Anzeige wird nicht angezeigt
         }
       } catch (err) {
         setError(
@@ -284,6 +297,7 @@ export default function KaraokePage() {
         isAutoScrolling={isPlaying && !isTimecodeScrollActive}
         scrollSpeed={scrollSpeed}
         activeAudioQuelleId={activeAudioQuelleId}
+        referenzDaten={referenzDaten ?? undefined}
         onNext={onNext}
         onPrev={onPrev}
         onNextStrophe={onNextStrophe}

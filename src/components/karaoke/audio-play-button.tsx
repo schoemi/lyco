@@ -14,6 +14,7 @@ interface AudioPlayButtonProps {
   audioQuellen: AudioQuelleResponse[];
   activeQuelleId: string | null;
   onTimeUpdate?: (currentTimeMs: number) => void;
+  onPlayStateChange?: (isPlaying: boolean) => void;
 }
 
 /**
@@ -22,7 +23,7 @@ interface AudioPlayButtonProps {
  * Renders nothing if no playable source is selected.
  */
 export const AudioPlayButton = forwardRef<AudioPlayButtonHandle, AudioPlayButtonProps>(
-  function AudioPlayButton({ audioQuellen, activeQuelleId, onTimeUpdate }, ref) {
+  function AudioPlayButton({ audioQuellen, activeQuelleId, onTimeUpdate, onPlayStateChange }, ref) {
     const activeQuelle = activeQuelleId
       ? audioQuellen.find((q) => q.id === activeQuelleId && q.typ === "MP3")
       : audioQuellen.find((q) => q.typ === "MP3");
@@ -88,9 +89,9 @@ export const AudioPlayButton = forwardRef<AudioPlayButtonHandle, AudioPlayButton
               onTimeUpdate?.(Math.round(audio.currentTime * 1000));
             }
           }}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          onEnded={() => setIsPlaying(false)}
+          onPlay={() => { setIsPlaying(true); onPlayStateChange?.(true); }}
+          onPause={() => { setIsPlaying(false); onPlayStateChange?.(false); }}
+          onEnded={() => { setIsPlaying(false); onPlayStateChange?.(false); }}
           preload="auto"
           playsInline
         />

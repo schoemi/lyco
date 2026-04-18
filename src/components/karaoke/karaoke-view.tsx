@@ -2,6 +2,7 @@
 
 import type { SongDetail } from "@/types/song";
 import type { FlatLine, DisplayMode } from "@/types/karaoke";
+import type { ReferenzDaten } from "@/types/vocal-trainer";
 import { ZurueckButton } from "@/components/karaoke/zurueck-button";
 import { StrophenTitel } from "@/components/karaoke/strophen-titel";
 import { TextAnzeige } from "@/components/karaoke/text-anzeige";
@@ -11,7 +12,9 @@ import { PlayPauseButton } from "@/components/karaoke/play-pause-button";
 import { ModusUmschalter } from "@/components/karaoke/modus-umschalter";
 import { AudioPlayButton } from "@/components/karaoke/audio-play-button";
 import type { AudioPlayButtonHandle } from "@/components/karaoke/audio-play-button";
-import { forwardRef } from "react";
+import { PitchDisplay } from "@/components/pitch-display/pitch-display";
+import { aggregiereFramesZuBalken } from "@/lib/pitch-display/pitch-balken";
+import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
 
 interface KaraokeViewProps {
   song: SongDetail;
@@ -21,6 +24,8 @@ interface KaraokeViewProps {
   isAutoScrolling: boolean;
   scrollSpeed: number;
   activeAudioQuelleId: string | null;
+  referenzDaten?: ReferenzDaten;
+  pitchDisplayEnabled?: boolean;
   onNext: () => void;
   onPrev: () => void;
   onNextStrophe: () => void;
@@ -41,6 +46,8 @@ export const KaraokeView = forwardRef<AudioPlayButtonHandle, KaraokeViewProps>(
     isAutoScrolling,
     scrollSpeed,
     activeAudioQuelleId,
+    referenzDaten,
+    pitchDisplayEnabled,
     onNext,
     onPrev,
     onNextStrophe,
@@ -54,6 +61,34 @@ export const KaraokeView = forwardRef<AudioPlayButtonHandle, KaraokeViewProps>(
   const activeLine = flatLines[activeLineIndex];
   const isFirstLine = activeLineIndex === 0;
   const isLastLine = activeLineIndex === flatLines.length - 1;
+
+  // --- Pitch display data ---
+  const pitchBalken = useMemo(
+    () => (referenzDaten ? aggregiereFramesZuBalken(referenzDaten.frames) : []),
+    [referenzDaten],
+  );
+  const [currentTimeMs, setCurrentTimeMs] = useState(0);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+
+  // Internal toggle state for pitch display, defaults to true when referenzDaten is available
+  const [pitchToggle, setPitchToggle] = useState(!!referenzDaten);
+
+  // Sync toggle default when referenzDaten availability changes
+  useEffect(() => {
+    setPitchToggle(!!referenzDaten);
+  }, [referenzDaten]);
+
+  // Wrap the parent onAudioTimeUpdate to also track currentTimeMs locally
+  const handleAudioTimeUpdate = useCallback(
+    (timeMs: number) => {
+      setCurrentTimeMs(timeMs);
+      onAudioTimeUpdate?.(timeMs);
+    },
+    [onAudioTimeUpdate],
+  );
+
+  // Whether to show the PitchDisplay — visible whenever referenzDaten exists
+  const showPitchDisplay = !!referenzDaten;
 
   // Determine strophe boundaries
   const currentStropheId = activeLine?.stropheId;
@@ -82,13 +117,25 @@ export const KaraokeView = forwardRef<AudioPlayButtonHandle, KaraokeViewProps>(
       </div>
 
       {/* Center: main text display area */}
-      <div className="flex flex-1 items-center justify-center overflow-hidden px-4 transition-all duration-300">
-        <TextAnzeige
-          flatLines={flatLines}
-          activeLineIndex={activeLineIndex}
-          displayMode={displayMode}
-          song={song}
-        />
+      <div className="flex flex-1 flex-col overflow-hidden px-4 transition-all duration-300">
+        {showPitchDisplay && (
+          <div className="w-full px-2" style={{ height: '30vh', minHeight: 160 }}>
+            <PitchDisplay
+              balken={pitchBalken}
+              currentTimeMs={currentTimeMs}
+              isPlaying={isAudioPlaying}
+              windowDurationMs={25000}
+            />
+          </div>
+        )}
+        <div className="flex flex-1 w-full flex-col items-center justify-center">
+          <TextAnzeige
+            flatLines={flatLines}
+            activeLineIndex={activeLineIndex}
+            displayMode={displayMode}
+            song={song}
+          />
+        </div>
       </div>
 
       {/* Bottom section */}
@@ -96,15 +143,45 @@ export const KaraokeView = forwardRef<AudioPlayButtonHandle, KaraokeViewProps>(
         {/* Song info – above mode switcher, compact */}
         <SongInfo titel={song.titel} kuenstler={song.kuenstler} compact />
 
-        {/* Mode switcher */}
-        <div className="transition-opacity duration-200">
+        {/* Mode switcher + Pitch toggle */}
+        <div className="flex items-center gap-2 transition-opacity duration-200">
           <ModusUmschalter activeMode={displayMode} onChange={onModeChange} />
+          {!!referenzDaten && (
+            <button
+              onClick={() => setPitchToggle((prev) => !prev)}
+              aria-label={pitchToggle ? "Pitch-Anzeige ausschalten" : "Pitch-Anzeige einschalten"}
+              aria-pressed={pitchToggle}
+              className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full px-3 py-2 text-sm font-medium transition-colors duration-200 ${
+                pitchToggle
+                  ? "bg-white text-neutral-900 shadow-sm"
+                  : "bg-white/10 text-white/80 hover:text-white"
+              }`}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M2 20h20" />
+                <path d="M5 20v-8" />
+                <path d="M9 20V8" />
+                <path d="M13 20v-5" />
+                <path d="M17 20V4" />
+              </svg>
+            </button>
+          )}
         </div>
 
         {/* Controls row: Audio | AutoScroll | Navigation */}
         <div className="flex items-center justify-center gap-3">
           {/* Audio player button (MP3 only) */}
-          <AudioPlayButton ref={ref} audioQuellen={song.audioQuellen} activeQuelleId={activeAudioQuelleId} onTimeUpdate={onAudioTimeUpdate} />
+          <AudioPlayButton ref={ref} audioQuellen={song.audioQuellen} activeQuelleId={activeAudioQuelleId} onTimeUpdate={handleAudioTimeUpdate} onPlayStateChange={setIsAudioPlaying} />
 
           <PlayPauseButton
             isPlaying={isAutoScrolling}

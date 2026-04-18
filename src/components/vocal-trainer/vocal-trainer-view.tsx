@@ -18,6 +18,8 @@ import type { FlatLine, DisplayMode } from "@/types/karaoke";
 import type { TagDefinitionData } from "@/types/vocal-tag";
 import { flattenLines } from "@/lib/karaoke/flatten-lines";
 import { messeLatenz, kompensiere } from "@/lib/vocal-trainer/latenz";
+import { aggregiereFramesZuBalken } from "@/lib/pitch-display/pitch-balken";
+import { PitchDisplay } from "@/components/pitch-display/pitch-display";
 import { TextAnzeige } from "@/components/karaoke/text-anzeige";
 import { StrophenTitel } from "@/components/karaoke/strophen-titel";
 import { SongInfo } from "@/components/karaoke/song-info";
@@ -140,6 +142,13 @@ export function VocalTrainerView({
   const flatLines: FlatLine[] = useMemo(() => flattenLines(song), [song]);
   const activeLine = flatLines[activeLineIndex];
 
+  // --- Pitch display data ---
+  const pitchBalken = useMemo(
+    () => aggregiereFramesZuBalken(referenzDaten.frames),
+    [referenzDaten.frames],
+  );
+  const [currentTimeMs, setCurrentTimeMs] = useState(0);
+
   // --- Load tag definitions when vocal tag display is enabled ---
   useEffect(() => {
     if (!showVocalTags || tagDefinitions.length > 0) return;
@@ -227,6 +236,9 @@ export function VocalTrainerView({
       const audio = audioRef.current;
       if (!audio) return;
       const currentMs = audio.currentTime * 1000;
+
+      // Update currentTimeMs for PitchDisplay synchronization
+      setCurrentTimeMs(currentMs);
 
       // Find the last timecode entry that has been passed,
       // applying a 1.5s lookahead so the stanza switches early
@@ -489,6 +501,7 @@ export function VocalTrainerView({
     stopAllMedia();
     setZustand("BEREIT");
     setActiveLineIndex(0);
+    setCurrentTimeMs(0);
   }, []);
 
   // --- New recording ---
@@ -498,6 +511,7 @@ export function VocalTrainerView({
     setWarnungWenigGesang(false);
     setFortschritt(0);
     setActiveLineIndex(0);
+    setCurrentTimeMs(0);
     setZustand("BEREIT");
   }, []);
 
@@ -623,8 +637,18 @@ export function VocalTrainerView({
 
         {/* AUFNAHME state: Karaoke text display */}
         {zustand === "AUFNAHME" && (
-          <div className="flex w-full max-w-2xl flex-1 flex-col items-center justify-center">
+          <div className="flex w-full flex-1 flex-col items-start">
+            {/* Pitch display at top — 30vh */}
+            <div className="w-full px-2" style={{ height: '30vh', minHeight: 160 }}>
+              <PitchDisplay
+                balken={pitchBalken}
+                currentTimeMs={currentTimeMs}
+                isPlaying={zustand === "AUFNAHME"}
+                windowDurationMs={25000}
+              />
+            </div>
             {displayMode !== "keinText" && (
+              <div className="flex flex-1 w-full flex-col items-center justify-center">
               <TextAnzeige
                 flatLines={flatLines}
                 activeLineIndex={activeLineIndex}
@@ -633,6 +657,7 @@ export function VocalTrainerView({
                 showVocalTags={showVocalTags}
                 tagDefinitions={tagDefinitions}
               />
+              </div>
             )}
             <div className="mt-4 flex flex-col items-center gap-2">
               <div className="flex items-center gap-2">
