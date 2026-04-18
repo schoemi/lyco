@@ -40,6 +40,8 @@ graph TD
         SC[StropheCard<br/>Instrumental-Styling<br/>Kommentar-Styling]
         SA[StrophenAnzeige<br/>Lesemodus-Styling]
         SAD[StrophenAuswahlDialog<br/>filtert Instrumental]
+        SE[StropheEditor<br/>Instrumental-Toggle<br/>+ Farbgebung]
+        ZE[ZeileEditor<br/>Kommentar-Toggle<br/>+ Farbgebung]
     end
 
     PS --> DB
@@ -145,6 +147,24 @@ Keine direkte Änderung am GapGenerator nötig. Die Filterung erfolgt vor dem Au
 Änderungen:
 - Instrumentale Strophen aus der Auswahlliste herausfiltern (nutzt `filterLernbareStrophen`)
 - "Alle auswählen" und "Schwächen üben" berücksichtigen nur lernbare Strophen
+
+### 12. StropheEditor: `src/components/songs/strophe-editor.tsx`
+
+Änderungen:
+- **Instrumental-Toggle pro Strophe:** In der Strophen-Kopfzeile (neben Name, Bearbeiten, Löschen) einen Toggle-Button hinzufügen, der `istInstrumental` per PATCH-Request an `/api/songs/{songId}/strophen/{stropheId}` setzt
+- **Farbgebung im Editor:** Wenn `strophe.istInstrumental === true`, erhält die gesamte Strophen-Karte eine eigene Hintergrundfarbe (z.B. `bg-sky-50 border-sky-200`) statt des Standard-Weiß, um sie visuell sofort als Instrumental erkennbar zu machen
+- **Optimistic Update:** Der lokale State wird sofort aktualisiert; bei API-Fehler wird der vorherige Zustand wiederhergestellt
+
+**Design-Entscheidung:** Der Toggle wird als Icon-Button mit Tooltip implementiert (z.B. Musik-Note-Icon), um die Toolbar nicht zu überladen. Der aktive Zustand wird durch die Hintergrundfarbe der gesamten Karte signalisiert.
+
+### 13. ZeileEditor: `src/components/songs/zeile-editor.tsx`
+
+Änderungen:
+- **Kommentar-Toggle pro Zeile:** Neben jeder Zeile (im Display-Modus) einen Toggle-Button hinzufügen, der `istKommentar` per PATCH-Request an `/api/songs/{songId}/strophen/{stropheId}/zeilen/{zeileId}` setzt
+- **Farbgebung im Editor:** Wenn `zeile.istKommentar === true`, erhält die Zeile eine eigene Hintergrundfarbe (z.B. `bg-amber-50`) und kursive Schrift, um sie visuell als Kommentar erkennbar zu machen
+- **Optimistic Update:** Der lokale State wird sofort aktualisiert; bei API-Fehler wird der vorherige Zustand wiederhergestellt
+
+**Design-Entscheidung:** Der Toggle wird als kleiner Icon-Button (z.B. Kommentar/Annotation-Icon) neben den bestehenden Zeilen-Aktionen (Bearbeiten, Löschen, Verschieben) platziert.
 
 ## Datenmodell
 
@@ -329,6 +349,8 @@ Jeder Property-Test wird mit mindestens 100 Iterationen konfiguriert und referen
 | StrophenAnzeige | `__tests__/instrumental/strophen-anzeige-instrumental.test.ts` | Lesemodus-Styling für Instrumental und Kommentar |
 | StrophenAuswahlDialog | `__tests__/instrumental/strophen-auswahl-dialog.test.ts` | Instrumental-Strophen nicht in Auswahlliste |
 | SpacedRepetition | `__tests__/instrumental/spaced-repetition-guard.test.ts` | Ablehnung instrumentaler Strophen |
+| StropheEditor | `__tests__/instrumental/strophe-editor-toggle.test.ts` | Instrumental-Toggle, Farbgebung, optimistic update |
+| ZeileEditor | `__tests__/instrumental/zeile-editor-toggle.test.ts` | Kommentar-Toggle, Farbgebung, optimistic update |
 
 ### Integration Tests
 

@@ -5,8 +5,8 @@ import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { randomUUID } from "crypto";
 import { COVERS_DIR } from "@/lib/storage";
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+import { UPLOAD_LIMITS } from "@/lib/upload-config";
+import { checkUploadRateLimit } from "@/lib/services/upload-rate-limiter";
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -29,6 +29,18 @@ export async function POST(
       return NextResponse.json(
         { error: "Nicht authentifiziert" },
         { status: 401 }
+      );
+    }
+
+    // Rate-Limit prüfen
+    const rateCheck = checkUploadRateLimit(session.user.id);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: "Zu viele Uploads. Bitte warten." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateCheck.retryAfter) },
+        }
       );
     }
 
@@ -69,7 +81,7 @@ export async function POST(
     }
 
     // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
+    if (file.size > UPLOAD_LIMITS.COVER) {
       return NextResponse.json(
         { error: "Die Datei darf maximal 5 MB groß sein" },
         { status: 400 }

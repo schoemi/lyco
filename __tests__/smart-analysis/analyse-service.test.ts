@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import {
   buildAnalysePrompt,
   validateAnalyseResponse,
@@ -261,7 +261,8 @@ describe("validateAnalyseResponse", () => {
     );
   });
 
-  it("throws when strophenAnalysen count does not match", () => {
+  it("tolerates strophenAnalysen count mismatch with a warning", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const raw = JSON.stringify({
       songAnalyse: "Analyse",
       emotionsTags: ["tag"],
@@ -270,9 +271,14 @@ describe("validateAnalyseResponse", () => {
         { stropheIndex: 1, analyse: "text" },
       ],
     });
-    expect(() => validateAnalyseResponse(raw, 3)).toThrow(
-      "Erwartete 3 Strophen-Analysen, aber 2 erhalten"
+    const result = validateAnalyseResponse(raw, 3);
+    expect(result.songAnalyse).toBe("Analyse");
+    expect(result.emotionsTags).toEqual(["tag"]);
+    expect(result.strophenAnalysen).toHaveLength(2);
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Strophen-Anzahl Mismatch: erwartet 3, erhalten 2")
     );
+    warnSpy.mockRestore();
   });
 
   it("accepts empty emotionsTags array", () => {
@@ -299,7 +305,7 @@ describe("validateAnalyseResponse", () => {
 
 // --- getAnalysis tests ---
 
-import { vi, beforeEach } from "vitest";
+import { beforeEach } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { getAnalysis, AnalyseError } from "@/lib/services/analyse-service";
 

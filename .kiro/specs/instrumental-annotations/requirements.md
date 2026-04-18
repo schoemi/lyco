@@ -140,6 +140,22 @@ Beide dienen als visuelle Orientierungsmarker während der Textanzeige (z.B. "[I
 3. IF beim Import `istInstrumental` nicht angegeben wird, THEN THE Import-Funktion SHALL den Standardwert `false` verwenden
 4. IF beim Import `istKommentar` nicht angegeben wird, THEN THE Import-Funktion SHALL den Standardwert `false` verwenden
 
+### Requirement 12: UI-Controls zum Setzen der Markierungen im Editor
+
+**User Story:** Als Nutzer möchte ich im Song-Editor Strophen als Instrumental und Zeilen als Kommentar markieren und entmarkieren können, damit ich die Markierungen direkt beim Bearbeiten setzen kann.
+
+#### Acceptance Criteria for Requirement 12
+
+1. WHEN der Nutzer eine Strophe im StropheEditor bearbeitet, THE StropheEditor SHALL einen Toggle-Button oder eine Checkbox anzeigen, mit der die Strophe als Instrumental markiert werden kann
+2. WHEN der Nutzer den Instrumental-Toggle aktiviert, THE StropheEditor SHALL einen PATCH-Request an die API senden und das Feld `istInstrumental` auf `true` setzen
+3. WHEN der Nutzer den Instrumental-Toggle deaktiviert, THE StropheEditor SHALL einen PATCH-Request an die API senden und das Feld `istInstrumental` auf `false` setzen
+4. WHEN der Nutzer eine Zeile im ZeileEditor bearbeitet, THE ZeileEditor SHALL einen Toggle-Button oder eine Checkbox anzeigen, mit der die Zeile als Kommentar markiert werden kann
+5. WHEN der Nutzer den Kommentar-Toggle aktiviert, THE ZeileEditor SHALL einen PATCH-Request an die API senden und das Feld `istKommentar` auf `true` setzen
+6. WHEN der Nutzer den Kommentar-Toggle deaktiviert, THE ZeileEditor SHALL einen PATCH-Request an die API senden und das Feld `istKommentar` auf `false` setzen
+7. WHEN eine Strophe als Instrumental markiert ist, THE StropheEditor SHALL die gesamte Strophen-Karte mit einer eigenen Hintergrundfarbe (z.B. gedämpftes Blau/Grau) darstellen, um sie visuell von normalen Strophen abzuheben
+8. WHEN eine Zeile als Kommentar markiert ist, THE ZeileEditor SHALL die Zeile mit einer eigenen Hintergrundfarbe und kursiver Schrift darstellen, um sie visuell von normalen Zeilen abzuheben
+9. WHEN der Toggle-Status sich ändert, THE Editor SHALL den lokalen State sofort aktualisieren (optimistic update) und bei API-Fehler den vorherigen Zustand wiederherstellen
+
 ### Requirement 11: Gemeinsame Filterfunktion für lernbare Inhalte
 
 **User Story:** Als Entwickler möchte ich eine zentrale Filterfunktion haben, die Instrumental-Strophen und Kommentar-Zeilen herausfiltert, damit die Filterlogik nicht in jedem Lernmodus dupliziert wird.

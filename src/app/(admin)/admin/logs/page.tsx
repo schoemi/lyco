@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -74,43 +74,42 @@ export default function AdminLogsPage() {
   // Data fetching
   // -------------------------------------------------------------------
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (activeTab === "audit") {
-        const params = new URLSearchParams({
-          page: String(auditPage),
-          limit: String(LIMIT),
-        });
-        if (auditFilter) params.set("action", auditFilter);
-        const res = await fetch(`/api/audit-log?${params}`);
-        if (!res.ok) throw new Error("fetch failed");
-        const data = await res.json();
-        setAuditEntries(data.entries);
-        setAuditTotal(data.total);
-      } else {
-        const params = new URLSearchParams({
-          page: String(errorPage),
-          limit: String(LIMIT),
-        });
-        if (errorFilter) params.set("severity", errorFilter);
-        const res = await fetch(`/api/server-errors?${params}`);
-        if (!res.ok) throw new Error("fetch failed");
-        const data = await res.json();
-        setErrorEntries(data.entries);
-        setErrorTotal(data.total);
-      }
-    } catch {
-      setError("Logs konnten nicht geladen werden.");
-    } finally {
-      setLoading(false);
-    }
-  }, [activeTab, auditPage, auditFilter, errorPage, errorFilter]);
-
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    async function doFetch() {
+      setLoading(true);
+      setError(null);
+      try {
+        if (activeTab === "audit") {
+          const params = new URLSearchParams({
+            page: String(auditPage),
+            limit: String(LIMIT),
+          });
+          if (auditFilter) params.set("action", auditFilter);
+          const res = await fetch(`/api/audit-log?${params}`);
+          if (!res.ok) throw new Error("fetch failed");
+          const data = await res.json();
+          setAuditEntries(data.entries);
+          setAuditTotal(data.total);
+        } else {
+          const params = new URLSearchParams({
+            page: String(errorPage),
+            limit: String(LIMIT),
+          });
+          if (errorFilter) params.set("severity", errorFilter);
+          const res = await fetch(`/api/server-errors?${params}`);
+          if (!res.ok) throw new Error("fetch failed");
+          const data = await res.json();
+          setErrorEntries(data.entries);
+          setErrorTotal(data.total);
+        }
+      } catch {
+        setError("Logs konnten nicht geladen werden.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    doFetch();
+  }, [activeTab, auditPage, auditFilter, errorPage, errorFilter]);
 
   // -------------------------------------------------------------------
   // Derived values

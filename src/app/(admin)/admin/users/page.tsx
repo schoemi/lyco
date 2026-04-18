@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { UserResponse } from "../../../../types/auth";
 import UserCreateDialog from "@/components/admin/user-create-dialog";
 import UserEditDialog from "@/components/admin/user-edit-dialog";
@@ -21,7 +21,7 @@ export default function AdminUsersPage() {
   const [deleteUser, setDeleteUser] = useState<UserResponse | null>(null);
   const [resetUser, setResetUser] = useState<UserResponse | null>(null);
 
-  async function fetchUsers() {
+  const fetchUsers = useCallback(async () => {
     try {
       const res = await fetch("/api/users");
       if (!res.ok) throw new Error("Fehler beim Laden");
@@ -33,10 +33,23 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
-    fetchUsers();
+    async function doFetch() {
+      try {
+        const res = await fetch("/api/users");
+        if (!res.ok) throw new Error("Fehler beim Laden");
+        const data = await res.json();
+        setUsers(data.users);
+        setError(null);
+      } catch {
+        setError("Benutzer konnten nicht geladen werden.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    doFetch();
     // Fetch current user ID for self-deletion check
     fetch("/api/auth/session")
       .then((r) => r.json())

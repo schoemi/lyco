@@ -71,8 +71,10 @@ export default function RueckwaertsPage() {
     localStorage.setItem(TOOLTIP_KEY, "true");
   }, []);
 
-  // Load schwierigkeitsstufe from localStorage on mount
-  useEffect(() => {
+  // Load schwierigkeitsstufe from localStorage once
+  const [schwierigkeitLoaded, setSchwierigkeitLoaded] = useState(false);
+  if (!schwierigkeitLoaded) {
+    setSchwierigkeitLoaded(true);
     try {
       const stored = localStorage.getItem("schwierigkeit-rueckwaerts");
       if (
@@ -84,7 +86,7 @@ export default function RueckwaertsPage() {
     } catch {
       // localStorage may be unavailable (e.g. SSR, private browsing)
     }
-  }, []);
+  }
 
   // Save schwierigkeitsstufe to localStorage on change
   useEffect(() => {

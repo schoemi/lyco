@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { UserResponse } from "../../types/auth";
 
 interface UserEditDialogProps {
@@ -11,20 +11,23 @@ interface UserEditDialogProps {
 }
 
 export default function UserEditDialog({ open, user, onClose, onUpdated }: UserEditDialogProps) {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [role, setRole] = useState<"USER" | "ADMIN">("USER");
+  const [email, setEmail] = useState(user?.email ?? "");
+  const [name, setName] = useState(user?.name ?? "");
+  const [role, setRole] = useState<"USER" | "ADMIN">(user?.role ?? "USER");
   const [error, setError] = useState<{ message: string; field?: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+  // Sync fields when a different user is selected
+  const [prevUser, setPrevUser] = useState(user);
+  if (user !== prevUser) {
+    setPrevUser(user);
     if (user) {
       setEmail(user.email);
       setName(user.name ?? "");
       setRole(user.role);
       setError(null);
     }
-  }, [user]);
+  }
 
   if (!open || !user) return null;
 

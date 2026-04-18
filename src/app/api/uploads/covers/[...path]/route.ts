@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { readFile, stat } from "fs/promises";
 import { join } from "path";
 import { COVERS_DIR } from "@/lib/storage";
+import { auth } from "@/lib/auth";
+import { resolveUploadAccess } from "@/lib/services/upload-auth-service";
 
 const MIME_TYPES: Record<string, string> = {
   ".jpg": "image/jpeg",
@@ -15,6 +17,11 @@ export async function GET(
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Nicht authentifiziert" }, { status: 401 });
+    }
+
     const { path: segments } = await params;
 
     // Only allow a single filename — no directory traversal
@@ -27,6 +34,11 @@ export async function GET(
     // Block path traversal attempts
     if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
       return NextResponse.json({ error: "Nicht gefunden" }, { status: 404 });
+    }
+
+    const { allowed } = await resolveUploadAccess(filename, "cover", session.user.id);
+    if (!allowed) {
+      return NextResponse.json({ error: "Zugriff verweigert" }, { status: 403 });
     }
 
     const filepath = join(COVERS_DIR, filename);

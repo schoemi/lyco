@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface LinkedSong {
   id: string;
@@ -43,7 +43,7 @@ export default function AdminFilesPage() {
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  async function fetchFiles() {
+  const fetchFiles = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch("/api/admin/files");
@@ -57,10 +57,29 @@ export default function AdminFilesPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
-    fetchFiles();
+    let cancelled = false;
+    async function doFetch() {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/admin/files");
+        if (cancelled) return;
+        if (!res.ok) throw new Error("Fehler beim Laden");
+        const data = await res.json();
+        if (cancelled) return;
+        setFiles(data.files);
+        setSummary(data.summary);
+        setError(null);
+      } catch {
+        if (!cancelled) setError("Dateien konnten nicht geladen werden.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    doFetch();
+    return () => { cancelled = true; };
   }, []);
 
   async function handleDelete(filename: string, type: "audio" | "cover") {

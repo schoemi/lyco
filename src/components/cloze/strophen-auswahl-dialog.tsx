@@ -36,12 +36,17 @@ export function StrophenAuswahlDialog({
   const firstFocusableRef = useRef<HTMLButtonElement>(null);
 
   // Sync localSelection when dialog opens or activeStrophenIds changes
-  useEffect(() => {
-    if (open) {
-      setLocalSelection(new Set(activeStrophenIds));
-      setValidationError(null);
-    }
-  }, [open, activeStrophenIds]);
+  const [prevOpen, setPrevOpen] = useState(open);
+  const [prevActiveIds, setPrevActiveIds] = useState(activeStrophenIds);
+  if (open && (open !== prevOpen || activeStrophenIds !== prevActiveIds)) {
+    setPrevOpen(open);
+    setPrevActiveIds(activeStrophenIds);
+    setLocalSelection(new Set(activeStrophenIds));
+    setValidationError(null);
+  }
+  if (!open && open !== prevOpen) {
+    setPrevOpen(open);
+  }
 
   // Load progress when dialog opens
   useEffect(() => {
@@ -148,17 +153,17 @@ export function StrophenAuswahlDialog({
     []
   );
 
-  const handleSelectAll = useCallback(() => {
+  const handleSelectAll = () => {
     setLocalSelection(new Set(lernbareStrophen.map((s) => s.id)));
     setValidationError(null);
-  }, [lernbareStrophen]);
+  };
 
-  const handleDeselectAll = useCallback(() => {
+  const handleDeselectAll = () => {
     setLocalSelection(new Set());
     setValidationError(null);
-  }, []);
+  };
 
-  const handlePracticeWeaknesses = useCallback(() => {
+  const handlePracticeWeaknesses = () => {
     if (!progress) return;
     // Only consider progress for learnable strophes
     const lernbareIds = new Set(lernbareStrophen.map((s) => s.id));
@@ -166,7 +171,7 @@ export function StrophenAuswahlDialog({
     const weak = getWeakStrophenIds(lernbareProgress);
     setLocalSelection(weak);
     setValidationError(null);
-  }, [progress, lernbareStrophen]);
+  };
 
   const handleConfirm = useCallback(() => {
     if (localSelection.size === 0) {

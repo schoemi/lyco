@@ -23,29 +23,34 @@ export async function isSetupRequired(): Promise<boolean> {
 }
 
 export async function createInitialAdmin(data: SetupInput) {
-  const setupRequired = await isSetupRequired();
-  if (!setupRequired) {
-    throw new Error("Setup wurde bereits abgeschlossen");
-  }
+  return prisma.$transaction(
+    async (tx) => {
+      const adminCount = await tx.user.count({ where: { role: "ADMIN" } });
+      if (adminCount > 0) {
+        throw new Error("Setup wurde bereits abgeschlossen");
+      }
 
-  if (!validateEmail(data.email)) {
-    throw new Error("Ungültige E-Mail-Adresse");
-  }
+      if (!validateEmail(data.email)) {
+        throw new Error("Ungültige E-Mail-Adresse");
+      }
 
-  const passwordCheck = validatePassword(data.password);
-  if (!passwordCheck.valid) {
-    throw new Error(passwordCheck.error!);
-  }
+      const passwordCheck = validatePassword(data.password);
+      if (!passwordCheck.valid) {
+        throw new Error(passwordCheck.error!);
+      }
 
-  const passwordHash = await hashPassword(data.password);
+      const passwordHash = await hashPassword(data.password);
 
-  return prisma.user.create({
-    data: {
-      email: data.email,
-      name: data.name,
-      passwordHash,
-      role: "ADMIN",
+      return tx.user.create({
+        data: {
+          email: data.email,
+          name: data.name,
+          passwordHash,
+          role: "ADMIN",
+        },
+        select: userSelectWithoutPassword,
+      });
     },
-    select: userSelectWithoutPassword,
-  });
+    { isolationLevel: "Serializable" }
+  );
 }

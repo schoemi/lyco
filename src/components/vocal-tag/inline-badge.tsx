@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { NodeViewWrapper } from "@tiptap/react";
 import type { ReactNodeViewProps } from "@tiptap/react";
 import type { TagDefinitionData } from "@/types/vocal-tag";
@@ -28,11 +28,14 @@ export function InlineBadge({ node, updateAttributes, extension }: ReactNodeView
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [currentZusatztext, setCurrentZusatztext] = useState(zusatztext);
 
-  useEffect(() => {
+  // Sync currentZusatztext when prop changes and popover is closed
+  const [prevZusatztext, setPrevZusatztext] = useState(zusatztext);
+  if (zusatztext !== prevZusatztext) {
+    setPrevZusatztext(zusatztext);
     if (!popoverOpen) {
       setCurrentZusatztext(zusatztext);
     }
-  }, [zusatztext, popoverOpen]);
+  }
 
   const handleBadgeClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();

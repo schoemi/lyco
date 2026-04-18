@@ -89,31 +89,34 @@ const ARIA_CHECKS: AriaCheck[] = [
     description: "ModeTabs has aria-selected attribute on tab buttons",
     validate: (source) => /aria-selected\s*=/.test(source),
   },
-  // Requirement 11.3: StropheCard – "Alle aufdecken" button has aria-label with strophe name
+  // Requirement 11.3: StropheCard – "Alle aufdecken" button has role="switch", aria-checked, and aria-label with strophe name
   {
     id: "stropheCard-reveal-all-aria-label",
     component: "StropheCard",
-    description: '"Alle aufdecken" button has aria-label containing strophe name',
+    description: '"Alle aufdecken" button has role="switch", aria-checked, and aria-label containing strophe name',
     validate: (source) => {
       // Find button tags in the source
       const buttonRegex = /<button\b/g;
       let match: RegExpExecArray | null;
       while ((match = buttonRegex.exec(source)) !== null) {
         const tag = extractJsxOpeningTag(source, match.index);
-        // Check if this is the "Alle aufdecken" button (contains that text nearby)
-        if (tag.includes("aria-label") && /strophe\.name/.test(tag)) {
+        // Check for role="switch", aria-checked, and aria-label with strophe.name
+        const hasRoleSwitch = /role\s*=\s*"switch"/.test(tag);
+        const hasAriaChecked = /aria-checked\s*=/.test(tag);
+        const hasAriaLabelWithName = tag.includes("aria-label") && /strophe\.name/.test(tag);
+        if (hasRoleSwitch && hasAriaChecked && hasAriaLabelWithName) {
           return true;
         }
       }
       return false;
     },
   },
-  // Requirement 11.4: RevealLine – aria-hidden on translation span
+  // Requirement 11.4: RevealLine – conditional rendering for translation content
   {
-    id: "revealLine-aria-hidden",
+    id: "revealLine-conditional-rendering",
     component: "RevealLine",
-    description: "RevealLine has aria-hidden on translation content",
-    validate: (source) => /aria-hidden\s*=/.test(source),
+    description: "RevealLine uses conditional rendering for translation content",
+    validate: (source) => /hasTranslation && isRevealed &&/.test(source),
   },
   // Requirement 11.5: InterpretationTab – textarea has aria-label
   {
@@ -183,13 +186,15 @@ describe("Property 5: ARIA-Attribute auf Emotional-Lernen-Komponenten", () => {
 
   it("StropheCard 'Alle aufdecken' button has aria-label with strophe name", () => {
     const source = componentSources["StropheCard"];
-    // The button should have aria-label referencing strophe.name
-    expect(source).toMatch(/aria-label\s*=\s*\{?\s*`[^`]*\$\{strophe\.name\}[^`]*`/);
+    // The button should have role="switch", aria-checked, and aria-label referencing strophe.name with aufdecken/ausblenden
+    expect(source).toMatch(/role\s*=\s*"switch"/);
+    expect(source).toMatch(/aria-checked\s*=/);
+    expect(source).toMatch(/aria-label\s*=\s*\{[\s\S]*?strophe\.name[\s\S]*?(aufdecken|ausblenden)/);
   });
 
-  it("RevealLine has aria-hidden on translation content", () => {
+  it("RevealLine uses conditional rendering for translation content", () => {
     const source = componentSources["RevealLine"];
-    expect(source).toMatch(/aria-hidden\s*=/);
+    expect(source).toMatch(/hasTranslation && isRevealed &&/);
   });
 
   it("InterpretationTab textarea has aria-label", () => {

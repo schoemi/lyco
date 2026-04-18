@@ -164,12 +164,14 @@ export function VocalTagEditor({
   const exportNodes = useMemo(() => {
     if (!editor) return [];
     return editorToChordProNodes(editor);
-  }, [editor, rawText]); // rawText dependency ensures re-computation on changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- rawText triggers re-computation when editor content changes
+  }, [editor, rawText]);
 
   // Check if editor has content (for import confirmation dialog)
   const hasContent = useMemo(() => {
     if (!editor) return false;
     return !editor.isEmpty;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- rawText triggers re-check when editor content changes
   }, [editor, rawText]);
 
   if (loading) {

@@ -106,7 +106,7 @@ export default function KonfliktDialog({
 
                 <fieldset>
                   <legend className="sr-only">
-                    Aktion für „{conflict.titel}"
+                    Aktion für &bdquo;{conflict.titel}&ldquo;
                   </legend>
                   <div className="flex gap-3">
                     <label

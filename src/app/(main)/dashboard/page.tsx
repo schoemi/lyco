@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { SetCard } from "@/components/songs/set-card";
 import { SongCardGrid } from "@/components/songs/song-card-grid";
@@ -26,7 +26,7 @@ export default function DashboardPage() {
     return data.allSongs.filter((song) => !assignedIds.has(song.id));
   }, [data]);
 
-  async function fetchDashboard() {
+  const fetchDashboard = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch("/api/dashboard");
@@ -42,10 +42,27 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
-    fetchDashboard();
+    async function doFetch() {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/dashboard");
+        if (!res.ok) {
+          throw new Error("Fehler beim Laden der Dashboard-Daten");
+        }
+        const json: DashboardData = await res.json();
+        setData(json);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Ein unbekannter Fehler ist aufgetreten"
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+    doFetch();
   }, []);
 
   if (loading) {

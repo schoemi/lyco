@@ -58,10 +58,13 @@ export function useAutoScroll(
   }, [isPlaying, pause, play]);
 
   // Auto-stop when reaching the last line
+  const prevIsLastLineRef = useRef(isLastLine);
   useEffect(() => {
-    if (isLastLine && isPlaying) {
+    // Only pause when isLastLine transitions to true while playing
+    if (isLastLine && !prevIsLastLineRef.current && isPlaying) {
       pause();
     }
+    prevIsLastLineRef.current = isLastLine;
   }, [isLastLine, isPlaying, pause]);
 
   // Restart interval when speed changes while playing

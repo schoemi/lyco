@@ -100,7 +100,7 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
     }
     fetchTags();
     return () => { cancelled = true; };
-  }, []);
+  }, []);  // eslint-disable-line react-hooks/exhaustive-deps -- tagDefinitions.length is intentionally excluded; we only fetch once on mount
 
   function showStatus(msg: string) {
     setStatusMessage(msg);
@@ -294,6 +294,41 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
     }
   }
 
+  // --- Toggle Instrumental ---
+  async function handleToggleInstrumental(strophe: StropheDetail) {
+    const newValue = !strophe.istInstrumental;
+    const previousStrophen = strophen;
+
+    // Optimistic update
+    const updated = strophen.map((s) =>
+      s.id === strophe.id ? { ...s, istInstrumental: newValue } : s
+    );
+    onStrophenChanged(updated);
+
+    try {
+      const res = await fetch(`/api/songs/${songId}/strophen/${strophe.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ istInstrumental: newValue }),
+      });
+      if (!res.ok) {
+        // Revert on error
+        onStrophenChanged(previousStrophen);
+        showStatus("Fehler beim Ändern der Instrumental-Markierung");
+        return;
+      }
+      showStatus(
+        newValue
+          ? `Strophe "${strophe.name}" als Instrumental markiert`
+          : `Instrumental-Markierung von "${strophe.name}" entfernt`
+      );
+    } catch {
+      // Revert on network error
+      onStrophenChanged(previousStrophen);
+      showStatus("Netzwerkfehler beim Ändern der Instrumental-Markierung");
+    }
+  }
+
   const deleteStrophe = deleteConfirmId ? strophen.find((s) => s.id === deleteConfirmId) : null;
 
   const hasTranslations = strophen.some((s) =>
@@ -317,9 +352,15 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
               (m) => m.typ === "TIMECODE" && m.ziel === "STROPHE" && m.timecodeMs != null,
             );
             return (
-              <div key={strophe.id} className="space-y-1">
+              <div key={strophe.id} className={`space-y-1 rounded-lg p-3 ${strophe.istInstrumental ? "bg-sky-50 border border-sky-200" : ""}`}>
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-semibold text-neutral-700">{strophe.name}</h3>
+                  {strophe.istInstrumental && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700">
+                      <AppIcon icon="lucide:music" className="text-xs" />
+                      Instrumental
+                    </span>
+                  )}
                   {timecodeMarkup && (
                     <button
                       type="button"
@@ -336,13 +377,13 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
                 ) : (
                   <div className="space-y-0.5">
                     {sortedZeilen.map((zeile) => (
-                      <div key={zeile.id}>
+                      <div key={zeile.id} className={zeile.istKommentar ? "rounded bg-amber-50 border border-amber-200 px-2 py-1" : ""}>
                         {viewMode === "markup" && tagDefinitions.length > 0 ? (
-                          <p className="text-sm text-neutral-900">
+                          <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>
                             <ZeileMarkupView text={zeile.text} tagDefinitions={tagDefinitions} />
                           </p>
                         ) : (
-                          <p className="text-sm text-neutral-900">{stripChordPro(zeile.text)}</p>
+                          <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>{stripChordPro(zeile.text)}</p>
                         )}
                         {showTranslations && zeile.uebersetzung && (
                           <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
@@ -379,7 +420,11 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
       {sorted.map((strophe, idx) => (
         <div
           key={strophe.id}
-          className="rounded-lg border border-neutral-200 bg-white p-4"
+          className={`rounded-lg border p-4 ${
+            strophe.istInstrumental
+              ? "border-sky-200 bg-sky-50"
+              : "border-neutral-200 bg-white"
+          }`}
         >
           {/* Timecode input for this strophe */}
           {(() => {
@@ -502,6 +547,23 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
                 })()}
               </div>
               <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => handleToggleInstrumental(strophe)}
+                  className={`rounded p-1 ${
+                    strophe.istInstrumental
+                      ? "bg-sky-100 text-sky-700"
+                      : "text-neutral-500 hover:bg-neutral-100"
+                  }`}
+                  aria-label={
+                    strophe.istInstrumental
+                      ? "Instrumental-Markierung entfernen"
+                      : "Strophe als Instrumental markieren"
+                  }
+                  aria-pressed={strophe.istInstrumental}
+                >
+                  <AppIcon icon="lucide:music" className="text-sm" />
+                </button>
                 <button
                   type="button"
                   onClick={() => handleMove(strophe.id, "up")}

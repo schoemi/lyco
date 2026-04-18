@@ -6,11 +6,11 @@ const { auth } = NextAuth(authConfig);
 
 // Öffentliche Routen – kein Auth nötig
 const publicRoutes = ["/login", "/register", "/setup"];
-const publicApiPrefixes = ["/api/auth/", "/api/setup", "/api/uploads/"];
+const publicApiPrefixes = ["/api/auth/", "/api/setup"];
 
 // Admin-Routen – Auth + Admin-Rolle nötig
 const adminPagePrefix = "/admin";
-const adminApiPrefix = "/api/users";
+const adminApiPrefixes = ["/api/users", "/api/admin", "/api/settings", "/api/server-errors", "/api/audit-log"];
 
 function isPublicRoute(pathname: string): boolean {
   if (publicRoutes.includes(pathname)) return true;
@@ -18,18 +18,54 @@ function isPublicRoute(pathname: string): boolean {
 }
 
 function isAdminRoute(pathname: string): boolean {
-  return (
-    pathname.startsWith(adminPagePrefix) ||
-    pathname.startsWith(adminApiPrefix)
-  );
+  if (pathname.startsWith(adminPagePrefix)) return true;
+  return adminApiPrefixes.some((prefix) => pathname.startsWith(prefix));
 }
 
 function isApiRoute(pathname: string): boolean {
   return pathname.startsWith("/api/");
 }
 
+// CORS-Hilfsfunktionen (Finding 9)
+function getAllowedOrigin(): string {
+  return (
+    process.env.AUTH_URL ||
+    process.env.NEXTAUTH_URL ||
+    "http://localhost:3000"
+  );
+}
+
+function addCorsHeaders(
+  response: NextResponse,
+  origin: string | null
+): NextResponse {
+  const allowedOrigin = getAllowedOrigin();
+
+  if (origin && origin === allowedOrigin) {
+    response.headers.set("Access-Control-Allow-Origin", allowedOrigin);
+    response.headers.set("Access-Control-Allow-Credentials", "true");
+    response.headers.set(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS"
+    );
+    response.headers.set(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
+  }
+
+  return response;
+}
+
 export default auth((req) => {
   const { pathname } = req.nextUrl;
+  const origin = req.headers.get("origin");
+
+  // OPTIONS-Preflight für API-Routen sofort beantworten (CORS)
+  if (req.method === "OPTIONS" && isApiRoute(pathname)) {
+    const response = new NextResponse(null, { status: 204 });
+    return addCorsHeaders(response, origin);
+  }
 
   // Öffentliche Routen durchlassen
   if (isPublicRoute(pathname)) {
@@ -98,7 +134,12 @@ export default auth((req) => {
     }
   }
 
-  return NextResponse.next();
+  // CORS-Header für API-Responses setzen
+  const response = NextResponse.next();
+  if (isApiRoute(pathname)) {
+    addCorsHeaders(response, origin);
+  }
+  return response;
 });
 
 export const config = {

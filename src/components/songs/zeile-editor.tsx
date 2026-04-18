@@ -299,6 +299,41 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
     }
   }
 
+  // --- Toggle Kommentar ---
+  async function handleToggleKommentar(zeile: ZeileDetail) {
+    const newValue = !zeile.istKommentar;
+    const previousZeilen = zeilen;
+
+    // Optimistic update
+    const updated = zeilen.map((z) =>
+      z.id === zeile.id ? { ...z, istKommentar: newValue } : z
+    );
+    onZeilenChanged(updated);
+
+    try {
+      const res = await fetch(`${baseUrl}/${zeile.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ istKommentar: newValue }),
+      });
+      if (!res.ok) {
+        // Revert on error
+        onZeilenChanged(previousZeilen);
+        showStatus("Fehler beim Ändern der Kommentar-Markierung");
+        return;
+      }
+      showStatus(
+        newValue
+          ? "Zeile als Kommentar markiert"
+          : "Kommentar-Markierung entfernt"
+      );
+    } catch {
+      // Revert on network error
+      onZeilenChanged(previousZeilen);
+      showStatus("Netzwerkfehler beim Ändern der Kommentar-Markierung");
+    }
+  }
+
   const deleteZeile = deleteConfirmId ? zeilen.find((z) => z.id === deleteConfirmId) : null;
 
   // --- Read-only view ---
@@ -306,13 +341,13 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
     return (
       <div className="space-y-0.5">
         {sorted.map((zeile) => (
-          <div key={zeile.id}>
+          <div key={zeile.id} className={zeile.istKommentar ? "rounded bg-amber-50 border border-amber-200 px-2 py-1" : ""}>
             {viewMode === "markup" && tagDefinitions.length > 0 ? (
-              <p className="text-sm text-neutral-900">
+              <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>
                 <ZeileMarkupView text={zeile.text} tagDefinitions={tagDefinitions} />
               </p>
             ) : (
-              <p className="text-sm text-neutral-900">{stripChordPro(zeile.text)}</p>
+              <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>{stripChordPro(zeile.text)}</p>
             )}
             {showTranslations && zeile.uebersetzung && (
               <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
@@ -334,7 +369,11 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
       {sorted.map((zeile, idx) => (
         <div
           key={zeile.id}
-          className="rounded border border-neutral-100 bg-neutral-50 p-3"
+          className={`rounded border p-3 ${
+            zeile.istKommentar
+              ? "border-amber-200 bg-amber-50"
+              : "border-neutral-100 bg-neutral-50"
+          }`}
         >
           {editingId === zeile.id ? (
             /* Inline edit form */
@@ -420,17 +459,34 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
                 {viewMode === "markup" && tagDefinitions.length > 0 ? (
-                  <p className="text-sm text-neutral-900">
+                  <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>
                     <ZeileMarkupView text={zeile.text} tagDefinitions={tagDefinitions} />
                   </p>
                 ) : (
-                  <p className="text-sm text-neutral-900">{stripChordPro(zeile.text)}</p>
+                  <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>{stripChordPro(zeile.text)}</p>
                 )}
                 {showTranslations && zeile.uebersetzung && (
                   <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
                 )}
               </div>
               <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => handleToggleKommentar(zeile)}
+                  className={`rounded p-1 ${
+                    zeile.istKommentar
+                      ? "bg-amber-100 text-amber-700"
+                      : "text-neutral-500 hover:bg-neutral-100"
+                  }`}
+                  aria-label={
+                    zeile.istKommentar
+                      ? "Kommentar-Markierung entfernen"
+                      : "Zeile als Kommentar markieren"
+                  }
+                  aria-pressed={zeile.istKommentar}
+                >
+                  <AppIcon icon="lucide:message-square" className="text-sm" />
+                </button>
                 <button
                   type="button"
                   onClick={() => handleMove(zeile.id, "up")}

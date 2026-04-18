@@ -92,20 +92,18 @@ describe("POST /api/songs/genius/search", () => {
 
     expect(res.status).toBe(502);
     const json = await res.json();
-    expect(json.error).toBe("Genius-Suche fehlgeschlagen");
+    expect(json.error).toContain("Genius-Suche fehlgeschlagen");
   });
 
-  // --- Leere Query wird als leerer String weitergegeben ---
-  it("gibt 200 zurück bei leerer Query", async () => {
+  // --- Leere Query wird validiert → 400 ---
+  it("gibt 400 zurück bei leerer Query", async () => {
     mockAuth.mockResolvedValue({ user: { id: "user-1" } });
     mockGetUserApiKey.mockResolvedValue("key");
-    mockSearchSongs.mockResolvedValue([]);
 
     const res = await POST(makeRequest({}));
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(400);
     const json = await res.json();
-    expect(json.results).toEqual([]);
-    expect(mockSearchSongs).toHaveBeenCalledWith("", "key");
+    expect(json.error).toBe("Suchbegriff darf nicht leer sein");
   });
 });

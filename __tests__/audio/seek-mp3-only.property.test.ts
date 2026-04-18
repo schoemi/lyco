@@ -19,6 +19,7 @@ import React from "react";
 import { render, cleanup } from "@testing-library/react";
 import { AudioPlayer } from "@/components/songs/audio-player";
 import type { AudioPlayerHandle } from "@/components/songs/audio-player";
+import { SharedAudioProvider } from "@/components/songs/shared-audio-provider";
 import type { AudioQuelleResponse } from "@/types/audio";
 
 afterEach(() => {
@@ -57,10 +58,14 @@ describe("Property 7: Seek nur bei MP3", () => {
         const quelle = makeQuelle(typ);
 
         render(
-          React.createElement(AudioPlayer, {
-            ref,
-            audioQuellen: [quelle],
-          }),
+          React.createElement(
+            SharedAudioProvider,
+            { audioQuellen: [quelle] },
+            React.createElement(AudioPlayer, {
+              ref,
+              audioQuellen: [quelle],
+            }),
+          ),
         );
 
         expect(ref.current).not.toBeNull();

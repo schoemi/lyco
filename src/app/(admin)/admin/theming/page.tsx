@@ -206,8 +206,21 @@ export default function ThemeListPage() {
   }, []);
 
   useEffect(() => {
-    fetchThemes();
-  }, [fetchThemes]);
+    async function doFetch() {
+      try {
+        const res = await fetch("/api/settings/themes");
+        if (!res.ok) throw new Error("Fehler beim Laden der Themes");
+        const data: ThemeRecord[] = await res.json();
+        setThemes(data);
+        setError(null);
+      } catch {
+        setError("Themes konnten nicht geladen werden.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    doFetch();
+  }, []);
 
   // ---- Actions ----
 

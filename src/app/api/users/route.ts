@@ -6,6 +6,7 @@ import {
   validatePassword,
 } from "@/lib/services/auth-service";
 import { logAudit, USER_CREATED } from "@/lib/services/log-service";
+import { getClientIp } from "@/lib/utils/request-ip";
 
 async function getAdminSession() {
   const session = await auth();
@@ -75,6 +76,7 @@ export async function POST(request: NextRequest) {
       targetEntity: "User",
       targetId: user.id,
       details: { email, name: name ?? null, role: role ?? "USER" },
+      ipAddress: getClientIp(request),
     });
 
     return NextResponse.json({ user }, { status: 201 });

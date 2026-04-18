@@ -33,15 +33,18 @@ export default function KaraokePage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [activeAudioQuelleId, setActiveAudioQuelleId] = useState<string | null>(null);
   const [audioTimeMs, setAudioTimeMs] = useState(0);
+  const [audioDurationMs, setAudioDurationMs] = useState(0);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const audioRef = useRef<AudioPlayButtonHandle>(null);
 
-  // Load persisted settings from localStorage on mount
-  useEffect(() => {
+  // Load persisted settings from localStorage once
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+  if (!settingsLoaded) {
     const settings = loadKaraokeSettings();
     setDisplayMode(settings.displayMode);
     setScrollSpeed(settings.scrollSpeed);
-  }, []);
+    setSettingsLoaded(true);
+  }
 
   // Data loading
   useEffect(() => {
@@ -114,7 +117,7 @@ export default function KaraokePage() {
     flatLines,
     strophen: song?.strophen ?? [],
     currentTimeMs: audioTimeMs,
-    durationMs: audioRef.current?.getDurationMs() ?? 0,
+    durationMs: audioDurationMs,
     isAudioPlaying,
     onLineChange: onTimecodeLineChange,
   });
@@ -124,6 +127,8 @@ export default function KaraokePage() {
     setAudioTimeMs(ms);
     const playing = audioRef.current?.getIsPlaying() ?? false;
     setIsAudioPlaying(playing);
+    const duration = audioRef.current?.getDurationMs() ?? 0;
+    setAudioDurationMs(duration);
   }, []);
 
   // Manual navigation stops auto-scroll (Req 9.5)

@@ -89,11 +89,11 @@ export function StropheCard({ strophe, onSeekTo }: StropheCardProps) {
       {/* Lines */}
       <div className="space-y-1">
         {strophe.zeilen.map((zeile) => (
-          <div key={zeile.id} className="text-sm">
+          <div key={zeile.id} className={`text-sm ${zeile.istKommentar ? "rounded bg-amber-50 border border-amber-200 px-2 py-1" : ""}`}>
             <p
               className={
                 zeile.istKommentar
-                  ? "italic text-neutral-400"
+                  ? "italic text-amber-800"
                   : "text-neutral-800"
               }
             >

@@ -2,7 +2,7 @@
 
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { StreakPill } from "@/components/gamification/streak-pill";
 import { useAppName } from "@/hooks/use-app-name";
 
@@ -10,31 +10,29 @@ export default function AppHeader() {
   const [streak, setStreak] = useState(0);
   const appName = useAppName();
 
-  const fetchStreak = useCallback(async () => {
-    try {
-      const res = await fetch("/api/streak");
-      if (res.ok) {
-        const data = await res.json();
-        setStreak(data.streak);
+  useEffect(() => {
+    async function doFetchStreak() {
+      try {
+        const res = await fetch("/api/streak");
+        if (res.ok) {
+          const data = await res.json();
+          setStreak(data.streak);
+        }
+      } catch {
+        // Silently ignore – streak display is non-critical
       }
-    } catch {
-      // Silently ignore – streak display is non-critical
     }
-  }, []);
 
-  useEffect(() => {
-    fetchStreak();
-  }, [fetchStreak]);
+    doFetchStreak();
 
-  useEffect(() => {
     const handleStreakUpdated = () => {
-      fetchStreak();
+      doFetchStreak();
     };
     window.addEventListener("streak-updated", handleStreakUpdated);
     return () => {
       window.removeEventListener("streak-updated", handleStreakUpdated);
     };
-  }, [fetchStreak]);
+  }, []);
 
   async function handleLogout() {
     await signOut({ redirectTo: "/login" });

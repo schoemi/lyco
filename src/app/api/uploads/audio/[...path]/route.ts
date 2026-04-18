@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { open, stat } from "fs/promises";
 import { join } from "path";
 import { AUDIO_DIR } from "@/lib/storage";
+import { auth } from "@/lib/auth";
+import { resolveUploadAccess } from "@/lib/services/upload-auth-service";
 
 const MIME_TYPES: Record<string, string> = {
   ".mp3": "audio/mpeg",
@@ -35,10 +37,20 @@ export async function HEAD(
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Nicht authentifiziert" }, { status: 401 });
+    }
+
     const { path: segments } = await params;
     const resolved = resolveFile(segments);
     if (!resolved) {
       return new NextResponse(null, { status: 404 });
+    }
+
+    const { allowed } = await resolveUploadAccess(resolved.filename, "audio", session.user.id);
+    if (!allowed) {
+      return NextResponse.json({ error: "Zugriff verweigert" }, { status: 403 });
     }
 
     let fileSize: number;
@@ -69,6 +81,11 @@ export async function GET(
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Nicht authentifiziert" }, { status: 401 });
+    }
+
     const { path: segments } = await params;
     const resolved = resolveFile(segments);
     if (!resolved) {
@@ -76,6 +93,11 @@ export async function GET(
     }
 
     const { filepath, filename } = resolved;
+
+    const { allowed } = await resolveUploadAccess(filename, "audio", session.user.id);
+    if (!allowed) {
+      return NextResponse.json({ error: "Zugriff verweigert" }, { status: 403 });
+    }
 
     // Check file exists and get size
     let fileSize: number;

@@ -29,33 +29,44 @@ export default function SetZuweisenDialog({
   const [assigned, setAssigned] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
 
+  // Sync assigned set IDs when dialog opens
+  const [prevOpen, setPrevOpen] = useState(open);
+  const [prevCurrentSetIds, setPrevCurrentSetIds] = useState(currentSetIds);
+  if (open && (open !== prevOpen || currentSetIds !== prevCurrentSetIds)) {
+    setPrevOpen(open);
+    setPrevCurrentSetIds(currentSetIds);
+    setAssigned(new Set(currentSetIds));
+  }
+  if (!open && open !== prevOpen) {
+    setPrevOpen(open);
+  }
+
+  // Load sets when dialog opens
   useEffect(() => {
     if (open) {
-      setAssigned(new Set(currentSetIds));
-      loadSets();
+      async function doLoadSets() {
+        setLoading(true);
+        setError(null);
+        try {
+          const res = await fetch("/api/sets");
+          if (!res.ok) throw new Error("Fehler beim Laden der Sets");
+          const json = await res.json();
+          setSets(
+            json.sets.map((s: { id: string; name: string; songCount: number }) => ({
+              id: s.id,
+              name: s.name,
+              songCount: s.songCount,
+            }))
+          );
+        } catch {
+          setError("Sets konnten nicht geladen werden");
+        } finally {
+          setLoading(false);
+        }
+      }
+      doLoadSets();
     }
-  }, [open, currentSetIds]);
-
-  const loadSets = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/sets");
-      if (!res.ok) throw new Error("Fehler beim Laden der Sets");
-      const json = await res.json();
-      setSets(
-        json.sets.map((s: { id: string; name: string; songCount: number }) => ({
-          id: s.id,
-          name: s.name,
-          songCount: s.songCount,
-        }))
-      );
-    } catch {
-      setError("Sets konnten nicht geladen werden");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  }, [open]);
 
   const handleToggle = useCallback(
     async (setId: string) => {

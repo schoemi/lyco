@@ -133,23 +133,23 @@ describe("Bug Condition 1b: Upload-Komponenten sollen im editingText-Modus NICHT
   });
 });
 
-// ── Bug 2: Middleware blockiert Audio-Dateien ──
+// ── Bug 2 (superseded by upload-auth-check): Auth is now handled in route handlers ──
 
-describe("Bug Condition 2: /api/uploads/ soll in publicApiPrefixes enthalten sein", () => {
+describe("Bug Condition 2: /api/uploads/ auth is handled by route handlers (not publicApiPrefixes)", () => {
   /**
-   * The middleware must include `/api/uploads/` in the publicApiPrefixes list
-   * so that audio file requests are not blocked with 401.
+   * After the upload-auth-check bugfix, `/api/uploads/` was removed from
+   * publicApiPrefixes because it was a security hole (files served without
+   * any auth). Auth is now handled directly in the route handlers with
+   * session checks and ownership/Freigabe verification.
    *
-   * On unfixed code: `/api/uploads/` is missing from the list,
-   * so this test will FAIL — proving the bug exists.
+   * This test verifies that `/api/uploads/` is NOT in publicApiPrefixes
+   * (the route handlers handle auth themselves).
    *
    * **Validates: Requirements 1.3, 1.4, 2.3, 2.4**
    */
-  it("middleware.ts publicApiPrefixes should contain /api/uploads/", () => {
+  it("middleware.ts publicApiPrefixes should NOT contain /api/uploads/ (auth handled by route handlers)", () => {
     fc.assert(
-      fc.property(arbAudioUuid, (uuid) => {
-        // The publicApiPrefixes array must contain "/api/uploads/"
-        // This ensures that requests to /api/uploads/audio/{uuid}.mp3 are not blocked
+      fc.property(arbAudioUuid, (_uuid) => {
         const publicPrefixesMatch = middlewareSource.match(
           /const\s+publicApiPrefixes\s*=\s*\[([\s\S]*?)\]/,
         );
@@ -157,20 +157,20 @@ describe("Bug Condition 2: /api/uploads/ soll in publicApiPrefixes enthalten sei
         expect(publicPrefixesMatch).not.toBeNull();
 
         const prefixesContent = publicPrefixesMatch![1];
+        // /api/uploads/ should NOT be in publicApiPrefixes — route handlers handle auth
         const containsUploads = prefixesContent.includes("/api/uploads/");
 
-        expect(containsUploads).toBe(true);
+        expect(containsUploads).toBe(false);
       }),
       { numRuns: 1 },
     );
   });
 
-  it("audio requests to /api/uploads/audio/{uuid}.mp3 should not be blocked", () => {
+  it("audio route handler handles auth directly (upload paths go through middleware auth)", () => {
     fc.assert(
       fc.property(arbAudioUuid, (uuid) => {
         const audioPath = `/api/uploads/audio/${uuid}.mp3`;
 
-        // Simulate the isPublicRoute check from middleware
         // Extract the publicApiPrefixes from source
         const prefixesMatch = middlewareSource.match(
           /const\s+publicApiPrefixes\s*=\s*\[([\s\S]*?)\]/,
@@ -182,12 +182,13 @@ describe("Bug Condition 2: /api/uploads/ soll in publicApiPrefixes enthalten sei
           .match(/"([^"]+)"/g)
           ?.map((s) => s.replace(/"/g, "")) ?? [];
 
-        // Check if the audio path would be treated as public
+        // Audio paths should NOT be public — they go through middleware auth,
+        // then the route handler performs ownership/Freigabe checks
         const isPublic = prefixStrings.some((prefix) =>
           audioPath.startsWith(prefix),
         );
 
-        expect(isPublic).toBe(true);
+        expect(isPublic).toBe(false);
       }),
       { numRuns: 100 },
     );

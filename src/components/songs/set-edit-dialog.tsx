@@ -30,20 +30,25 @@ export default function SetEditDialog({ open, set, onClose, onSaved }: SetEditDi
   }, [open]);
 
   // Pre-fill fields when editing, clear when creating
-  useEffect(() => {
-    if (open) {
-      if (set) {
-        setName(set.name);
-        setDescription(set.description ?? "");
-      } else {
-        setName("");
-        setDescription("");
-      }
-      setNameError(null);
-      setDescriptionError(null);
-      setError(null);
+  const [prevOpen, setPrevOpen] = useState(open);
+  const [prevSet, setPrevSet] = useState(set);
+  if (open && (open !== prevOpen || set !== prevSet)) {
+    setPrevOpen(open);
+    setPrevSet(set);
+    if (set) {
+      setName(set.name);
+      setDescription(set.description ?? "");
+    } else {
+      setName("");
+      setDescription("");
     }
-  }, [open, set]);
+    setNameError(null);
+    setDescriptionError(null);
+    setError(null);
+  }
+  if (!open && open !== prevOpen) {
+    setPrevOpen(open);
+  }
 
   // Focus the name input when the dialog opens
   useEffect(() => {

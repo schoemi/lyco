@@ -1,0 +1,111 @@
+# Implementation Plan
+
+- [x] 1. Write bug condition exploration test
+  - **Property 1: Bug Condition** - Unauthentifizierte/Unbefugte Upload-Anfragen werden nicht abgelehnt
+  - **IMPORTANT**: Write this property-based test BEFORE implementing the fix
+  - **CRITICAL**: This test MUST FAIL on unfixed code - failure confirms the bug exists
+  - **DO NOT attempt to fix the test or the code when it fails**
+  - **NOTE**: This test encodes the expected behavior - it will validate the fix when it passes after implementation
+  - **GOAL**: Surface counterexamples that demonstrate unauthenticated/unauthorized users can access upload files
+  - **Scoped PBT Approach**: Generate combinations of (no session / foreign session) × (audio / covers) × (GET / HEAD) and assert correct rejection
+  - Test file: `__tests__/uploads/upload-auth-bugcondition.property.test.ts`
+  - Bug Condition from design: `isBugCondition(input)` where `input.session = NULL` OR `input.session.userId ≠ fileOwnerUserId AND NOT hatSongZugriff(songId, userId)`
+  - For unauthenticated requests (session = NULL): assert response status is 401
+  - For authenticated but unauthorized requests (no ownership, no Freigabe): assert response status is 403
+  - Assert response body does NOT contain file content
+  - Mock `auth()` to return null (unauthenticated) or a foreign user session (unauthorized)
+  - Mock `prisma.audioQuelle.findFirst` and `prisma.song.findFirst` for file-to-song resolution
+  - Mock `hatSongZugriff` to return false for unauthorized cases
+  - Run test on UNFIXED code
+  - **EXPECTED OUTCOME**: Test FAILS (routes currently return 200 with file content for all requests - this confirms the bug exists)
+  - Document counterexamples: unauthenticated GET to `/api/uploads/audio/{uuid}.mp3` returns 200 instead of 401; foreign user GET returns 200 instead of 403
+  - Mark task complete when test is written, run, and failure is documented
+  - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3, 2.4, 2.5_
+
+- [x] 2. Write preservation property tests (BEFORE implementing fix)
+  - **Property 2: Preservation** - Berechtigte Upload-Anfragen funktionieren weiterhin
+  - **IMPORTANT**: Follow observation-first methodology
+  - Test file: `__tests__/uploads/upload-auth-preservation.property.test.ts`
+  - Observe on UNFIXED code: authenticated owner GET `/api/uploads/audio/{uuid}.mp3` returns 200 with correct Content-Type (`audio/mpeg`) and file content
+  - Observe on UNFIXED code: authenticated owner GET `/api/uploads/covers/{uuid}.jpg` returns 200 with correct Content-Type (`image/jpeg`) and file content
+  - Observe on UNFIXED code: authenticated owner HEAD `/api/uploads/audio/{uuid}.mp3` returns 200 with Content-Length, Accept-Ranges headers
+  - Observe on UNFIXED code: authenticated owner Range-Request GET returns 206 with correct Content-Range header
+  - Observe on UNFIXED code: GET for non-existent file returns 404
+  - Write property-based tests: for all authorized requests (owner or Freigabe recipient), response status, Content-Type, Cache-Control headers, and file content match observed behavior
+  - Generate combinations of (owner / Freigabe recipient) × (audio / covers) × (GET / HEAD / Range-GET) and verify correct responses
+  - Mock `auth()` to return owner or Freigabe recipient session
+  - Mock file system (`fs/promises`) to simulate existing files
+  - Mock `hatSongZugriff` to return true for authorized cases
+  - Verify tests PASS on UNFIXED code (since authorized requests already work correctly)
+  - **EXPECTED OUTCOME**: Tests PASS (this confirms baseline behavior to preserve)
+  - Mark task complete when tests are written, run, and passing on unfixed code
+  - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.8_
+
+- [x] 3. Fix for unauthenticated/unauthorized upload file serving
+
+  - [x] 3.1 Remove `/api/uploads/` from publicApiPrefixes in middleware.ts
+    - Change `publicApiPrefixes` from `["/api/auth/", "/api/setup", "/api/uploads/"]` to `["/api/auth/", "/api/setup"]`
+    - This ensures upload-serving routes go through the middleware auth check
+    - _Bug_Condition: isBugCondition(input) where path starts with "/api/uploads/" and publicApiPrefixes bypasses auth_
+    - _Expected_Behavior: Upload routes no longer bypass middleware auth; unauthenticated requests get 401 from middleware_
+    - _Preservation: All other public routes (/api/auth/, /api/setup) remain unaffected_
+    - _Requirements: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3_
+
+  - [x] 3.2 Create shared upload-auth-service for file-to-song resolution
+    - Create `src/lib/services/upload-auth-service.ts`
+    - Implement `resolveUploadAccess(filename: string, type: 'audio' | 'cover', userId: string): Promise<{ allowed: boolean; songId?: string }>`
+    - For audio: query `prisma.audioQuelle.findFirst({ where: { url: { contains: filename } } })` to find the AudioQuelle, then get the songId
+    - For cover: query `prisma.song.findFirst({ where: { coverUrl: { contains: filename } } })` to find the Song
+    - Call `hatSongZugriff(songId, userId)` to check ownership or Freigabe
+    - Return `{ allowed: false }` for orphaned files (no DB entry) — conservative approach
+    - _Bug_Condition: isBugCondition(input) where session ≠ NULL but no ownership/Freigabe_
+    - _Expected_Behavior: resolveUploadAccess returns { allowed: false } for unauthorized users, { allowed: true } for owners/Freigabe recipients_
+    - _Preservation: hatSongZugriff logic unchanged; existing Freigabe checks preserved_
+    - _Requirements: 2.4, 2.5, 3.4, 3.5_
+
+  - [x] 3.3 Add auth and ownership checks to audio route handler
+    - Modify `src/app/api/uploads/audio/[...path]/route.ts`
+    - Import `auth` from `@/lib/auth`, `resolveUploadAccess` from `@/lib/services/upload-auth-service`
+    - In both GET and HEAD handlers: call `auth()`, if no session return 401
+    - After file resolution: call `resolveUploadAccess(filename, 'audio', session.user.id)`, if not allowed return 403
+    - Keep all existing file-serving logic (Range-Requests, Content-Type, Cache-Control) unchanged for authorized requests
+    - _Bug_Condition: isBugCondition(input) where path starts with "/api/uploads/audio/" and (session = NULL OR not owner/shared)_
+    - _Expected_Behavior: 401 for unauthenticated, 403 for unauthorized, 200/206 for authorized_
+    - _Preservation: Range-Request support, Content-Type detection, Cache-Control headers, 404 for missing files all preserved_
+    - _Requirements: 2.1, 2.3, 2.4, 3.1, 3.3, 3.8_
+
+  - [x] 3.4 Add auth and ownership checks to covers route handler
+    - Modify `src/app/api/uploads/covers/[...path]/route.ts`
+    - Import `auth` from `@/lib/auth`, `resolveUploadAccess` from `@/lib/services/upload-auth-service`
+    - In GET handler: call `auth()`, if no session return 401
+    - After file resolution: call `resolveUploadAccess(filename, 'cover', session.user.id)`, if not allowed return 403
+    - Keep all existing file-serving logic (Content-Type, Cache-Control) unchanged for authorized requests
+    - _Bug_Condition: isBugCondition(input) where path starts with "/api/uploads/covers/" and (session = NULL OR not owner/shared)_
+    - _Expected_Behavior: 401 for unauthenticated, 403 for unauthorized, 200 for authorized_
+    - _Preservation: Content-Type detection, Cache-Control headers, 404 for missing files all preserved_
+    - _Requirements: 2.2, 2.5, 3.2, 3.5, 3.8_
+
+  - [x] 3.5 Verify bug condition exploration test now passes
+    - **Property 1: Expected Behavior** - Unauthentifizierte/Unbefugte Upload-Anfragen werden korrekt abgelehnt
+    - **IMPORTANT**: Re-run the SAME test from task 1 - do NOT write a new test
+    - The test from task 1 encodes the expected behavior (401 for unauthenticated, 403 for unauthorized)
+    - When this test passes, it confirms the expected behavior is satisfied
+    - Run bug condition exploration test from step 1: `__tests__/uploads/upload-auth-bugcondition.property.test.ts`
+    - **EXPECTED OUTCOME**: Test PASSES (confirms bug is fixed)
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
+
+  - [x] 3.6 Verify preservation tests still pass
+    - **Property 2: Preservation** - Berechtigte Upload-Anfragen funktionieren weiterhin
+    - **IMPORTANT**: Re-run the SAME tests from task 2 - do NOT write new tests
+    - Run preservation property tests from step 2: `__tests__/uploads/upload-auth-preservation.property.test.ts`
+    - **EXPECTED OUTCOME**: Tests PASS (confirms no regressions)
+    - Confirm all tests still pass after fix (no regressions)
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.8_
+
+- [x] 4. Checkpoint - Ensure all tests pass
+  - Run full test suite to ensure no regressions across the project
+  - Verify upload-auth-bugcondition property tests pass (bug is fixed)
+  - Verify upload-auth-preservation property tests pass (no regressions)
+  - Verify existing audio, auth, and backup test suites still pass
+  - Ensure middleware changes don't break other API routes
+  - Ask the user if questions arise

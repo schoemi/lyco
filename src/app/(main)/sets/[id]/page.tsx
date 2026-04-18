@@ -45,8 +45,24 @@ export default function SetDetailPage() {
 
   useEffect(() => {
     if (!id) return;
-    fetchSet();
-  }, [id, fetchSet]);
+    async function doFetch() {
+      try {
+        const res = await fetch(`/api/sets/${id}`);
+        if (!res.ok) {
+          if (res.status === 404) throw new Error("Set nicht gefunden");
+          if (res.status === 403) throw new Error("Zugriff verweigert");
+          throw new Error("Fehler beim Laden des Sets");
+        }
+        const json = await res.json();
+        setSet(json.set);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Ein unbekannter Fehler ist aufgetreten");
+      } finally {
+        setLoading(false);
+      }
+    }
+    doFetch();
+  }, [id]);
 
   if (loading) {
     return (

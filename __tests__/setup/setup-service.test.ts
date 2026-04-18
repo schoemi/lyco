@@ -1,13 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { isSetupRequired, createInitialAdmin } from "@/lib/services/setup-service";
 
-// Mock prisma
+// Mock prisma with transaction support
+const mockTxUser = {
+  count: vi.fn(),
+  create: vi.fn(),
+};
+
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     user: {
       count: vi.fn(),
       create: vi.fn(),
     },
+    $transaction: vi.fn(async (fn: (tx: { user: typeof mockTxUser }) => Promise<unknown>) => {
+      return fn({ user: mockTxUser });
+    }),
   },
 }));
 
@@ -23,6 +31,8 @@ import { validateEmail, validatePassword } from "@/lib/services/auth-service";
 
 const mockCount = vi.mocked(prisma.user.count);
 const mockCreate = vi.mocked(prisma.user.create);
+const mockTxCount = vi.mocked(mockTxUser.count);
+const mockTxCreate = vi.mocked(mockTxUser.create);
 const mockValidateEmail = vi.mocked(validateEmail);
 const mockValidatePassword = vi.mocked(validatePassword);
 
@@ -68,13 +78,13 @@ describe("SetupService", () => {
     };
 
     it("creates an admin when no admin exists", async () => {
-      mockCount.mockResolvedValue(0);
-      mockCreate.mockResolvedValue(createdUser);
+      mockTxCount.mockResolvedValue(0);
+      mockTxCreate.mockResolvedValue(createdUser);
 
       const result = await createInitialAdmin(validInput);
 
       expect(result).toEqual(createdUser);
-      expect(mockCreate).toHaveBeenCalledWith({
+      expect(mockTxCreate).toHaveBeenCalledWith({
         data: {
           email: validInput.email,
           name: validInput.name,
@@ -93,26 +103,26 @@ describe("SetupService", () => {
     });
 
     it("throws error when admin already exists", async () => {
-      mockCount.mockResolvedValue(1);
+      mockTxCount.mockResolvedValue(1);
 
       await expect(createInitialAdmin(validInput)).rejects.toThrow(
         "Setup wurde bereits abgeschlossen"
       );
-      expect(mockCreate).not.toHaveBeenCalled();
+      expect(mockTxCreate).not.toHaveBeenCalled();
     });
 
     it("throws error for invalid email", async () => {
-      mockCount.mockResolvedValue(0);
+      mockTxCount.mockResolvedValue(0);
       mockValidateEmail.mockReturnValue(false);
 
       await expect(
         createInitialAdmin({ ...validInput, email: "invalid" })
       ).rejects.toThrow("Ungültige E-Mail-Adresse");
-      expect(mockCreate).not.toHaveBeenCalled();
+      expect(mockTxCreate).not.toHaveBeenCalled();
     });
 
     it("throws error for short password", async () => {
-      mockCount.mockResolvedValue(0);
+      mockTxCount.mockResolvedValue(0);
       mockValidatePassword.mockReturnValue({
         valid: false,
         error: "Passwort muss mindestens 8 Zeichen lang sein",
@@ -121,12 +131,12 @@ describe("SetupService", () => {
       await expect(
         createInitialAdmin({ ...validInput, password: "short" })
       ).rejects.toThrow("Passwort muss mindestens 8 Zeichen lang sein");
-      expect(mockCreate).not.toHaveBeenCalled();
+      expect(mockTxCreate).not.toHaveBeenCalled();
     });
 
     it("returns user without passwordHash", async () => {
-      mockCount.mockResolvedValue(0);
-      mockCreate.mockResolvedValue(createdUser);
+      mockTxCount.mockResolvedValue(0);
+      mockTxCreate.mockResolvedValue(createdUser);
 
       const result = await createInitialAdmin(validInput);
 

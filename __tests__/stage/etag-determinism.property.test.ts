@@ -49,6 +49,7 @@ const stropheArb = fc.record({
   name: fc.string({ minLength: 1, maxLength: 20 }),
   orderIndex: fc.nat({ max: 5 }),
   zeilen: fc.array(zeileArb, { minLength: 0, maxLength: 3 }),
+  markups: fc.constant([]),
 });
 
 const songArb = fc.record({

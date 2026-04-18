@@ -3,8 +3,7 @@ import { auth } from "@/lib/auth";
 import { PDFParse } from "pdf-parse";
 import OpenAI from "openai";
 import type { PdfParseResult } from "@/types/import";
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+import { UPLOAD_LIMITS } from "@/lib/upload-config";
 
 const SYSTEM_PROMPT = `Du erhältst den extrahierten Text aus einer PDF-Datei mit einem Songtext.
 Extrahiere folgende Informationen:
@@ -52,7 +51,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (file.size > MAX_FILE_SIZE) {
+    if (file.size > UPLOAD_LIMITS.PDF) {
       return NextResponse.json(
         { error: "Datei darf maximal 5MB groß sein" },
         { status: 400 }

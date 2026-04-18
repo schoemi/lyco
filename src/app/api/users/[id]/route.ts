@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { updateUser, deleteUser } from "@/lib/services/user-service";
 import { validateEmail } from "@/lib/services/auth-service";
 import { logAudit, USER_UPDATED, USER_DELETED } from "@/lib/services/log-service";
+import { getClientIp } from "@/lib/utils/request-ip";
 
 async function getAdminSession() {
   const session = await auth();
@@ -50,6 +51,7 @@ export async function PUT(
       targetEntity: "User",
       targetId: id,
       details: { email, name, role },
+      ipAddress: getClientIp(request),
     });
 
     return NextResponse.json({ user });
@@ -71,7 +73,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -89,6 +91,7 @@ export async function DELETE(
       actorId: requestingUserId,
       targetEntity: "User",
       targetId: id,
+      ipAddress: getClientIp(request),
     });
 
     return NextResponse.json({ message: "Benutzer gelöscht" });

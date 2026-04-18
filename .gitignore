@@ -34,6 +34,11 @@ next-env.d.ts
 # storybook
 storybook-static/
 
+# playwright
+/e2e/test-results/
+/playwright-report/
+/blob-report/
+
 
 # planning files
 /.planning

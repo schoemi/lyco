@@ -40,10 +40,18 @@ export default function AddSongToSetDialog({
   }, [open]);
 
   // Fetch songs when dialog opens
-  useEffect(() => {
-    if (!open) return;
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (open && open !== prevOpen) {
+    setPrevOpen(open);
     setSelected(new Set());
     setError(null);
+  }
+  if (!open && open !== prevOpen) {
+    setPrevOpen(open);
+  }
+
+  useEffect(() => {
+    if (!open) return;
 
     async function fetchSongs() {
       setFetching(true);
@@ -71,6 +79,14 @@ export default function AddSongToSetDialog({
     }
   }, [open, fetching]);
 
+  const handleClose = useCallback(() => {
+    setError(null);
+    onClose();
+    if (triggerRef.current && triggerRef.current instanceof HTMLElement) {
+      triggerRef.current.focus();
+    }
+  }, [onClose]);
+
   // Escape key
   useEffect(() => {
     if (!open) return;
@@ -80,14 +96,6 @@ export default function AddSongToSetDialog({
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   });
-
-  const handleClose = useCallback(() => {
-    setError(null);
-    onClose();
-    if (triggerRef.current && triggerRef.current instanceof HTMLElement) {
-      triggerRef.current.focus();
-    }
-  }, [onClose]);
 
   const toggleSong = useCallback((songId: string) => {
     setSelected((prev) => {

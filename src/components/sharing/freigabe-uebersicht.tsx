@@ -42,8 +42,20 @@ export default function FreigabeUebersicht({
   }, [endpoint]);
 
   useEffect(() => {
-    fetchFreigaben();
-  }, [fetchFreigaben]);
+    async function doFetch() {
+      try {
+        const res = await fetch(endpoint);
+        if (!res.ok) return;
+        const data = await res.json();
+        setFreigaben(data.freigaben ?? []);
+      } catch {
+        /* ignore */
+      } finally {
+        setLoading(false);
+      }
+    }
+    doFetch();
+  }, [endpoint]);
 
   async function handleRevoke(freigabeId: string) {
     setRevoking(freigabeId);

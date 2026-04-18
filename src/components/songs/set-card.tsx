@@ -21,6 +21,7 @@ export function SetCard({ set }: SetCardProps) {
           onClick={() => setExpanded((prev) => !prev)}
           aria-expanded={expanded}
           aria-controls={`set-${set.id}-songs`}
+          aria-label={expanded ? `Set „${set.name}" einklappen` : `Set „${set.name}" aufklappen`}
           className="flex flex-1 items-center gap-2 text-left"
         >
           <h2 className="text-sm font-semibold text-neutral-700">

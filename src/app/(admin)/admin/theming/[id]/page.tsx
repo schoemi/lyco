@@ -6,7 +6,7 @@
  * Anforderungen: 2.1, 2.2, 2.3, 2.4, 5.2, 5.3, 5.4
  */
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import type { ThemeConfig, ThemeColors, ThemeTypography, KaraokeTheme } from "@/lib/theme/types";
@@ -323,8 +323,8 @@ export default function ThemeEditPage() {
 
   // Track unsaved changes
   const [dirty, setDirty] = useState(false);
-  const savedLightRef = useRef<string>("");
-  const savedDarkRef = useRef<string>("");
+  const [savedLight, setSavedLight] = useState<string>("");
+  const [savedDark, setSavedDark] = useState<string>("");
 
   // ---- Fetch theme ----
   const fetchTheme = useCallback(async () => {
@@ -362,8 +362,8 @@ export default function ThemeEditPage() {
       setLightConfig(mergedLight);
       setDarkConfig(mergedDark);
 
-      savedLightRef.current = JSON.stringify(light);
-      savedDarkRef.current = JSON.stringify(dark);
+      setSavedLight(JSON.stringify(light));
+      setSavedDark(JSON.stringify(dark));
       setDirty(false);
       setError(null);
     } catch {
@@ -374,18 +374,62 @@ export default function ThemeEditPage() {
   }, [id]);
 
   useEffect(() => {
-    fetchTheme();
-  }, [fetchTheme]);
+    async function doFetch() {
+      try {
+        const res = await fetch(`/api/settings/themes/${id}`);
+        if (!res.ok) {
+          if (res.status === 404) {
+            setError("Theme nicht gefunden.");
+            setLoading(false);
+            return;
+          }
+          throw new Error("Fehler beim Laden");
+        }
+        const data: ThemeRecord = await res.json();
+        setThemeName(data.name);
+
+        const light: ThemeConfig = JSON.parse(data.lightConfig);
+        const dark: ThemeConfig = JSON.parse(data.darkConfig);
+        const defaults = getDefaultTheme();
+        const mergedLight: ThemeConfig = {
+          ...defaults,
+          ...light,
+          colors: { ...defaults.colors, ...light.colors },
+          typography: { ...defaults.typography, ...light.typography },
+          karaoke: { ...defaults.karaoke, ...light.karaoke },
+        };
+        const mergedDark: ThemeConfig = {
+          ...defaults,
+          ...dark,
+          colors: { ...defaults.colors, ...dark.colors },
+          typography: { ...defaults.typography, ...dark.typography },
+          karaoke: { ...defaults.karaoke, ...dark.karaoke },
+        };
+        setLightConfig(mergedLight);
+        setDarkConfig(mergedDark);
+
+        setSavedLight(JSON.stringify(light));
+        setSavedDark(JSON.stringify(dark));
+        setDirty(false);
+        setError(null);
+      } catch {
+        setError("Theme konnte nicht geladen werden.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    doFetch();
+  }, [id]);
 
   // ---- Track dirty state ----
-  useEffect(() => {
-    const currentLight = JSON.stringify(lightConfig);
-    const currentDark = JSON.stringify(darkConfig);
-    setDirty(
-      currentLight !== savedLightRef.current ||
-      currentDark !== savedDarkRef.current
-    );
-  }, [lightConfig, darkConfig]);
+  const currentLight = JSON.stringify(lightConfig);
+  const currentDark = JSON.stringify(darkConfig);
+  const isDirty =
+    currentLight !== savedLight ||
+    currentDark !== savedDark;
+  if (isDirty !== dirty) {
+    setDirty(isDirty);
+  }
 
   // ---- Warn on leave with unsaved changes ----
   useEffect(() => {
@@ -436,8 +480,8 @@ export default function ThemeEditPage() {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || "Fehler beim Speichern");
       }
-      savedLightRef.current = JSON.stringify(lightConfig);
-      savedDarkRef.current = JSON.stringify(darkConfig);
+      setSavedLight(JSON.stringify(lightConfig));
+      setSavedDark(JSON.stringify(darkConfig));
       setDirty(false);
       setSuccess("Theme wurde gespeichert.");
     } catch (err) {

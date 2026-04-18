@@ -55,8 +55,21 @@ export default function VocalTagsPage() {
   }, []);
 
   useEffect(() => {
-    fetchTags();
-  }, [fetchTags]);
+    async function doFetch() {
+      try {
+        const res = await fetch("/api/tag-definitions");
+        if (!res.ok) throw new Error("Fehler beim Laden");
+        const data = await res.json();
+        setTags(data.definitions);
+        setError(null);
+      } catch {
+        setError("Tag-Definitionen konnten nicht geladen werden.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    doFetch();
+  }, []);
 
   function startEditing(tag: TagDefinitionData, field: EditingState["field"]) {
     const value =

@@ -33,6 +33,11 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+// --- Upload rate limiter mock (always allow) ---
+vi.mock("@/lib/services/upload-rate-limiter", () => ({
+  checkUploadRateLimit: vi.fn().mockReturnValue({ allowed: true }),
+}));
+
 // --- fs/promises mock ---
 vi.mock("fs/promises", () => ({
   writeFile: vi.fn().mockResolvedValue(undefined),

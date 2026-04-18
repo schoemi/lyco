@@ -45,12 +45,17 @@ let middleware: (req: {
   };
 }) => unknown;
 
-function createRequest(pathname: string, cookies: Record<string, string> = {}) {
+function createRequest(pathname: string, cookies: Record<string, string> = {}, options: { method?: string; headers?: Record<string, string> } = {}) {
   const cookieStore = new Map(Object.entries(cookies));
+  const headerStore = new Map(Object.entries(options.headers ?? {}));
   return {
     nextUrl: { pathname },
     url: `http://localhost:3000${pathname}`,
+    method: options.method ?? "GET",
     auth: undefined as unknown,
+    headers: {
+      get: (name: string) => headerStore.get(name) ?? null,
+    },
     cookies: {
       has: (name: string) => cookieStore.has(name),
       get: (name: string) =>

@@ -13,6 +13,7 @@ import { prisma } from "@/lib/prisma";
 import { validateSongManifestFull, validateSetManifest } from "@/lib/backup/backup-schema";
 import { deserializeSong } from "@/lib/backup/backup-serializer";
 import type { SongCreateData } from "@/lib/backup/backup-serializer";
+import { ZIP_LIMITS, ZIP_MAGIC_BYTES } from "@/lib/upload-config";
 import type {
   ImportValidationResult,
   ImportSongPreview,
@@ -23,6 +24,60 @@ import type {
 } from "@/lib/backup/backup-types";
 import type { MarkupTyp, MarkupZiel, AudioTyp, AudioRolle } from "@/generated/prisma/client";
 import { AUDIO_DIR, COVERS_DIR, REFERENZ_DATEN_DIR } from "@/lib/storage";
+
+/**
+ * Prüft einen Buffer auf ZIP-Sicherheitskriterien:
+ * 1. Magic-Bytes-Validierung (PK\x03\x04)
+ * 2. Entpackte Gesamtgröße ≤ MAX_UNCOMPRESSED_SIZE
+ * 3. Eintragsanzahl ≤ MAX_ENTRY_COUNT
+ *
+ * @param zipBuffer - Buffer der hochgeladenen Datei
+ * @returns Objekt mit valid-Flag und optionaler Fehlermeldung
+ */
+export function validateZipSecurity(zipBuffer: Buffer): { valid: boolean; error?: string } {
+  // 1. Magic-Bytes prüfen
+  if (
+    zipBuffer.length < 4 ||
+    zipBuffer[0] !== ZIP_MAGIC_BYTES[0] ||
+    zipBuffer[1] !== ZIP_MAGIC_BYTES[1] ||
+    zipBuffer[2] !== ZIP_MAGIC_BYTES[2] ||
+    zipBuffer[3] !== ZIP_MAGIC_BYTES[3]
+  ) {
+    return { valid: false, error: "Ungültiges Dateiformat: Keine gültige ZIP-Datei" };
+  }
+
+  // 2. ZIP parsen, um Einträge zu prüfen
+  let zip: AdmZip;
+  try {
+    zip = new AdmZip(zipBuffer);
+  } catch {
+    return { valid: false, error: "Ungültiges Dateiformat: Keine gültige ZIP-Datei" };
+  }
+
+  const entries = zip.getEntries();
+
+  // 3. Entpackte Gesamtgröße berechnen
+  let totalUncompressedSize = 0;
+  for (const entry of entries) {
+    totalUncompressedSize += entry.header.size;
+  }
+  if (totalUncompressedSize > ZIP_LIMITS.MAX_UNCOMPRESSED_SIZE) {
+    return {
+      valid: false,
+      error: "ZIP-Archiv überschreitet das maximale entpackte Größenlimit (500 MB)",
+    };
+  }
+
+  // 4. Eintragsanzahl prüfen
+  if (entries.length > ZIP_LIMITS.MAX_ENTRY_COUNT) {
+    return {
+      valid: false,
+      error: "ZIP-Archiv enthält zu viele Einträge (max. 1.000)",
+    };
+  }
+
+  return { valid: true };
+}
 
 /**
  * Validiert ein hochgeladenes ZIP-Archiv und erkennt Konflikte.
@@ -39,6 +94,18 @@ export async function validateImport(
   userId: string,
   zipBuffer: Buffer,
 ): Promise<ImportValidationResult> {
+  // 0. ZIP-Sicherheitsvalidierung
+  const securityResult = validateZipSecurity(zipBuffer);
+  if (!securityResult.valid) {
+    return {
+      valid: false,
+      error: securityResult.error,
+      isSet: false,
+      songs: [],
+      conflicts: [],
+    };
+  }
+
   // 1. ZIP parsen
   let zip: AdmZip;
   try {
@@ -305,6 +372,12 @@ export async function executeImport(
   zipBuffer: Buffer,
   resolutions: Record<string, "overwrite" | "new">,
 ): Promise<ImportResult> {
+  // 0. ZIP-Sicherheitsvalidierung
+  const securityResult = validateZipSecurity(zipBuffer);
+  if (!securityResult.valid) {
+    throw new Error(securityResult.error);
+  }
+
   // 1. ZIP parsen
   let zip: AdmZip;
   try {

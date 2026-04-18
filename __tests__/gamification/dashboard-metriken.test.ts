@@ -17,6 +17,7 @@ const {
   mockSetFindMany,
   mockGetFaelligeAnzahl,
   mockGetStreak,
+  mockGetEmpfangeneFreigaben,
 } = vi.hoisted(() => ({
   mockAuth: vi.fn(),
   mockListSongs: vi.fn(),
@@ -25,6 +26,7 @@ const {
   mockSetFindMany: vi.fn(),
   mockGetFaelligeAnzahl: vi.fn(),
   mockGetStreak: vi.fn(),
+  mockGetEmpfangeneFreigaben: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({ auth: mockAuth }));
@@ -33,6 +35,7 @@ vi.mock("@/lib/services/progress-service", () => ({ getAverageProgress: mockGetA
 vi.mock("@/lib/services/session-service", () => ({ getTotalSessionCount: mockGetTotalSessionCount }));
 vi.mock("@/lib/services/spaced-repetition-service", () => ({ getFaelligeAnzahl: mockGetFaelligeAnzahl }));
 vi.mock("@/lib/services/streak-service", () => ({ getStreak: mockGetStreak }));
+vi.mock("@/lib/services/freigabe-service", () => ({ getEmpfangeneFreigaben: mockGetEmpfangeneFreigaben }));
 vi.mock("@/lib/prisma", () => ({
   prisma: { set: { findMany: mockSetFindMany } },
 }));
@@ -64,6 +67,7 @@ function setupMocks(songs: SongWithProgress[], opts: { avgProgress?: number; tot
   mockGetTotalSessionCount.mockResolvedValue(opts.totalSessions ?? 0);
   mockGetFaelligeAnzahl.mockResolvedValue(0);
   mockGetStreak.mockResolvedValue(opts.streak ?? 0);
+  mockGetEmpfangeneFreigaben.mockResolvedValue({ sets: [], songs: [] });
 }
 
 describe("Dashboard-Metriken", () => {

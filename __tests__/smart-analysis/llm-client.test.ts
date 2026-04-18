@@ -55,8 +55,8 @@ describe("LLM-Client", () => {
         expect.objectContaining({
           apiKey: "test-api-key",
           baseURL: "https://test.api.com",
-          timeout: 30000,
-          maxRetries: 2,
+          timeout: 60000,
+          maxRetries: 4,
         })
       );
       expect(client).toHaveProperty("chat");

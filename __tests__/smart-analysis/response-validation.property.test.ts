@@ -7,7 +7,7 @@
  *
  * **Validates: Requirements 6.5, 6.6**
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import fc from "fast-check";
 import { validateAnalyseResponse } from "@/lib/services/analyse-service";
 
@@ -298,14 +298,33 @@ describe("Feature: smart-song-analysis, Property 2: Antwort-Validierung lehnt un
     );
   });
 
-  it("rejects when strophen count does not match expected", () => {
-    fc.assert(
-      fc.property(wrongStrophenCountArb, ({ raw, strophenCount }) => {
-        expect(() => validateAnalyseResponse(raw, strophenCount)).toThrow(
-          /Erwartete \d+ Strophen-Analysen, aber \d+ erhalten/
-        );
-      }),
-      { numRuns: 100 }
-    );
+  it("tolerates when strophen count does not match expected (logs warning)", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    try {
+      fc.assert(
+        fc.property(wrongStrophenCountArb, ({ raw, strophenCount }) => {
+          warnSpy.mockClear();
+
+          // Should NOT throw — the implementation tolerates the mismatch
+          const result = validateAnalyseResponse(raw, strophenCount);
+
+          // Should return a valid result
+          expect(result).toBeDefined();
+          expect(typeof result.songAnalyse).toBe("string");
+          expect(Array.isArray(result.emotionsTags)).toBe(true);
+          expect(Array.isArray(result.strophenAnalysen)).toBe(true);
+
+          // Should log a warning about the mismatch
+          expect(warnSpy).toHaveBeenCalledOnce();
+          expect(warnSpy.mock.calls[0][0]).toMatch(
+            /Strophen-Anzahl Mismatch.*erwartet.*erhalten/
+          );
+        }),
+        { numRuns: 100 }
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 });

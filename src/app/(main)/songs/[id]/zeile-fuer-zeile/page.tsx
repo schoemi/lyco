@@ -56,8 +56,10 @@ export default function ZeileFuerZeilePage() {
   // Track whether all-complete session has been fired
   const allCompleteFired = useRef(false);
 
-  // Load schwierigkeitsstufe from localStorage on mount
-  useEffect(() => {
+  // Load schwierigkeitsstufe from localStorage once
+  const [schwierigkeitLoaded, setSchwierigkeitLoaded] = useState(false);
+  if (!schwierigkeitLoaded) {
+    setSchwierigkeitLoaded(true);
     try {
       const stored = localStorage.getItem("schwierigkeit-zeile-fuer-zeile");
       if (
@@ -69,7 +71,7 @@ export default function ZeileFuerZeilePage() {
     } catch {
       // localStorage may be unavailable (e.g. SSR, private browsing)
     }
-  }, []);
+  }
 
   // Save schwierigkeitsstufe to localStorage on change
   useEffect(() => {

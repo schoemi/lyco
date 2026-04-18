@@ -40,6 +40,44 @@ export async function PUT(
   }
 }
 
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; stropheId: string }> }
+) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Nicht authentifiziert" }, { status: 401 });
+    }
+
+    const { id, stropheId } = await params;
+    const body = await request.json();
+
+    const strophe = await updateStrophe(session.user.id, id, stropheId, body);
+    return NextResponse.json({ strophe });
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === "Name ist erforderlich") {
+        return NextResponse.json(
+          { error: "Name ist erforderlich", field: "name" },
+          { status: 400 }
+        );
+      }
+      if (error.message === "Song nicht gefunden") {
+        return NextResponse.json({ error: "Song nicht gefunden" }, { status: 404 });
+      }
+      if (error.message === "Strophe nicht gefunden") {
+        return NextResponse.json({ error: "Strophe nicht gefunden" }, { status: 404 });
+      }
+      if (error.message === "Zugriff verweigert") {
+        return NextResponse.json({ error: "Zugriff verweigert" }, { status: 403 });
+      }
+    }
+    console.error("PATCH /api/songs/[id]/strophen/[stropheId] error:", error);
+    return NextResponse.json({ error: "Interner Serverfehler" }, { status: 500 });
+  }
+}
+
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string; stropheId: string }> }

@@ -12,9 +12,11 @@ export function RevealLine({ zeile, isRevealed, onReveal }: RevealLineProps) {
   const hasTranslation = zeile.uebersetzung !== null && zeile.uebersetzung !== "";
 
   return (
-    <div className="space-y-1">
+    <div className={`space-y-1 ${
+      zeile.istKommentar ? "rounded bg-amber-50 border border-amber-200 px-2 py-1" : ""
+    }`}>
       {/* Original line */}
-      <p className="text-neutral-900" style={{ fontSize: "15px" }}>
+      <p className={zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"} style={{ fontSize: "15px" }}>
         {zeile.text}
       </p>
 

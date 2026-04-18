@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { validateImport } from "@/lib/services/import-service";
-
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
+import { UPLOAD_LIMITS } from "@/lib/upload-config";
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,7 +23,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (file.size > MAX_FILE_SIZE) {
+    if (file.size > UPLOAD_LIMITS.BACKUP_IMPORT) {
       return NextResponse.json(
         { error: "Datei zu groß" },
         { status: 413 }

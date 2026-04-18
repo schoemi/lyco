@@ -234,6 +234,7 @@ export default function SongDetailPage() {
                 type="button"
                 onClick={() => setFreigabeDialogOpen(true)}
                 className="rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+                aria-label="Song teilen"
               >
                 Teilen
               </button>
@@ -329,6 +330,7 @@ export default function SongDetailPage() {
                           key={s.id}
                           href={`/sets/${s.id}`}
                           className="inline-flex items-center rounded-full bg-pill-50 px-3 py-1 text-xs font-medium text-pill-700 hover:bg-pill-100 transition-colors"
+                          aria-label={`Set „${s.name}" öffnen`}
                         >
                           {s.name}
                         </Link>
@@ -452,18 +454,21 @@ export default function SongDetailPage() {
             <Link
               href={`/songs/${id}/karaoke`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+              aria-label="Lesemodus öffnen"
             >
               <AppIcon icon="lucide:mic" className="inline mr-1.5 text-base align-[-2px]" /> Lesemodus
             </Link>
             <Link
               href={`/songs/${id}/emotional`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+              aria-label="Inhalt und Bedeutung öffnen"
             >
               <AppIcon icon="lucide:heart" className="inline mr-1.5 text-base align-[-2px]" /> Inhalt &amp; Bedeutung
             </Link>
             <Link
               href={`/songs/${id}/coach`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+              aria-label="Gesangstechnik-Coach öffnen"
             >
               <AppIcon icon="lucide:mic-vocal" className="inline mr-1.5 text-base align-[-2px]" /> Gesangstechnik-Coach
             </Link>
@@ -487,30 +492,35 @@ export default function SongDetailPage() {
               onClick={handleEnrollAndStart}
               disabled={enrolling}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50"
+              aria-label="Spaced Repetition starten"
             >
               {enrolling ? "Wird vorbereitet…" : <><AppIcon icon="lucide:brain" className="inline mr-1.5 text-base align-[-2px]" /> Spaced Repetition</>}
             </button>
             <Link
               href={`/songs/${id}/quiz`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+              aria-label="Quiz öffnen"
             >
               <AppIcon icon="lucide:puzzle" className="inline mr-1.5 text-base align-[-2px]" /> Quiz
             </Link>
             <Link
               href={`/songs/${id}/cloze`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+              aria-label="Lückentext öffnen"
             >
               <AppIcon icon="lucide:pencil" className="inline mr-1.5 text-base align-[-2px]" /> Lückentext
             </Link>
             <Link
               href={`/songs/${id}/zeile-fuer-zeile`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+              aria-label="Zeile für Zeile öffnen"
             >
               <AppIcon icon="lucide:list" className="inline mr-1.5 text-base align-[-2px]" /> Zeile für Zeile
             </Link>
             <Link
               href={`/songs/${id}/rueckwaerts`}
               className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+              aria-label="Rückwärts lernen öffnen"
             >
               <AppIcon icon="lucide:arrow-down-up" className="inline mr-1.5 text-base align-[-2px]" /> Rückwärts lernen
             </Link>

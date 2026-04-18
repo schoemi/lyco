@@ -22,6 +22,9 @@ vi.mock("@/lib/prisma", () => ({
     strophe: {
       update: vi.fn(),
     },
+    user: {
+      findUnique: vi.fn(),
+    },
   },
 }));
 
@@ -38,6 +41,7 @@ import {
 } from "@/lib/services/analyse-service";
 
 const mockSongFindUnique = vi.mocked(prisma.song.findUnique);
+const mockUserFindUnique = vi.mocked(prisma.user.findUnique);
 const mockCreateLLMClient = vi.mocked(createLLMClient);
 
 // --- Error type definitions ---
@@ -147,6 +151,7 @@ describe("Feature: smart-song-analysis, Property 8: Fehler-Logging", () => {
     vi.clearAllMocks();
     activeAnalyses.clear();
     collectedLogs.length = 0;
+    mockUserFindUnique.mockResolvedValue({ sprache: "Deutsch" } as any);
     vi.spyOn(console, "error").mockImplementation((...args: unknown[]) => {
       collectedLogs.push(String(args[0]));
     });

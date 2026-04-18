@@ -21,6 +21,9 @@ vi.mock("@/lib/prisma", () => ({
     strophe: {
       update: vi.fn(),
     },
+    user: {
+      findUnique: vi.fn(),
+    },
   },
 }));
 
@@ -35,6 +38,7 @@ import { analyzeSong, activeAnalyses } from "@/lib/services/analyse-service";
 const mockSongFindUnique = vi.mocked(prisma.song.findUnique);
 const mockSongUpdate = vi.mocked(prisma.song.update);
 const mockStropheUpdate = vi.mocked(prisma.strophe.update);
+const mockUserFindUnique = vi.mocked(prisma.user.findUnique);
 const mockCreateLLMClient = vi.mocked(createLLMClient);
 
 // --- Generators ---
@@ -117,6 +121,7 @@ describe("Feature: smart-song-analysis, Property 4: Analyse-Überschreibung", ()
   beforeEach(() => {
     vi.clearAllMocks();
     activeAnalyses.clear();
+    mockUserFindUnique.mockResolvedValue({ sprache: "Deutsch" } as any);
   });
 
   /**

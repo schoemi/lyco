@@ -71,8 +71,7 @@ const songsArb = fc.array(songArb, { minLength: 0, maxLength: 20 });
 
 const EXPECTED_GRID_CLASSES = [
   "grid",
-  "grid-cols-1",
-  "sm:grid-cols-2",
+  "grid-cols-2",
   "md:grid-cols-3",
   "lg:grid-cols-4",
   "gap-4",

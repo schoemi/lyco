@@ -157,6 +157,36 @@ This plan implements two annotation flags — `istInstrumental` on strophes and 
 - [x] 8. Final checkpoint
   - Ensure all tests pass, ask the user if questions arise.
 
+- [x] 9. Editor UI: toggle controls and color coding
+  - [x] 9.1 Add Instrumental-Toggle to `StropheEditor` in `src/components/songs/strophe-editor.tsx`
+    - Add a toggle icon-button in the strophe header toolbar (next to edit, delete, move buttons)
+    - When toggled, send PATCH request to `/api/songs/{songId}/strophen/{stropheId}` with `{ istInstrumental: true/false }`
+    - Use optimistic update: update local state immediately, revert on API error
+    - When `strophe.istInstrumental === true`: apply distinct background color to the entire strophe card (e.g. `bg-sky-50 border-sky-200`)
+    - _Requirements: 12.1, 12.2, 12.3, 12.7, 12.9_
+
+  - [x] 9.2 Add Kommentar-Toggle to `ZeileEditor` in `src/components/songs/zeile-editor.tsx`
+    - Add a toggle icon-button next to each zeile's action buttons (edit, delete, move)
+    - When toggled, send PATCH request to `/api/songs/{songId}/strophen/{stropheId}/zeilen/{zeileId}` with `{ istKommentar: true/false }`
+    - Use optimistic update: update local state immediately, revert on API error
+    - When `zeile.istKommentar === true`: apply distinct background color (e.g. `bg-amber-50`) and italic text
+    - _Requirements: 12.4, 12.5, 12.6, 12.8, 12.9_
+
+  - [x]* 9.3 Write unit tests for StropheEditor instrumental toggle
+    - Create `__tests__/instrumental/strophe-editor-toggle.test.ts`
+    - Test toggle renders, sends PATCH, updates local state, reverts on error, applies color
+    - _Requirements: 12.1, 12.2, 12.3, 12.7, 12.9_
+
+  - [x]* 9.4 Write unit tests for ZeileEditor kommentar toggle
+    - Create `__tests__/instrumental/zeile-editor-toggle.test.ts`
+    - Test toggle renders, sends PATCH, updates local state, reverts on error, applies color
+    - _Requirements: 12.4, 12.5, 12.6, 12.8, 12.9_
+
+- [x] 10. Final checkpoint (with editor toggles)
+  - All instrumental tests pass (117/117)
+  - New editor toggle tests pass (42/42)
+  - Pre-existing failures in other test areas are unrelated to instrumental annotations
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for faster MVP

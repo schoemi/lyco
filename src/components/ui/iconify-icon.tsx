@@ -1,6 +1,11 @@
 "use client";
 
-import { Icon } from "@iconify/react";
+import { Icon, addCollection } from "@iconify/react";
+import lucideIcons from "@iconify-json/lucide/icons.json";
+
+// Lucide-Icons lokal registrieren, damit keine API-Aufrufe nötig sind.
+// Dies verhindert CSP-Blockaden (connect-src 'self') und verbessert die Performance.
+addCollection(lucideIcons);
 
 /**
  * Zentrale Icon-Komponente basierend auf Iconify.
@@ -30,7 +35,7 @@ export function AppIcon({ icon, color, className, label, style }: AppIconProps) 
     <Icon
       icon={icon}
       className={className}
-      style={{ color: color ?? "var(--color-icon)", ...style }}
+      style={{ color: color ?? "var(--color-icon, currentColor)", ...style }}
       aria-hidden={!label}
       aria-label={label || undefined}
       role={label ? "img" : undefined}

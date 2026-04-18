@@ -91,8 +91,8 @@ describe("StropheCard instrumental/kommentar styling", () => {
   // --- Requirement 2.5: Kommentar zeile dimmed color ---
 
   it("applies dimmed color to kommentar zeilen (Req 2.5)", () => {
-    // Kommentar zeilen use text-neutral-400 (dimmed) vs text-neutral-800 (normal)
-    expect(source).toMatch(/istKommentar[\s\S]*?text-neutral-400/);
+    // Kommentar zeilen use text-amber-800 (dimmed/italic) vs text-neutral-800 (normal)
+    expect(source).toMatch(/istKommentar[\s\S]*?text-amber-800/);
   });
 
   it("uses normal color for non-kommentar zeilen (Req 2.5)", () => {
@@ -102,9 +102,9 @@ describe("StropheCard instrumental/kommentar styling", () => {
   // --- Kommentar zeile conditional class application ---
 
   it("applies different className based on istKommentar flag", () => {
-    // Ternary: istKommentar ? "italic text-neutral-400" : "text-neutral-800"
+    // Ternary: istKommentar ? "italic text-amber-800" : "text-neutral-800"
     expect(source).toMatch(
-      /istKommentar\s*\?\s*"italic text-neutral-400"\s*:\s*"text-neutral-800"/
+      /istKommentar[\s\S]*?"italic text-amber-800"[\s\S]*?"text-neutral-800"/
     );
   });
 

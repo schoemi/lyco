@@ -5,8 +5,8 @@ import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { randomUUID } from "crypto";
 import { AUDIO_DIR } from "@/lib/storage";
-
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+import { UPLOAD_LIMITS } from "@/lib/upload-config";
+import { checkUploadRateLimit } from "@/lib/services/upload-rate-limiter";
 const ALLOWED_TYPES = new Set([
   "audio/mpeg",
   "audio/mp3",
@@ -35,6 +35,18 @@ export async function POST(
       );
     }
 
+    // Rate-Limit prüfen
+    const rateCheck = checkUploadRateLimit(session.user.id);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: "Zu viele Uploads. Bitte warten." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateCheck.retryAfter) },
+        }
+      );
+    }
+
     const { id: songId } = await params;
 
     const formData = await request.formData();
@@ -56,7 +68,7 @@ export async function POST(
     }
 
     // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
+    if (file.size > UPLOAD_LIMITS.AUDIO) {
       return NextResponse.json(
         { error: "Datei ist zu groß (max. 50 MB)" },
         { status: 400 }

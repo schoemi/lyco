@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { CompactView } from "./compact-view";
 import { DetailView } from "./detail-view";
 import type { TagDefinitionData } from "@/types/vocal-tag";
@@ -49,9 +49,12 @@ export interface ViewToggleProps {
 export function ViewToggle({ text, tagDefinitions, songId }: ViewToggleProps) {
   const [mode, setMode] = useState<ViewMode>(() => readPersistedMode(songId));
 
-  useEffect(() => {
+  // Sync mode when songId changes
+  const [prevSongId, setPrevSongId] = useState(songId);
+  if (songId !== prevSongId) {
+    setPrevSongId(songId);
     setMode(readPersistedMode(songId));
-  }, [songId]);
+  }
 
   const toggle = useCallback(() => {
     setMode((prev) => {

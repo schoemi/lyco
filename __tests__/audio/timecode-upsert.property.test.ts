@@ -79,7 +79,7 @@ describe("Property 11: Timecode-Upsert erstellt oder aktualisiert Markup", () =>
           }),
         );
 
-        const input = screen.getByPlaceholderText("[mm:ss]");
+        const input = screen.getByPlaceholderText("mm:ss");
 
         // --- First save: should POST (create) ---
         fireEvent.change(input, { target: { value: tc1 } });

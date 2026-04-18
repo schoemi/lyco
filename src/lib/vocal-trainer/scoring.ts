@@ -48,7 +48,10 @@ export function berechnePitchScore(
   let totalPoints = 0;
 
   for (let i = 0; i < pairCount; i++) {
-    const abweichung = Math.abs(centsDiff(nutzerVoiced[i].f0Hz, referenzVoiced[i].f0Hz));
+    const nutzerFrame = nutzerVoiced.at(i);
+    const referenzFrame = referenzVoiced.at(i);
+    if (!nutzerFrame || !referenzFrame) continue;
+    const abweichung = Math.abs(centsDiff(nutzerFrame.f0Hz, referenzFrame.f0Hz));
     if (abweichung < 50) {
       totalPoints += 1.0;
     } else if (abweichung <= 100) {
@@ -85,7 +88,10 @@ export function berechneTimingScore(
   let totalPoints = 0;
 
   for (let i = 0; i < pairCount; i++) {
-    const abweichungMs = Math.abs(nutzerOnsets[i] - referenzOnsets[i]);
+    const nutzerOnset = nutzerOnsets.at(i);
+    const referenzOnset = referenzOnsets.at(i);
+    if (nutzerOnset == null || referenzOnset == null) continue;
+    const abweichungMs = Math.abs(nutzerOnset - referenzOnset);
     if (abweichungMs < 50) {
       totalPoints += 1.0;
     } else if (abweichungMs <= 150) {

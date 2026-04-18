@@ -5,6 +5,7 @@ import {
   saveThemeConfig,
 } from "@/lib/services/theme-service";
 import { logAudit, SETTING_CHANGED } from "@/lib/services/log-service";
+import { getClientIp } from "@/lib/utils/request-ip";
 
 async function getAdminSession() {
   const session = await auth();
@@ -58,6 +59,7 @@ export async function POST(request: NextRequest) {
       targetEntity: "SystemSetting",
       targetId: "theme-config",
       details: { key: "theme-config", value: body },
+      ipAddress: getClientIp(request),
     });
 
     return NextResponse.json(body);

@@ -21,6 +21,9 @@ vi.mock("@/lib/prisma", () => ({
     strophe: {
       update: vi.fn(),
     },
+    user: {
+      findUnique: vi.fn(),
+    },
   },
 }));
 
@@ -37,6 +40,7 @@ import {
 } from "@/lib/services/analyse-service";
 
 const mockSongFindUnique = vi.mocked(prisma.song.findUnique);
+const mockUserFindUnique = vi.mocked(prisma.user.findUnique);
 const mockCreateLLMClient = vi.mocked(createLLMClient);
 
 // --- Generators ---
@@ -49,6 +53,7 @@ describe("Feature: smart-song-analysis, Property 7: Concurrency-Guard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     activeAnalyses.clear();
+    mockUserFindUnique.mockResolvedValue({ sprache: "Deutsch" } as any);
   });
 
   /**

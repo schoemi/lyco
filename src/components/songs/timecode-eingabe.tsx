@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { parseTimecode, formatTimecode, isValidTimecode } from "@/lib/audio/timecode";
 
 interface TimecodeEingabeProps {
@@ -16,25 +16,33 @@ export default function TimecodeEingabe({
   existingMarkupId = null,
   onTimecodeChanged,
 }: TimecodeEingabeProps) {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(() =>
+    initialTimecodeMs !== null && initialTimecodeMs !== undefined
+      ? formatTimecode(initialTimecodeMs)
+      : ""
+  );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [markupId, setMarkupId] = useState<string | null>(existingMarkupId);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize input value from initialTimecodeMs
-  useEffect(() => {
-    if (initialTimecodeMs !== null && initialTimecodeMs !== undefined) {
-      setInputValue(formatTimecode(initialTimecodeMs));
-    } else {
-      setInputValue("");
-    }
-  }, [initialTimecodeMs]);
+  // Sync inputValue when initialTimecodeMs prop changes
+  const [prevTimecodeMs, setPrevTimecodeMs] = useState(initialTimecodeMs);
+  if (initialTimecodeMs !== prevTimecodeMs) {
+    setPrevTimecodeMs(initialTimecodeMs);
+    setInputValue(
+      initialTimecodeMs !== null && initialTimecodeMs !== undefined
+        ? formatTimecode(initialTimecodeMs)
+        : ""
+    );
+  }
 
   // Sync markupId when prop changes (e.g. after parent re-fetches)
-  useEffect(() => {
+  const [prevMarkupId, setPrevMarkupId] = useState(existingMarkupId);
+  if (existingMarkupId !== prevMarkupId) {
+    setPrevMarkupId(existingMarkupId);
     setMarkupId(existingMarkupId);
-  }, [existingMarkupId]);
+  }
 
   async function saveTimecode() {
     setError(null);

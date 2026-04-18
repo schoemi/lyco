@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FlatLine } from "@/types/karaoke";
 import type { StropheDetail } from "@/types/song";
 
@@ -144,12 +144,14 @@ export function useTimecodeScroll(
 
   const timecodesRef = useRef<StropheTimecode[]>([]);
 
+  const [hasTimecodes, setHasTimecodes] = useState(false);
+
   // Rebuild timecodes when song data changes
   useEffect(() => {
     timecodesRef.current = buildStropheTimecodes(strophen, flatLines);
+    setHasTimecodes(timecodesRef.current.length > 0);
   }, [strophen, flatLines]);
 
-  const hasTimecodes = timecodesRef.current.length > 0;
   const isActive = isAudioPlaying && hasTimecodes;
 
   // Update active line based on audio position

@@ -2,6 +2,7 @@
 
 import type { StropheDetail } from "@/types/song";
 import { RevealLine } from "./reveal-line";
+import { AppIcon } from "@/components/ui/iconify-icon";
 
 interface StropheCardProps {
   strophe: StropheDetail;
@@ -30,10 +31,22 @@ export function StropheCard({
     strophe.zeilen.every((z) => revealedLines.has(z.id));
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
+    <div className={`rounded-lg border p-4 shadow-sm ${
+      strophe.istInstrumental
+        ? "border-sky-200 bg-sky-50"
+        : "border-neutral-200 bg-white"
+    }`}>
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-neutral-900">{strophe.name}</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-neutral-900">{strophe.name}</h3>
+          {strophe.istInstrumental && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700">
+              <AppIcon icon="lucide:music" className="text-xs" />
+              Instrumental
+            </span>
+          )}
+        </div>
         {!twoColumnTranslation && !hideRevealLines && (
           <button
             type="button"
@@ -72,12 +85,14 @@ export function StropheCard({
       {twoColumnTranslation ? (
         <div className="space-y-2">
           {strophe.zeilen.map((zeile) => (
-            <div key={zeile.id} className="grid grid-cols-2 gap-4">
-              <p className="text-neutral-900" style={{ fontSize: "15px" }}>
+            <div key={zeile.id} className={`grid grid-cols-2 gap-4 ${
+              zeile.istKommentar ? "rounded bg-amber-50 border border-amber-200 px-2 py-1" : ""
+            }`}>
+              <p className={zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"} style={{ fontSize: "15px" }}>
                 {zeile.text}
               </p>
               <p
-                className="text-neutral-500 italic"
+                className={zeile.istKommentar ? "text-amber-600 italic" : "text-neutral-500 italic"}
                 style={{ fontSize: "13px" }}
               >
                 {zeile.uebersetzung ?? ""}
@@ -88,7 +103,10 @@ export function StropheCard({
       ) : hideRevealLines ? (
         <div className="space-y-2">
           {strophe.zeilen.map((zeile) => (
-            <p key={zeile.id} className="text-neutral-900" style={{ fontSize: "15px" }}>
+            <p key={zeile.id} className={zeile.istKommentar
+              ? "rounded bg-amber-50 border border-amber-200 px-2 py-1 text-amber-800 italic"
+              : "text-neutral-900"
+            } style={{ fontSize: "15px" }}>
               {zeile.text}
             </p>
           ))}

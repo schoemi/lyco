@@ -5,6 +5,7 @@ import {
   setRequireApproval,
 } from "@/lib/services/system-setting-service";
 import { logAudit, SETTING_CHANGED } from "@/lib/services/log-service";
+import { getClientIp } from "@/lib/utils/request-ip";
 
 async function getAdminSession() {
   const session = await auth();
@@ -67,6 +68,7 @@ export async function PUT(request: NextRequest) {
       targetEntity: "SystemSetting",
       targetId: "require-approval",
       details: { key: "require-approval", value },
+      ipAddress: getClientIp(request),
     });
 
     return NextResponse.json({ value });

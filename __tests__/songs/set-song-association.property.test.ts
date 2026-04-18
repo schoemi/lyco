@@ -70,6 +70,7 @@ const { mockPrisma } = vi.hoisted(() => {
   const _mockSetSong = {
     create: vi.fn(),
     deleteMany: vi.fn(),
+    aggregate: vi.fn(),
   };
   const _mockSession = { findFirst: vi.fn() };
 
@@ -105,6 +106,7 @@ function setupMocks() {
   const mockedSongFindMany = vi.mocked(prisma.song.findMany);
   const mockedSetSongCreate = vi.mocked(prisma.setSong.create);
   const mockedSetSongDeleteMany = vi.mocked(prisma.setSong.deleteMany);
+  const mockedSetSongAggregate = vi.mocked(prisma.setSong.aggregate);
   const mockedSessionFindFirst = vi.mocked(prisma.session.findFirst);
 
   // Set create: store and return
@@ -170,6 +172,14 @@ function setupMocks() {
         strophen: [],
         _count: { sessions: 0 },
       })) as any;
+  });
+
+  // SetSong aggregate: return max orderIndex from in-memory store
+  mockedSetSongAggregate.mockImplementation(async (args: any) => {
+    const setId = args?.where?.setId;
+    const entries = setSongs.filter((ss) => ss.setId === setId);
+    const maxIndex = entries.length > 0 ? Math.max(...entries.map((_, i) => i)) : null;
+    return { _max: { orderIndex: maxIndex } } as any;
   });
 
   // SetSong create: store association

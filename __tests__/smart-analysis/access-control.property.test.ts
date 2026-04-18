@@ -21,6 +21,9 @@ vi.mock("@/lib/prisma", () => ({
     strophe: {
       update: vi.fn(),
     },
+    user: {
+      findUnique: vi.fn(),
+    },
   },
 }));
 
@@ -40,6 +43,7 @@ import {
 const mockSongFindUnique = vi.mocked(prisma.song.findUnique);
 const mockSongUpdate = vi.mocked(prisma.song.update);
 const mockStropheUpdate = vi.mocked(prisma.strophe.update);
+const mockUserFindUnique = vi.mocked(prisma.user.findUnique);
 const mockCreateLLMClient = vi.mocked(createLLMClient);
 
 // --- Generators ---
@@ -63,6 +67,7 @@ describe("Feature: smart-song-analysis, Property 5: Zugriffskontrolle", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     activeAnalyses.clear();
+    mockUserFindUnique.mockResolvedValue({ sprache: "Deutsch" } as any);
   });
 
   /**

@@ -17,6 +17,7 @@ export function VuMeter({ analyser, active }: VuMeterProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
 
+// eslint-disable-next-line react-hooks/immutability -- AnalyserNode.fftSize is a Web Audio API property, not React state
   useEffect(() => {
     if (!active || !analyser) {
       // Clear canvas when inactive
@@ -35,14 +36,19 @@ export function VuMeter({ analyser, active }: VuMeterProps) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // Configure analyser – AnalyserNode.fftSize is a Web Audio API property
+    // that must be set imperatively; this is not a React state mutation.
+    // eslint-disable-next-line react-hooks/immutability
     analyser.fftSize = 256;
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
+    // Capture non-null analyser for use in the draw closure
+    const activeAnalyser = analyser;
 
     function draw() {
       rafRef.current = requestAnimationFrame(draw);
 
-      analyser!.getByteFrequencyData(dataArray);
+      activeAnalyser.getByteFrequencyData(dataArray);
 
       // Calculate RMS level (0-1)
       let sum = 0;
@@ -96,6 +102,7 @@ export function VuMeter({ analyser, active }: VuMeterProps) {
       className="rounded"
       aria-label="Mikrofon-Pegel"
       role="meter"
+      aria-valuenow={0}
       aria-valuemin={0}
       aria-valuemax={100}
     />

@@ -78,7 +78,13 @@ describe("AudioQuellenManager Unit-Tests", () => {
     renderManager(quellen);
 
     expect(screen.getByText("Original")).toBeDefined();
-    expect(screen.getByText("Instrumental")).toBeDefined();
+    // "Instrumental" appears both as the list item label (<span>) and as a
+    // RollenAuswahl dropdown <option>.  Target only the <span> label.
+    const instrumentalElements = screen.getAllByText("Instrumental");
+    const instrumentalLabel = instrumentalElements.find(
+      (el) => el.tagName !== "OPTION",
+    );
+    expect(instrumentalLabel).toBeDefined();
     expect(screen.queryByText(/Noch keine Audio-Quellen vorhanden/)).toBeNull();
   });
 

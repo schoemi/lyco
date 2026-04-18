@@ -273,6 +273,8 @@ function setupMocks() {
           .map((z) => ({
             ...z,
             markups: markups.filter((m) => m.zeileId === z.id),
+            fortschritte: [],
+            notizen: [],
           }));
 
         const stropheMarkups = markups.filter((m) => m.stropheId === s.id);
@@ -290,6 +292,7 @@ function setupMocks() {
       ...song,
       strophen: songStrophen,
       audioQuellen: [],
+      sets: [],
     } as any;
   });
 

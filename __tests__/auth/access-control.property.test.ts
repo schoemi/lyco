@@ -17,6 +17,27 @@ const PBT_CONFIG = { numRuns: 20 };
 // Mutable session for controlling auth state per test
 let mockSession: { user: { role: string } } | null = null;
 
+// Mock next-auth to prevent real module from loading next/server
+vi.mock("next-auth", () => ({
+  default: () => ({
+    auth: (handler: (req: unknown) => unknown) => {
+      return (req: {
+        nextUrl: { pathname: string };
+        url: string;
+        auth?: unknown;
+      }) => {
+        req.auth = mockSession;
+        return handler(req);
+      };
+    },
+  }),
+}));
+
+// Mock auth.config to prevent loading the real config which triggers next/server resolution
+vi.mock("@/lib/auth.config", () => ({
+  authConfig: {},
+}));
+
 // Arbitrary: generates a random alphanumeric path segment
 const pathSegmentArb = fc.stringMatching(/^[a-z0-9]{1,12}$/);
 
@@ -47,6 +68,11 @@ function createRequest(pathname: string) {
     nextUrl: { pathname },
     url: `http://localhost:3000${pathname}`,
     auth: undefined as unknown,
+    headers: new Headers(),
+    method: "GET",
+    cookies: {
+      has: () => false,
+    },
   };
 }
 
@@ -57,19 +83,23 @@ describe("Property 7: Rollenbasierte Zugriffskontrolle", () => {
     mockSession = null;
     vi.resetModules();
 
-    vi.doMock("@/lib/auth", () => ({
-      auth: (
-        handler: (req: unknown) => unknown
-      ) => {
-        return (req: {
-          nextUrl: { pathname: string };
-          url: string;
-          auth?: unknown;
-        }) => {
-          req.auth = mockSession;
-          return handler(req);
-        };
-      },
+    vi.doMock("next-auth", () => ({
+      default: () => ({
+        auth: (handler: (req: unknown) => unknown) => {
+          return (req: {
+            nextUrl: { pathname: string };
+            url: string;
+            auth?: unknown;
+          }) => {
+            req.auth = mockSession;
+            return handler(req);
+          };
+        },
+      }),
+    }));
+
+    vi.doMock("@/lib/auth.config", () => ({
+      authConfig: {},
     }));
 
     const mod = await import("../../middleware");

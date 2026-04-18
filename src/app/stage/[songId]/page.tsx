@@ -172,11 +172,6 @@ export default function StagePrompterPage() {
   const prevSongIdRef = useRef<string | null>(null);
   const timecodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Load settings from localStorage on mount
-  useEffect(() => {
-    setSettings(loadStageSettings());
-  }, []);
-
   const song = songs.get(songId) ?? null;
 
   const flatLines = useMemo(

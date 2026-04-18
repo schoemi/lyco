@@ -59,10 +59,11 @@ describe("Property 1: Dialog zeigt alle Strophen mit korrekter Vorauswahl", () =
   });
 
   it("localSelection is initialized from activeStrophenIds when dialog opens", () => {
-    // The useEffect syncs localSelection from activeStrophenIds on open
+    // The component syncs localSelection from activeStrophenIds when dialog opens
+    // using the "state during render" pattern (comparing previous props)
     expect(source).toContain("setLocalSelection(new Set(activeStrophenIds))");
-    // This happens inside a useEffect that depends on open
-    expect(source).toMatch(/useEffect\(\s*\(\)\s*=>\s*\{[\s\S]*?if\s*\(open\)[\s\S]*?setLocalSelection/);
+    // This happens during render when open changes (state-during-render pattern)
+    expect(source).toMatch(/if\s*\(open\s*&&/);
   });
 
   it("for any subset of strophe IDs as activeStrophenIds, localSelection would match", () => {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { suspendUser, activateUser } from "@/lib/services/user-service";
 import { logAudit, ACCOUNT_STATUS_CHANGED } from "@/lib/services/log-service";
+import { getClientIp } from "@/lib/utils/request-ip";
 
 async function getAdminSession() {
   const session = await auth();
@@ -48,6 +49,7 @@ export async function PATCH(
       targetEntity: "User",
       targetId: id,
       details: { newStatus: status },
+      ipAddress: getClientIp(request),
     });
 
     return NextResponse.json({ user });

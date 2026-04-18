@@ -16,6 +16,7 @@ import React from "react";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { AudioPlayer } from "@/components/songs/audio-player";
 import type { AudioPlayerHandle } from "@/components/songs/audio-player";
+import { SharedAudioProvider } from "@/components/songs/shared-audio-provider";
 import type { AudioQuelleResponse } from "@/types/audio";
 
 afterEach(() => {
@@ -42,13 +43,24 @@ function makeQuelle(
   };
 }
 
+function renderWithProvider(
+  audioQuellen: AudioQuelleResponse[],
+  ref?: React.Ref<AudioPlayerHandle>,
+) {
+  return render(
+    React.createElement(
+      SharedAudioProvider,
+      { audioQuellen },
+      React.createElement(AudioPlayer, { ref, audioQuellen }),
+    ),
+  );
+}
+
 describe("AudioPlayer Unit-Tests", () => {
   // 1. Renders <audio> element for MP3 source
   it("renders <audio> element for MP3 source", () => {
     const mp3 = makeQuelle("MP3");
-    const { container } = render(
-      React.createElement(AudioPlayer, { audioQuellen: [mp3] }),
-    );
+    const { container } = renderWithProvider([mp3]);
 
     const audioEl = container.querySelector("audio");
     expect(audioEl).not.toBeNull();
@@ -58,9 +70,7 @@ describe("AudioPlayer Unit-Tests", () => {
   // 2. Renders Spotify iframe embed for SPOTIFY source
   it("renders Spotify iframe embed for SPOTIFY source", () => {
     const spotify = makeQuelle("SPOTIFY");
-    render(
-      React.createElement(AudioPlayer, { audioQuellen: [spotify] }),
-    );
+    renderWithProvider([spotify]);
 
     const iframe = screen.getByTitle(/Spotify/i);
     expect(iframe).toBeDefined();
@@ -71,9 +81,7 @@ describe("AudioPlayer Unit-Tests", () => {
   // 3. Renders YouTube iframe embed for YOUTUBE source
   it("renders YouTube iframe embed for YOUTUBE source", () => {
     const youtube = makeQuelle("YOUTUBE");
-    render(
-      React.createElement(AudioPlayer, { audioQuellen: [youtube] }),
-    );
+    renderWithProvider([youtube]);
 
     const iframe = screen.getByTitle(/YouTube/i);
     expect(iframe).toBeDefined();
@@ -87,9 +95,7 @@ describe("AudioPlayer Unit-Tests", () => {
       makeQuelle("MP3", { orderIndex: 0 }),
       makeQuelle("SPOTIFY", { orderIndex: 1, id: "quelle-spotify-2" }),
     ];
-    render(
-      React.createElement(AudioPlayer, { audioQuellen: quellen }),
-    );
+    renderWithProvider(quellen);
 
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toBe(2);
@@ -100,9 +106,7 @@ describe("AudioPlayer Unit-Tests", () => {
   // 5. Does not show source switcher when only one source
   it("does not show source switcher when only one source", () => {
     const mp3 = makeQuelle("MP3");
-    render(
-      React.createElement(AudioPlayer, { audioQuellen: [mp3] }),
-    );
+    renderWithProvider([mp3]);
 
     const tabs = screen.queryAllByRole("tab");
     expect(tabs.length).toBe(0);
@@ -110,9 +114,7 @@ describe("AudioPlayer Unit-Tests", () => {
 
   // 6. Shows "Keine Audio-Quellen vorhanden" when no sources
   it('shows "Keine Audio-Quellen vorhanden" when no sources', () => {
-    render(
-      React.createElement(AudioPlayer, { audioQuellen: [] }),
-    );
+    renderWithProvider([]);
 
     expect(screen.getByText(/Keine Audio-Quellen vorhanden/)).toBeDefined();
   });
@@ -122,9 +124,7 @@ describe("AudioPlayer Unit-Tests", () => {
     const ref = React.createRef<AudioPlayerHandle>();
     const mp3 = makeQuelle("MP3");
 
-    render(
-      React.createElement(AudioPlayer, { ref, audioQuellen: [mp3] }),
-    );
+    renderWithProvider([mp3], ref);
 
     expect(ref.current).not.toBeNull();
     const result = ref.current!.seekTo(5000);
@@ -136,9 +136,7 @@ describe("AudioPlayer Unit-Tests", () => {
     const ref = React.createRef<AudioPlayerHandle>();
     const spotify = makeQuelle("SPOTIFY");
 
-    render(
-      React.createElement(AudioPlayer, { ref, audioQuellen: [spotify] }),
-    );
+    renderWithProvider([spotify], ref);
 
     expect(ref.current).not.toBeNull();
     const result = ref.current!.seekTo(5000);
@@ -151,9 +149,7 @@ describe("AudioPlayer Unit-Tests", () => {
       makeQuelle("MP3", { orderIndex: 0 }),
       makeQuelle("SPOTIFY", { orderIndex: 1, id: "quelle-spotify-2" }),
     ];
-    const { container } = render(
-      React.createElement(AudioPlayer, { audioQuellen: quellen }),
-    );
+    const { container } = renderWithProvider(quellen);
 
     // Initially MP3 is active – audio element should be present
     expect(container.querySelector("audio")).not.toBeNull();
