@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ProgressBar } from "./progress-bar";
 import { StatusPunkt } from "@/components/gamification/status-punkt";
+import { getCoverSrc } from "@/lib/cover-url";
 import type { SongWithProgress } from "@/types/song";
 
 interface SongCardProps {
@@ -16,6 +17,7 @@ function getStatusLabel(progress: number): string {
 export function SongCard({ song }: SongCardProps) {
   const statusLabel = getStatusLabel(song.progress);
   const ariaLabel = `${song.titel}${song.kuenstler ? `, ${song.kuenstler}` : ""} – ${statusLabel}`;
+  const coverSrc = getCoverSrc(song.coverUrl);
 
   return (
     <Link
@@ -25,10 +27,10 @@ export function SongCard({ song }: SongCardProps) {
     >
       <div className="relative aspect-square">
         {/* Cover image or gradient placeholder */}
-        {song.coverUrl ? (
+        {coverSrc ? (
           <div
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${song.coverUrl})` }}
+            style={{ backgroundImage: `url(${coverSrc})` }}
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />

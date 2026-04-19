@@ -15,6 +15,7 @@ import StickyPlayerBar from "@/components/songs/sticky-player-bar";
 import { SharedAudioProvider } from "@/components/songs/shared-audio-provider";
 import AudioQuellenManager from "@/components/songs/audio-quellen-manager";
 import CoverManager from "@/components/songs/cover-manager";
+import { getCoverSrc } from "@/lib/cover-url";
 import { usePlayerVisibility } from "@/hooks/use-player-visibility";
 import { useTranslation } from "@/hooks/use-translation";
 import { StrophenViewToggle, type StrophenViewMode } from "@/components/songs/strophen-view-toggle";
@@ -274,7 +275,7 @@ export default function SongDetailPage() {
               <div className="flex items-start justify-center">
                 {song.coverUrl ? (
                   <img
-                    src={song.coverUrl}
+                    src={getCoverSrc(song.coverUrl) ?? undefined}
                     alt={`Cover von ${song.titel}`}
                     className="w-full max-w-sm rounded-lg border border-neutral-200 object-cover shadow-sm"
                   />
@@ -479,6 +480,15 @@ export default function SongDetailPage() {
                 aria-label="Vocal Trainer öffnen"
               >
                 <AppIcon icon="lucide:audio-waveform" className="inline mr-1.5 text-base align-[-2px]" /> Vocal Trainer
+              </Link>
+            )}
+            {song.audioQuellen.some((q) => q.rolle === "INSTRUMENTAL") && (
+              <Link
+                href={`/songs/${id}/phrase-trainer`}
+                className="flex min-h-[44px] items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+                aria-label="Phrasen-Trainer öffnen"
+              >
+                <AppIcon icon="lucide:repeat" className="inline mr-1.5 text-base align-[-2px]" /> Phrasen-Trainer
               </Link>
             )}
           </div>

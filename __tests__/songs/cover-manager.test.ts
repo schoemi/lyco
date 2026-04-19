@@ -67,7 +67,9 @@ describe("CoverManager – Unit-Tests", () => {
 
       const img = screen.getByAltText("Cover-Bild") as HTMLImageElement;
       expect(img).toBeDefined();
-      expect(img.src).toContain("https://example.com/cover.jpg");
+      // Externe URLs werden über den Cover-Proxy geleitet
+      expect(img.src).toContain("/api/cover-proxy");
+      expect(img.src).toContain(encodeURIComponent("https://example.com/cover.jpg"));
     });
 
     it("zeigt keinen Cover-Bereich wenn coverUrl null", () => {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ProgressBar } from "@/components/songs/progress-bar";
 import { StatusPunkt } from "@/components/gamification/status-punkt";
+import { getCoverSrc } from "@/lib/cover-url";
 import type { GeteilteInhalte, SongWithProgress } from "@/types/song";
 
 interface GeteilteInhalteSektionProps {
@@ -13,6 +14,7 @@ interface GeteilteInhalteSektionProps {
 function SharedSongCard({ song, eigentuemerName }: { song: SongWithProgress; eigentuemerName: string }) {
   const statusLabel = song.progress <= 0 ? "neu" : song.progress >= 100 ? "gelernt" : `${Math.round(song.progress)}% gelernt`;
   const ariaLabel = `${song.titel}${song.kuenstler ? `, ${song.kuenstler}` : ""} – ${statusLabel}, geteilt von ${eigentuemerName}`;
+  const coverSrc = getCoverSrc(song.coverUrl);
 
   return (
     <Link
@@ -21,10 +23,10 @@ function SharedSongCard({ song, eigentuemerName }: { song: SongWithProgress; eig
       aria-label={ariaLabel}
     >
       <div className="relative aspect-square">
-        {song.coverUrl ? (
+        {coverSrc ? (
           <div
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${song.coverUrl})` }}
+            style={{ backgroundImage: `url(${coverSrc})` }}
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />

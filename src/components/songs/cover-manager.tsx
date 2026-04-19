@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { getCoverSrc } from "@/lib/cover-url";
 
 interface CoverManagerProps {
   songId: string;
@@ -132,7 +133,7 @@ export default function CoverManager({
           <div className="relative h-[200px] w-[200px] overflow-hidden rounded-lg border border-neutral-200">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={coverUrl}
+              src={getCoverSrc(coverUrl) ?? undefined}
               alt="Cover-Bild"
               className="h-full w-full object-cover"
             />

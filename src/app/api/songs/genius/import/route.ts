@@ -5,6 +5,7 @@ import { fetchLyrics } from "@/lib/genius/client";
 import { isNoiseLine } from "@/lib/import/noise-filter";
 import { parseSongtext } from "@/lib/import/songtext-parser";
 import { importSong } from "@/lib/services/song-service";
+import { downloadCoverToLocal } from "@/lib/cover-download";
 import type { GeniusImportRequest } from "@/types/genius";
 
 export async function POST(request: NextRequest) {
@@ -59,10 +60,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Cover-Bild lokal herunterladen statt externe URL zu speichern (CORS-Vermeidung)
+    let localCoverUrl: string | null = null;
+    if (albumArt) {
+      localCoverUrl = await downloadCoverToLocal(albumArt);
+    }
+
     const song = await importSong(session.user.id, {
       titel: title,
       kuenstler: artist,
-      coverUrl: albumArt,
+      coverUrl: localCoverUrl ?? albumArt,
       strophen: parsed.strophen.map((s) => ({
         name: s.name,
         zeilen: s.zeilen.map((z) => ({ text: z })),
