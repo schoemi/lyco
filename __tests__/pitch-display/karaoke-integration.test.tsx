@@ -122,6 +122,7 @@ const testSong: SongDetail = {
       markups: [],
     },
   ],
+  beatErgebnis: null,
 };
 
 const testFlatLines: FlatLine[] = [

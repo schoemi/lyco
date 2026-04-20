@@ -24,6 +24,7 @@ import FreigabeDialog from "@/components/sharing/freigabe-dialog";
 import FreigabeUebersicht from "@/components/sharing/freigabe-uebersicht";
 import GeteilterSongBadge from "@/components/sharing/geteilter-song-badge";
 import SetZuweisenDialog from "@/components/songs/set-zuweisen-dialog";
+import BeatEinstellungen from "@/components/songs/beat-einstellungen";
 import type { SongDetail, StropheDetail } from "../../../../types/song";
 import type { SongAnalyseResult } from "@/types/song";
 
@@ -437,11 +438,24 @@ export default function SongDetailPage() {
             <AudioPlayer
               ref={playerRef}
               audioQuellen={song.audioQuellen}
+              beatPositionenMs={song.beatErgebnis?.beatPositionenMs}
             />
           </div>
 
+          {/* Beat-Einstellungen unterhalb des AudioPlayers */}
+          {!istFreigabe && (
+            <BeatEinstellungen
+              songId={id}
+              audioQuellen={song.audioQuellen}
+              initialBeatErgebnis={song.beatErgebnis}
+            />
+          )}
+
           {/* Sticky bottom player when scrolled past */}
-          <StickyPlayerBar visible={!isPlayerVisible} />
+          <StickyPlayerBar
+            visible={!isPlayerVisible}
+            beatPositionenMs={song.beatErgebnis?.beatPositionenMs}
+          />
         </SharedAudioProvider>
       )}
 

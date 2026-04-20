@@ -184,6 +184,7 @@ export async function getSongDetail(
       audioQuellen: {
         orderBy: { orderIndex: "asc" },
       },
+      beatErgebnis: true,
       sets: {
         include: { set: { select: { id: true, name: true } } },
       },
@@ -298,6 +299,18 @@ export async function getSongDetail(
       rolle: aq.rolle,
     })),
     sets: song.sets.map((ss) => ({ id: ss.set.id, name: ss.set.name })),
+    beatErgebnis: song.beatErgebnis
+      ? {
+          id: song.beatErgebnis.id,
+          songId: song.beatErgebnis.songId,
+          bpm: song.beatErgebnis.bpm,
+          methode: song.beatErgebnis.methode,
+          konfidenz: song.beatErgebnis.konfidenz,
+          beatPositionenMs: song.beatErgebnis.beatPositionenMs,
+          frequenzUntergrenze: song.beatErgebnis.frequenzUntergrenze,
+          frequenzObergrenze: song.beatErgebnis.frequenzObergrenze,
+        }
+      : null,
     ...(istEigentuemer
       ? {}
       : {

@@ -125,6 +125,7 @@ export const KaraokeView = forwardRef<AudioPlayButtonHandle, KaraokeViewProps>(
               currentTimeMs={currentTimeMs}
               isPlaying={isAudioPlaying}
               windowDurationMs={25000}
+              beatPositionenMs={song.beatErgebnis?.beatPositionenMs}
             />
           </div>
         )}

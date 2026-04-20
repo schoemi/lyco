@@ -186,6 +186,7 @@ const testSong: SongDetail = {
       markups: [],
     },
   ],
+  beatErgebnis: null,
 };
 
 const testReferenzDaten: ReferenzDaten = {

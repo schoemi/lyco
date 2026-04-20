@@ -7,6 +7,7 @@ import {
 import type { AudioQuelleResponse } from "@/types/audio";
 import { formatTimecode } from "@/lib/audio/timecode";
 import { useSharedAudio } from "./shared-audio-provider";
+import BeatMarkerOverlay from "./beat-marker-overlay";
 
 export interface AudioPlayerHandle {
   seekTo: (ms: number) => boolean;
@@ -15,6 +16,7 @@ export interface AudioPlayerHandle {
 interface AudioPlayerProps {
   audioQuellen: AudioQuelleResponse[];
   onTimeUpdate?: (currentTimeMs: number) => void;
+  beatPositionenMs?: number[];
 }
 
 function formatTime(ms: number): string {
@@ -70,7 +72,7 @@ function youtubeEmbedUrl(url: string): string {
 }
 
 const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
-  function AudioPlayer({ audioQuellen }, ref) {
+  function AudioPlayer({ audioQuellen, beatPositionenMs }, ref) {
     const {
       isPlaying,
       currentTimeMs,
@@ -143,13 +145,20 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
               aria-valuemin={0}
               aria-valuemax={100}
               aria-label="Wiedergabefortschritt"
-              className="h-2 w-full cursor-pointer overflow-hidden rounded-full bg-neutral-200"
+              className="relative h-2 w-full cursor-pointer overflow-hidden rounded-full bg-neutral-200"
               onClick={handleProgressClick}
             >
               <div
                 className="h-full rounded-full bg-newsong-500 transition-all"
                 style={{ width: `${progress}%` }}
               />
+              {beatPositionenMs && beatPositionenMs.length > 0 && (
+                <BeatMarkerOverlay
+                  beatPositionenMs={beatPositionenMs}
+                  durationMs={durationMs}
+                  currentTimeMs={currentTimeMs}
+                />
+              )}
             </div>
           </div>
         )}

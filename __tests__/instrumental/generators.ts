@@ -121,6 +121,7 @@ export const arbSongDetail: fc.Arbitrary<SongDetail> = fc
     strophen: fc.array(arbStropheDetail, { minLength: 0, maxLength: 6 }),
     audioQuellen: fc.constant([]),
     sets: fc.constant([]),
+    beatErgebnis: fc.constant(null),
   })
   .map((s) => s as SongDetail);
 
@@ -159,6 +160,7 @@ export const arbSongDetailWithLearnableContent: fc.Arbitrary<SongDetail> = fc
     extraStrophen: fc.array(arbStropheDetail, { minLength: 0, maxLength: 4 }),
     audioQuellen: fc.constant([]),
     sets: fc.constant([]),
+    beatErgebnis: fc.constant(null),
   })
   .map(({ learnableStrophe, extraStrophen, ...rest }) => ({
     ...rest,

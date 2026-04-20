@@ -44,6 +44,8 @@ interface PitchDisplayProps {
   height?: number;
   /** Duration of the visible time window in milliseconds (10000–30000, default 25000). */
   windowDurationMs?: number;
+  /** Optional beat positions in milliseconds for beat marker visualization. */
+  beatPositionenMs?: number[];
 }
 
 /** Left margin for the note-name scale in pixels. */
@@ -75,6 +77,7 @@ export function PitchDisplay({
   isPlaying,
   height: rawHeight,
   windowDurationMs: rawWindowDurationMs = 25000,
+  beatPositionenMs,
 }: PitchDisplayProps) {
   // Clamp window duration to valid range
   const windowDurationMs = Math.max(10000, Math.min(30000, rawWindowDurationMs));
@@ -297,6 +300,25 @@ export function PitchDisplay({
             </g>
           );
         })}
+
+        {/* Beat markers — vertical dashed lines at beat positions */}
+        {beatPositionenMs && beatPositionenMs.length > 0 && beatPositionenMs
+          .filter((ms) => ms >= viewport.startMs && ms <= viewport.endMs)
+          .map((ms, i) => {
+            const x = SCALE_MARGIN + berechneSvgX(ms, viewport, plotWidth);
+            return (
+              <line
+                key={`beat-${i}`}
+                x1={x}
+                y1={0}
+                x2={x}
+                y2={height}
+                stroke="rgba(255, 255, 255, 0.12)"
+                strokeWidth={1}
+                strokeDasharray="4 4"
+              />
+            );
+          })}
 
         {/* Pitch bars */}
         {barRects.map((rect) => (

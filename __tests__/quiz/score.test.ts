@@ -52,10 +52,12 @@ describe('calculateStropheScores', () => {
     analyse: null,
     coachTipp: null,
     strophen: [
-      { id: 's1', name: 'Verse 1', orderIndex: 0, progress: 0, notiz: null, analyse: null, zeilen: [], markups: [] },
-      { id: 's2', name: 'Chorus', orderIndex: 1, progress: 0, notiz: null, analyse: null, zeilen: [], markups: [] },
+      { id: 's1', name: 'Verse 1', orderIndex: 0, progress: 0, notiz: null, analyse: null, zeilen: [], markups: [], istInstrumental: false },
+      { id: 's2', name: 'Chorus', orderIndex: 1, progress: 0, notiz: null, analyse: null, zeilen: [], markups: [], istInstrumental: false },
     ],
     audioQuellen: [],
+    sets: [],
+    beatErgebnis: null,
   };
 
   it('returns empty map for empty answers', () => {

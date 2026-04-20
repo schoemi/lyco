@@ -1,5 +1,6 @@
 import { MarkupTyp, MarkupZiel } from "@/generated/prisma/client";
 import { AudioQuelleResponse } from "@/types/audio";
+import { BeatErgebnisResponse } from "@/types/beat-detection";
 
 // --- Eingabe-Typen ---
 
@@ -138,6 +139,7 @@ export interface SongDetail {
   sets: { id: string; name: string }[];
   istFreigabe?: boolean;
   eigentuemerName?: string;
+  beatErgebnis: BeatErgebnisResponse | null;
 }
 
 export interface StropheDetail {

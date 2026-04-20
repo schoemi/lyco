@@ -81,6 +81,8 @@ const arbSongDetail = fc
       coachTipp: null,
       strophen: r.strophen,
       audioQuellen: [],
+      sets: [],
+      beatErgebnis: null,
     }),
   );
 

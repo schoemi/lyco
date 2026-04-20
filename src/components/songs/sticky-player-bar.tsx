@@ -3,9 +3,11 @@
 import { useRef, useState } from "react";
 import { formatTimecode } from "@/lib/audio/timecode";
 import { useSharedAudio } from "./shared-audio-provider";
+import BeatMarkerOverlay from "./beat-marker-overlay";
 
 interface StickyPlayerBarProps {
   visible: boolean;
+  beatPositionenMs?: number[];
 }
 
 function formatTime(ms: number): string {
@@ -18,7 +20,7 @@ function formatTime(ms: number): string {
  * scrolls out of the viewport. Can be collapsed to show only a
  * small handle tab. Shares audio state via SharedAudioProvider.
  */
-export default function StickyPlayerBar({ visible }: StickyPlayerBarProps) {
+export default function StickyPlayerBar({ visible, beatPositionenMs }: StickyPlayerBarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const {
@@ -125,13 +127,20 @@ export default function StickyPlayerBar({ visible }: StickyPlayerBarProps) {
             aria-valuemin={0}
             aria-valuemax={100}
             aria-label="Wiedergabefortschritt"
-            className="h-2.5 w-full cursor-pointer overflow-hidden rounded-full bg-neutral-200"
+            className="relative h-2.5 w-full cursor-pointer overflow-hidden rounded-full bg-neutral-200"
             onClick={handleProgressClick}
           >
             <div
               className="h-full rounded-full bg-newsong-500 transition-all"
               style={{ width: `${progress}%` }}
             />
+            {beatPositionenMs && beatPositionenMs.length > 0 && (
+              <BeatMarkerOverlay
+                beatPositionenMs={beatPositionenMs}
+                durationMs={durationMs}
+                currentTimeMs={currentTimeMs}
+              />
+            )}
           </div>
         </div>
       </div>

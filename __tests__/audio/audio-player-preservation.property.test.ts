@@ -122,6 +122,7 @@ const arbSongDetail: fc.Arbitrary<SongDetail> = fc.record({
   sets: fc.constant([] as { id: string; name: string }[]),
   istFreigabe: fc.constant(false),
   eigentuemerName: fc.constant(undefined),
+  beatErgebnis: fc.constant(null),
 });
 
 // ── Property 1: SongEditForm rendert Metadaten-Felder im editing-Modus ──
