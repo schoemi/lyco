@@ -2,7 +2,10 @@
 
 import {
   forwardRef,
+  useCallback,
+  useId,
   useImperativeHandle,
+  useState,
 } from "react";
 import type { AudioQuelleResponse } from "@/types/audio";
 import { formatTimecode } from "@/lib/audio/timecode";
@@ -80,14 +83,18 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
       currentTimeMs,
       durationMs,
       activeIndex,
+      volume,
       togglePlay,
       seekTo,
       switchSource,
       handleProgressClick,
+      setVolume,
     } = useSharedAudio();
 
     const activeQuelle = audioQuellen[activeIndex] ?? null;
     const isMp3 = activeQuelle?.typ === "MP3";
+    const volumeSliderId = useId();
+    const [prevVolume, setPrevVolume] = useState(volume || 0.8);
 
     useImperativeHandle(ref, () => ({ seekTo }), [seekTo]);
 
@@ -147,6 +154,14 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
                   variant="light"
                 />
               )}
+              {/* Volume control */}
+              <VolumeControl
+                volume={volume}
+                prevVolume={prevVolume}
+                onVolumeChange={setVolume}
+                onPrevVolumeChange={setPrevVolume}
+                sliderId={volumeSliderId}
+              />
             </div>
 
             <div
@@ -236,6 +251,94 @@ function PauseIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
       <path d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75A.75.75 0 007.25 3h-1.5zM12.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75a.75.75 0 00-.75-.75h-1.5z" />
+    </svg>
+  );
+}
+
+/* ── Volume control ── */
+
+interface VolumeControlProps {
+  volume: number;
+  prevVolume: number;
+  onVolumeChange: (v: number) => void;
+  onPrevVolumeChange: (v: number) => void;
+  sliderId: string;
+}
+
+function VolumeControl({ volume, prevVolume, onVolumeChange, onPrevVolumeChange, sliderId }: VolumeControlProps) {
+  const isMuted = volume === 0;
+
+  const toggleMute = useCallback(() => {
+    if (isMuted) {
+      onVolumeChange(prevVolume > 0 ? prevVolume : 0.8);
+    } else {
+      onPrevVolumeChange(volume);
+      onVolumeChange(0);
+    }
+  }, [isMuted, volume, prevVolume, onVolumeChange, onPrevVolumeChange]);
+
+  const handleSliderChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const v = parseFloat(e.target.value);
+      onVolumeChange(v);
+      if (v > 0) onPrevVolumeChange(v);
+    },
+    [onVolumeChange, onPrevVolumeChange],
+  );
+
+  return (
+    <div className="ml-auto flex items-center gap-1.5">
+      <button
+        type="button"
+        onClick={toggleMute}
+        aria-label={isMuted ? "Stummschaltung aufheben" : "Stummschalten"}
+        className="flex h-7 w-7 items-center justify-center rounded text-neutral-500 hover:text-neutral-700"
+      >
+        {isMuted ? <VolumeOffIcon /> : volume < 0.5 ? <VolumeLowIcon /> : <VolumeHighIcon />}
+      </button>
+      <label htmlFor={sliderId} className="sr-only">Lautstärke</label>
+      <input
+        id={sliderId}
+        type="range"
+        min={0}
+        max={1}
+        step={0.01}
+        value={volume}
+        onChange={handleSliderChange}
+        aria-label="Lautstärke"
+        className="h-1.5 w-20 cursor-pointer appearance-none rounded-full bg-neutral-200 accent-newsong-600 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-newsong-600"
+      />
+    </div>
+  );
+}
+
+/* ── Volume SVG icons ── */
+
+function VolumeHighIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
+      <path d="M11 5 6 9H2v6h4l5 4V5z" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </svg>
+  );
+}
+
+function VolumeLowIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
+      <path d="M11 5 6 9H2v6h4l5 4V5z" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+    </svg>
+  );
+}
+
+function VolumeOffIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
+      <path d="M11 5 6 9H2v6h4l5 4V5z" />
+      <line x1="22" y1="9" x2="16" y2="15" />
+      <line x1="16" y1="9" x2="22" y2="15" />
     </svg>
   );
 }

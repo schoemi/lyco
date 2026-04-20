@@ -263,6 +263,24 @@ export function WiedergabeMixer({
     }
   }, [mixer.panningWert, mixer.referenzAktiv]);
 
+  // --- Start/stop reference vocal when toggled during playback ---
+  useEffect(() => {
+    const refAudio = referenzAudioRef.current;
+    const instAudio = instrumentalAudioRef.current;
+    if (!refAudio || !instAudio || !mixer.istAbspielend) return;
+
+    if (mixer.referenzAktiv) {
+      // Sync reference to current instrumental position and start
+      refAudio.currentTime = instAudio.currentTime;
+      refAudio.play().catch(() => {
+        // Reference playback failed — continue without it
+      });
+    } else {
+      // Pause reference when deactivated
+      refAudio.pause();
+    }
+  }, [mixer.referenzAktiv, mixer.istAbspielend]);
+
   // --- Handle stop (stable ref for event listeners) ---
   const handleStop = useCallback(() => {
     stopPlayback();

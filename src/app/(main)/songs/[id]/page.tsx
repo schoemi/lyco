@@ -25,6 +25,7 @@ import FreigabeUebersicht from "@/components/sharing/freigabe-uebersicht";
 import GeteilterSongBadge from "@/components/sharing/geteilter-song-badge";
 import SetZuweisenDialog from "@/components/songs/set-zuweisen-dialog";
 import BeatEinstellungen from "@/components/songs/beat-einstellungen";
+import ExportDialog from "@/components/songs/export-dialog";
 import type { SongDetail, StropheDetail } from "../../../../types/song";
 import type { SongAnalyseResult } from "@/types/song";
 
@@ -52,6 +53,7 @@ export default function SongDetailPage() {
   const [viewMode, setViewMode] = useState<StrophenViewMode>("normal");
   const [freigabeDialogOpen, setFreigabeDialogOpen] = useState(false);
   const [setDialogOpen, setSetDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
   // Beat offset state (initialized from saved value, persisted on change)
   const [beatOffsetMs, setBeatOffsetMs] = useState(
@@ -253,6 +255,16 @@ export default function SongDetailPage() {
             {!istFreigabe && !editing && !editingText && (
               <button
                 type="button"
+                onClick={() => setExportDialogOpen(true)}
+                className="rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+                aria-label="Song exportieren"
+              >
+                Exportieren
+              </button>
+            )}
+            {!istFreigabe && !editing && !editingText && (
+              <button
+                type="button"
                 onClick={() => setFreigabeDialogOpen(true)}
                 className="rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
                 aria-label="Song teilen"
@@ -442,6 +454,17 @@ export default function SongDetailPage() {
           currentSetIds={song.sets.map((s) => s.id)}
           onClose={() => setSetDialogOpen(false)}
           onChanged={refreshSong}
+        />
+      )}
+
+      {/* Export Dialog */}
+      {!istFreigabe && (
+        <ExportDialog
+          open={exportDialogOpen}
+          songId={id}
+          songTitel={song.titel}
+          songKuenstler={song.kuenstler}
+          onClose={() => setExportDialogOpen(false)}
         />
       )}
 

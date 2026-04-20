@@ -2,6 +2,7 @@
  * Export-Service für Song- und Set-Backup
  *
  * Erstellt ZIP-Archive mit Song-Manifest und Upload-Dateien.
+ * Unterstützt zusätzlich Format-Export (PDF, ChordPro, OnSong, SongbookPro).
  */
 
 import { prisma } from "@/lib/prisma";
@@ -13,6 +14,16 @@ import archiver, { type Archiver } from "archiver";
 import { createReadStream, existsSync } from "fs";
 import { join } from "path";
 import { PassThrough } from "stream";
+import type {
+  ExportFormat,
+  ExportOptions,
+  FormatterResult,
+  SongExportData as FormatExportData,
+} from "@/lib/export/export-types";
+import { formatPdf } from "@/lib/export/formatters/pdf-formatter";
+import { formatChordPro } from "@/lib/export/formatters/chordpro-formatter";
+import { formatOnSong } from "@/lib/export/formatters/onsong-formatter";
+import { formatSongbookPro } from "@/lib/export/formatters/songbookpro-formatter";
 
 /**
  * Exportiert einen Song als ZIP-Archiv.
@@ -112,6 +123,108 @@ export async function exportSong(
 
   // 5. ZIP-Archiv erstellen
   return createSongZip(manifest, songData);
+}
+
+
+/**
+ * Formatter-Mapping: ExportFormat → Formatter-Funktion.
+ */
+const FORMATTERS: Record<ExportFormat, (song: FormatExportData, options: ExportOptions) => FormatterResult | Promise<FormatterResult>> = {
+  pdf: formatPdf,
+  chordpro: formatChordPro,
+  onsong: formatOnSong,
+  songbookpro: formatSongbookPro,
+};
+
+/**
+ * Exportiert einen Song im angegebenen Format (PDF, ChordPro, OnSong, SongbookPro).
+ *
+ * Lädt den Song mit allen Relationen, prüft Eigentümerschaft,
+ * konvertiert die Daten in das SongExportData-Format und ruft
+ * den passenden Formatter auf.
+ *
+ * @param userId - Die ID des authentifizierten Benutzers
+ * @param songId - Die ID des zu exportierenden Songs
+ * @param format - Das gewünschte Export-Format
+ * @param options - Die Export-Optionen (vocalTags, instrumental, kommentare)
+ * @returns Promise mit data (Buffer), filename und contentType
+ *
+ * @throws Error mit "Song nicht gefunden" bei unbekannter songId
+ * @throws Error mit "Zugriff verweigert" wenn userId nicht Eigentümer ist
+ */
+export async function exportSongFormatted(
+  userId: string,
+  songId: string,
+  format: ExportFormat,
+  options: ExportOptions,
+): Promise<{ data: Buffer; filename: string; contentType: string }> {
+  // 1. Song mit allen Relationen laden
+  const song = await prisma.song.findUnique({
+    where: { id: songId },
+    include: {
+      strophen: {
+        orderBy: { orderIndex: "asc" },
+        include: {
+          zeilen: {
+            orderBy: { orderIndex: "asc" },
+            include: { markups: true },
+          },
+          markups: true,
+        },
+      },
+    },
+  });
+
+  if (!song) {
+    throw new Error("Song nicht gefunden");
+  }
+
+  // 2. Eigentümerschaftsprüfung
+  if (song.userId !== userId) {
+    throw new Error("Zugriff verweigert");
+  }
+
+  // 3. Prisma-Daten in SongExportData konvertieren
+  const exportData: FormatExportData = {
+    titel: song.titel,
+    kuenstler: song.kuenstler,
+    strophen: song.strophen.map((s) => ({
+      name: s.name,
+      orderIndex: s.orderIndex,
+      analyse: s.analyse,
+      istInstrumental: s.istInstrumental,
+      zeilen: s.zeilen.map((z) => ({
+        text: z.text,
+        uebersetzung: z.uebersetzung,
+        orderIndex: z.orderIndex,
+        istKommentar: z.istKommentar,
+        markups: z.markups.map((m) => ({
+          typ: m.typ,
+          ziel: m.ziel,
+          wert: m.wert,
+          timecodeMs: m.timecodeMs,
+          wortIndex: m.wortIndex,
+        })),
+      })),
+      markups: s.markups.map((m) => ({
+        typ: m.typ,
+        ziel: m.ziel,
+        wert: m.wert,
+        timecodeMs: m.timecodeMs,
+        wortIndex: m.wortIndex,
+      })),
+    })),
+  };
+
+  // 4. Formatter aufrufen
+  const formatter = FORMATTERS[format];
+  const result = await formatter(exportData, options);
+
+  return {
+    data: result.data,
+    filename: result.filename,
+    contentType: result.contentType,
+  };
 }
 
 
