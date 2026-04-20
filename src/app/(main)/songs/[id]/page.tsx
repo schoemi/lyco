@@ -53,6 +53,25 @@ export default function SongDetailPage() {
   const [freigabeDialogOpen, setFreigabeDialogOpen] = useState(false);
   const [setDialogOpen, setSetDialogOpen] = useState(false);
 
+  // Beat offset state (initialized from saved value, persisted on change)
+  const [beatOffsetMs, setBeatOffsetMs] = useState(
+    song?.beatErgebnis?.offsetMs ?? 0,
+  );
+
+  // Sync offset when song loads
+  useEffect(() => {
+    if (song?.beatErgebnis?.offsetMs != null) {
+      setBeatOffsetMs(song.beatErgebnis.offsetMs);
+    }
+  }, [song?.beatErgebnis?.offsetMs]);
+
+  // Compute offset-adjusted beat positions
+  const adjustedBeatPositionenMs = useMemo(() => {
+    const raw = song?.beatErgebnis?.beatPositionenMs;
+    if (!raw || raw.length === 0 || beatOffsetMs === 0) return raw;
+    return raw.map((ms) => Math.max(0, ms + beatOffsetMs));
+  }, [song?.beatErgebnis?.beatPositionenMs, beatOffsetMs]);
+
   // showTranslations is derived from viewMode — "translation" mode shows translations
   const showTranslations = viewMode === "translation";
 
@@ -438,7 +457,7 @@ export default function SongDetailPage() {
             <AudioPlayer
               ref={playerRef}
               audioQuellen={song.audioQuellen}
-              beatPositionenMs={song.beatErgebnis?.beatPositionenMs}
+              beatPositionenMs={adjustedBeatPositionenMs}
             />
           </div>
 
@@ -448,13 +467,19 @@ export default function SongDetailPage() {
               songId={id}
               audioQuellen={song.audioQuellen}
               initialBeatErgebnis={song.beatErgebnis}
+              beatOffsetMs={beatOffsetMs}
+              onBeatOffsetChange={setBeatOffsetMs}
+              onBeatErgebnisChange={(ergebnis) => {
+                setSong((prev) => prev ? { ...prev, beatErgebnis: ergebnis } : prev);
+                setBeatOffsetMs(0);
+              }}
             />
           )}
 
           {/* Sticky bottom player when scrolled past */}
           <StickyPlayerBar
             visible={!isPlayerVisible}
-            beatPositionenMs={song.beatErgebnis?.beatPositionenMs}
+            beatPositionenMs={adjustedBeatPositionenMs}
           />
         </SharedAudioProvider>
       )}

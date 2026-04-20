@@ -309,6 +309,9 @@ export async function getSongDetail(
           beatPositionenMs: song.beatErgebnis.beatPositionenMs,
           frequenzUntergrenze: song.beatErgebnis.frequenzUntergrenze,
           frequenzObergrenze: song.beatErgebnis.frequenzObergrenze,
+          offsetMs: song.beatErgebnis.offsetMs,
+          taktZaehler: song.beatErgebnis.taktZaehler,
+          taktNenner: song.beatErgebnis.taktNenner,
         }
       : null,
     ...(istEigentuemer

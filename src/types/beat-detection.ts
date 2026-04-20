@@ -40,6 +40,9 @@ export interface BeatErgebnisResponse {
   beatPositionenMs: number[];
   frequenzUntergrenze: number | null;
   frequenzObergrenze: number | null;
+  offsetMs: number;
+  taktZaehler: number;
+  taktNenner: number;
 }
 
 export interface BeatErgebnisSpeichernInput {
@@ -49,6 +52,9 @@ export interface BeatErgebnisSpeichernInput {
   beatPositionenMs: number[];
   frequenzUntergrenze?: number | null;
   frequenzObergrenze?: number | null;
+  offsetMs?: number;
+  taktZaehler?: number;
+  taktNenner?: number;
 }
 
 // --- Komponenten-Props ---
@@ -57,6 +63,12 @@ export interface BeatEinstellungenProps {
   songId: string;
   audioQuellen: AudioQuelleResponse[];
   initialBeatErgebnis: BeatErgebnisResponse | null;
+  /** Current beat offset in milliseconds. */
+  beatOffsetMs?: number;
+  /** Called when the user changes the beat offset slider. */
+  onBeatOffsetChange?: (offsetMs: number) => void;
+  /** Called when a new BeatErgebnis is saved (auto or manual). */
+  onBeatErgebnisChange?: (ergebnis: BeatErgebnisResponse) => void;
 }
 
 export interface BeatMarkerOverlayProps {

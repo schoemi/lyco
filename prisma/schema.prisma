@@ -477,6 +477,9 @@ model BeatErgebnis {
   beatPositionenMs    Int[]
   frequenzUntergrenze Int?
   frequenzObergrenze  Int?
+  offsetMs            Int         @default(0)
+  taktZaehler         Int         @default(4)
+  taktNenner          Int         @default(4)
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
 

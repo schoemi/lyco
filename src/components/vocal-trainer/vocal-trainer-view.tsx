@@ -645,7 +645,12 @@ export function VocalTrainerView({
                 currentTimeMs={currentTimeMs}
                 isPlaying={zustand === "AUFNAHME"}
                 windowDurationMs={25000}
-                beatPositionenMs={song.beatErgebnis?.beatPositionenMs}
+                beatPositionenMs={
+                  song.beatErgebnis?.beatPositionenMs && song.beatErgebnis.offsetMs
+                    ? song.beatErgebnis.beatPositionenMs.map((ms) => Math.max(0, ms + song.beatErgebnis!.offsetMs))
+                    : song.beatErgebnis?.beatPositionenMs
+                }
+                taktZaehler={song.beatErgebnis?.taktZaehler}
               />
             </div>
             {displayMode !== "keinText" && (

@@ -122,6 +122,9 @@ function mapToResponse(record: {
   beatPositionenMs: number[];
   frequenzUntergrenze: number | null;
   frequenzObergrenze: number | null;
+  offsetMs: number;
+  taktZaehler: number;
+  taktNenner: number;
 }): BeatErgebnisResponse {
   return {
     id: record.id,
@@ -132,6 +135,9 @@ function mapToResponse(record: {
     beatPositionenMs: record.beatPositionenMs,
     frequenzUntergrenze: record.frequenzUntergrenze,
     frequenzObergrenze: record.frequenzObergrenze,
+    offsetMs: record.offsetMs,
+    taktZaehler: record.taktZaehler,
+    taktNenner: record.taktNenner,
   };
 }
 
@@ -180,6 +186,9 @@ export async function upsertBeatErgebnis(
     beatPositionenMs: input.beatPositionenMs,
     frequenzUntergrenze: input.frequenzUntergrenze ?? null,
     frequenzObergrenze: input.frequenzObergrenze ?? null,
+    offsetMs: input.offsetMs ?? 0,
+    taktZaehler: input.taktZaehler ?? 4,
+    taktNenner: input.taktNenner ?? 4,
   };
 
   const record = await prisma.beatErgebnis.upsert({

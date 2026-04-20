@@ -34,6 +34,9 @@ export default function BeatEinstellungen({
   songId,
   audioQuellen,
   initialBeatErgebnis,
+  beatOffsetMs = 0,
+  onBeatOffsetChange,
+  onBeatErgebnisChange,
 }: BeatEinstellungenProps) {
   const [offen, setOffen] = useState(false);
   const [beatErgebnis, setBeatErgebnis] = useState<BeatErgebnisResponse | null>(
@@ -54,6 +57,14 @@ export default function BeatEinstellungen({
     beatErgebnis?.frequenzObergrenze ?? 200,
   );
 
+  // Taktart state
+  const [taktZaehler, setTaktZaehler] = useState(
+    beatErgebnis?.taktZaehler ?? 4,
+  );
+  const [taktNenner, setTaktNenner] = useState(
+    beatErgebnis?.taktNenner ?? 4,
+  );
+
   // Worker state
   const workerRef = useRef<Worker | null>(null);
   const [analyseLaeuft, setAnalyseLaeuft] = useState(false);
@@ -71,10 +82,79 @@ export default function BeatEinstellungen({
   const [apiFehler, setApiFehler] = useState<string | null>(null);
   const [speichert, setSpeichert] = useState(false);
 
-  // Cleanup worker on unmount
+  // Debounced offset save — saves offset to DB after slider stops moving
+  const offsetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const speichereOffset = useCallback(
+    (newOffset: number) => {
+      if (!beatErgebnis) return;
+      if (offsetTimerRef.current) clearTimeout(offsetTimerRef.current);
+      offsetTimerRef.current = setTimeout(async () => {
+        try {
+          await fetch(`/api/songs/${songId}/beat-ergebnis`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              bpm: beatErgebnis.bpm,
+              methode: beatErgebnis.methode,
+              konfidenz: beatErgebnis.konfidenz,
+              beatPositionenMs: beatErgebnis.beatPositionenMs,
+              frequenzUntergrenze: beatErgebnis.frequenzUntergrenze,
+              frequenzObergrenze: beatErgebnis.frequenzObergrenze,
+              offsetMs: newOffset,
+              taktZaehler,
+              taktNenner,
+            }),
+          });
+        } catch {
+          // Silently fail — offset is still applied locally
+        }
+      }, 500);
+    },
+    [songId, beatErgebnis, taktZaehler, taktNenner],
+  );
+
+  // Debounced taktart save
+  const taktTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const speichereTaktart = useCallback(
+    (zaehler: number, nenner: number) => {
+      if (!beatErgebnis) return;
+      if (taktTimerRef.current) clearTimeout(taktTimerRef.current);
+      taktTimerRef.current = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/songs/${songId}/beat-ergebnis`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              bpm: beatErgebnis.bpm,
+              methode: beatErgebnis.methode,
+              konfidenz: beatErgebnis.konfidenz,
+              beatPositionenMs: beatErgebnis.beatPositionenMs,
+              frequenzUntergrenze: beatErgebnis.frequenzUntergrenze,
+              frequenzObergrenze: beatErgebnis.frequenzObergrenze,
+              offsetMs: beatOffsetMs,
+              taktZaehler: zaehler,
+              taktNenner: nenner,
+            }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setBeatErgebnis(data.beatErgebnis);
+            onBeatErgebnisChange?.(data.beatErgebnis);
+          }
+        } catch {
+          // Silently fail
+        }
+      }, 300);
+    },
+    [songId, beatErgebnis, beatOffsetMs, onBeatErgebnisChange],
+  );
+
+  // Cleanup worker and timers on unmount
   useEffect(() => {
     return () => {
       workerRef.current?.terminate();
+      if (offsetTimerRef.current) clearTimeout(offsetTimerRef.current);
+      if (taktTimerRef.current) clearTimeout(taktTimerRef.current);
     };
   }, []);
 
@@ -133,6 +213,7 @@ export default function BeatEinstellungen({
         }
         const data = await res.json();
         setBeatErgebnis(data.beatErgebnis);
+        onBeatErgebnisChange?.(data.beatErgebnis);
         return data.beatErgebnis as BeatErgebnisResponse;
       } catch (err) {
         const msg =
@@ -450,6 +531,86 @@ export default function BeatEinstellungen({
               methode={beatErgebnis.methode}
               konfidenz={beatErgebnis.konfidenz}
             />
+          )}
+
+          {/* Taktart-Auswahl */}
+          {beatErgebnis && !analyseLaeuft && (
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-neutral-700">Taktart</p>
+              <div className="flex items-center gap-2">
+                <select
+                  value={`${taktZaehler}/${taktNenner}`}
+                  onChange={(e) => {
+                    const [z, n] = e.target.value.split("/").map(Number);
+                    setTaktZaehler(z);
+                    setTaktNenner(n);
+                    speichereTaktart(z, n);
+                  }}
+                  className="rounded-md border border-neutral-300 px-2 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-newsong-500"
+                  aria-label="Taktart"
+                >
+                  <option value="2/4">2/4</option>
+                  <option value="3/4">3/4</option>
+                  <option value="4/4">4/4</option>
+                  <option value="6/8">6/8</option>
+                  <option value="3/8">3/8</option>
+                  <option value="5/4">5/4</option>
+                  <option value="7/8">7/8</option>
+                </select>
+                <span className="text-xs text-neutral-400">
+                  {taktZaehler} Schläge pro Takt
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Beat-Offset-Slider */}
+          {beatErgebnis && !analyseLaeuft && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="beat-offset"
+                  className="text-sm font-medium text-neutral-700"
+                >
+                  Beat-Offset
+                </label>
+                <span className="text-xs tabular-nums text-neutral-500">
+                  {beatOffsetMs >= 0 ? "+" : ""}{beatOffsetMs} ms
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  id="beat-offset"
+                  type="range"
+                  min={-500}
+                  max={500}
+                  step={10}
+                  value={beatOffsetMs}
+                  onChange={(e) => {
+                    const newOffset = Number(e.target.value);
+                    onBeatOffsetChange?.(newOffset);
+                    speichereOffset(newOffset);
+                  }}
+                  className="flex-1"
+                  aria-label="Beat-Offset in Millisekunden"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    onBeatOffsetChange?.(0);
+                    speichereOffset(0);
+                  }}
+                  disabled={beatOffsetMs === 0}
+                  className="rounded px-2 py-0.5 text-xs text-neutral-500 hover:bg-neutral-100 disabled:opacity-30"
+                  aria-label="Offset zurücksetzen"
+                >
+                  Reset
+                </button>
+              </div>
+              <p className="text-xs text-neutral-400">
+                Verschiebt die Beat-Marker um ±500 ms, um sie mit der Wiedergabe zu synchronisieren.
+              </p>
+            </div>
           )}
         </div>
       )}
