@@ -42,6 +42,10 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
   const [tagDefinitions, setTagDefinitions] = useState<TagDefinitionData[]>([]);
   const [editViewMode, setEditViewMode] = useState<StrophenViewMode>("normal");
 
+  // Taktbereich state per strophe: { [stropheId]: { startTakt: string, endTakt: string } }
+  const [taktbereichInputs, setTaktbereichInputs] = useState<Record<string, { startTakt: string; endTakt: string }>>({});
+  const [taktbereichError, setTaktbereichError] = useState<Record<string, string | null>>({});
+
   // In edit mode, derive showTranslations from editViewMode
   const editShowTranslation = editViewMode === "translation";
 
@@ -329,6 +333,118 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
     }
   }
 
+  // --- Taktbereich helpers ---
+  function getTaktbereichInput(strophe: StropheDetail) {
+    if (taktbereichInputs[strophe.id]) return taktbereichInputs[strophe.id];
+    return {
+      startTakt: strophe.startTakt != null ? String(strophe.startTakt) : "",
+      endTakt: strophe.endTakt != null ? String(strophe.endTakt) : "",
+    };
+  }
+
+  function setTaktbereichField(stropheId: string, field: "startTakt" | "endTakt", value: string) {
+    setTaktbereichInputs((prev) => ({
+      ...prev,
+      [stropheId]: {
+        ...getTaktbereichInputForId(stropheId),
+        [field]: value,
+      },
+    }));
+    // Clear error on input change
+    if (taktbereichError[stropheId]) {
+      setTaktbereichError((prev) => ({ ...prev, [stropheId]: null }));
+    }
+  }
+
+  function getTaktbereichInputForId(stropheId: string) {
+    if (taktbereichInputs[stropheId]) return taktbereichInputs[stropheId];
+    const strophe = strophen.find((s) => s.id === stropheId);
+    return {
+      startTakt: strophe?.startTakt != null ? String(strophe.startTakt) : "",
+      endTakt: strophe?.endTakt != null ? String(strophe.endTakt) : "",
+    };
+  }
+
+  async function handleTaktbereichSave(strophe: StropheDetail) {
+    const input = getTaktbereichInput(strophe);
+    const startStr = input.startTakt.trim();
+    const endStr = input.endTakt.trim();
+
+    // Parse values: empty → null, otherwise integer
+    const startTakt = startStr === "" ? null : parseInt(startStr, 10);
+    const endTakt = endStr === "" ? null : parseInt(endStr, 10);
+
+    // Validate: positive integers only
+    if (startTakt !== null && (!Number.isInteger(startTakt) || startTakt < 1)) {
+      setTaktbereichError((prev) => ({ ...prev, [strophe.id]: "Takt von muss eine positive Ganzzahl sein" }));
+      return;
+    }
+    if (endTakt !== null && (!Number.isInteger(endTakt) || endTakt < 1)) {
+      setTaktbereichError((prev) => ({ ...prev, [strophe.id]: "Takt bis muss eine positive Ganzzahl sein" }));
+      return;
+    }
+
+    // Validate: endTakt >= startTakt
+    if (startTakt !== null && endTakt !== null && endTakt < startTakt) {
+      setTaktbereichError((prev) => ({ ...prev, [strophe.id]: "Takt bis muss ≥ Takt von sein" }));
+      return;
+    }
+
+    // Skip if values haven't changed
+    if (startTakt === strophe.startTakt && endTakt === strophe.endTakt) return;
+
+    // Clear error
+    setTaktbereichError((prev) => ({ ...prev, [strophe.id]: null }));
+
+    // Optimistic update
+    const previousStrophen = strophen;
+    const updated = strophen.map((s) =>
+      s.id === strophe.id ? { ...s, startTakt, endTakt } : s
+    );
+    onStrophenChanged(updated);
+
+    try {
+      const res = await fetch(`/api/songs/${songId}/strophen/${strophe.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ startTakt, endTakt }),
+      });
+      if (!res.ok) {
+        // Rollback on error
+        onStrophenChanged(previousStrophen);
+        // Reset input to previous values
+        setTaktbereichInputs((prev) => ({
+          ...prev,
+          [strophe.id]: {
+            startTakt: strophe.startTakt != null ? String(strophe.startTakt) : "",
+            endTakt: strophe.endTakt != null ? String(strophe.endTakt) : "",
+          },
+        }));
+        showStatus("Fehler beim Speichern des Taktbereichs");
+        return;
+      }
+      showStatus("Taktbereich gespeichert");
+    } catch {
+      // Rollback on network error
+      onStrophenChanged(previousStrophen);
+      setTaktbereichInputs((prev) => ({
+        ...prev,
+        [strophe.id]: {
+          startTakt: strophe.startTakt != null ? String(strophe.startTakt) : "",
+          endTakt: strophe.endTakt != null ? String(strophe.endTakt) : "",
+        },
+      }));
+      showStatus("Netzwerkfehler beim Speichern des Taktbereichs");
+    }
+  }
+
+  function handleTaktbereichKeyDown(e: React.KeyboardEvent, strophe: StropheDetail) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleTaktbereichSave(strophe);
+    }
+  }
+
   const deleteStrophe = deleteConfirmId ? strophen.find((s) => s.id === deleteConfirmId) : null;
 
   const hasTranslations = strophen.some((s) =>
@@ -599,6 +715,47 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
                   <AppIcon icon="lucide:trash-2" className="text-sm" />
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Taktbereich input fields for instrumental strophes */}
+          {strophe.istInstrumental && editingId !== strophe.id && (
+            <div className="mt-2 flex items-center gap-2">
+              <label htmlFor={`takt-von-${strophe.id}`} className="text-xs text-neutral-500">
+                Takt von
+              </label>
+              <input
+                id={`takt-von-${strophe.id}`}
+                type="number"
+                min={1}
+                step={1}
+                value={getTaktbereichInput(strophe).startTakt}
+                onChange={(e) => setTaktbereichField(strophe.id, "startTakt", e.target.value)}
+                onBlur={() => handleTaktbereichSave(strophe)}
+                onKeyDown={(e) => handleTaktbereichKeyDown(e, strophe)}
+                className="w-16 rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-newsong-500"
+                aria-label="Start-Takt"
+              />
+              <label htmlFor={`takt-bis-${strophe.id}`} className="text-xs text-neutral-500">
+                bis
+              </label>
+              <input
+                id={`takt-bis-${strophe.id}`}
+                type="number"
+                min={1}
+                step={1}
+                value={getTaktbereichInput(strophe).endTakt}
+                onChange={(e) => setTaktbereichField(strophe.id, "endTakt", e.target.value)}
+                onBlur={() => handleTaktbereichSave(strophe)}
+                onKeyDown={(e) => handleTaktbereichKeyDown(e, strophe)}
+                className="w-16 rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-newsong-500"
+                aria-label="End-Takt"
+              />
+              {taktbereichError[strophe.id] && (
+                <span className="text-xs text-error-600" role="alert">
+                  {taktbereichError[strophe.id]}
+                </span>
+              )}
             </div>
           )}
 

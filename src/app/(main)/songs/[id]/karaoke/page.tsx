@@ -235,6 +235,13 @@ export default function KaraokePage() {
     saveScrollSpeed(speed);
   }, []);
 
+  // Stop: reset audio, line index, and auto-scroll
+  const handleAudioStop = useCallback(() => {
+    audioRef.current?.stop();
+    setActiveLineIndex(0);
+    pause();
+  }, [pause]);
+
   // Back navigation
   const onBack = useCallback(() => {
     router.push(`/songs/${id}`);
@@ -305,6 +312,7 @@ export default function KaraokePage() {
         onToggleAutoScroll={toggle}
         onModeChange={handleModeChange}
         onOpenSettings={() => setSettingsOpen(true)}
+        onStop={handleAudioStop}
         onBack={onBack}
         onAudioTimeUpdate={handleAudioTimeUpdate}
       />

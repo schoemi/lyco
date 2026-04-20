@@ -1,5 +1,5 @@
-export const APP_VERSION = '0.17.2';
+export const APP_VERSION = '0.18.0';
 
 /**
- * Latest Feature: Bar Highlighting
+ * Latest Feature: Annotation Display im Pitch View
  */

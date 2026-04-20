@@ -14,6 +14,8 @@ function mapZeile(z: {
   uebersetzung: string | null;
   orderIndex: number;
   istKommentar: boolean;
+  startTakt: number | null;
+  endTakt: number | null;
   markups: { id: string; typ: string; ziel: string; wert: string | null; timecodeMs: number | null; wortIndex: number | null }[];
 }): ZeileDetail {
   return {
@@ -22,6 +24,8 @@ function mapZeile(z: {
     uebersetzung: z.uebersetzung,
     orderIndex: z.orderIndex,
     istKommentar: z.istKommentar,
+    startTakt: z.startTakt,
+    endTakt: z.endTakt,
     markups: z.markups.map(
       (m): MarkupResponse => ({
         id: m.id,
@@ -40,6 +44,8 @@ function mapStrophe(s: {
   name: string;
   orderIndex: number;
   istInstrumental: boolean;
+  startTakt: number | null;
+  endTakt: number | null;
   analyse?: string | null;
   zeilen: Parameters<typeof mapZeile>[0][];
   markups: { id: string; typ: string; ziel: string; wert: string | null; timecodeMs: number | null; wortIndex: number | null }[];
@@ -64,6 +70,8 @@ function mapStrophe(s: {
     name: s.name,
     orderIndex: s.orderIndex,
     istInstrumental: s.istInstrumental,
+    startTakt: s.startTakt,
+    endTakt: s.endTakt,
     progress: fort ? fort.prozent : 0,
     notiz: notiz ? notiz.text : null,
     analyse: s.analyse ?? null,
@@ -141,15 +149,40 @@ export async function updateStrophe(
   data: UpdateStropheInput
 ): Promise<StropheDetail> {
   await verifySongOwnership(userId, songId);
-  await verifyStropheBelongsToSong(stropheId, songId);
+  const bestehendeStrophe = await verifyStropheBelongsToSong(stropheId, songId);
 
   if (data.name !== undefined && (!data.name || !data.name.trim())) {
     throw new Error("Name ist erforderlich");
   }
 
+  // Taktbereich-Validierung
+  if (data.startTakt !== undefined) {
+    if (data.startTakt !== null && (!Number.isInteger(data.startTakt) || data.startTakt < 1)) {
+      throw new Error("startTakt muss eine positive Ganzzahl sein");
+    }
+  }
+  if (data.endTakt !== undefined) {
+    if (data.endTakt !== null && (!Number.isInteger(data.endTakt) || data.endTakt < 1)) {
+      throw new Error("endTakt muss eine positive Ganzzahl sein");
+    }
+  }
+
+  // Konsistenzprüfung: endTakt ohne startTakt ist ungültig
+  const effektivStartTakt = data.startTakt !== undefined ? data.startTakt : bestehendeStrophe.startTakt;
+  const effektivEndTakt = data.endTakt !== undefined ? data.endTakt : bestehendeStrophe.endTakt;
+
+  if (effektivEndTakt !== null && effektivStartTakt === null) {
+    throw new Error("endTakt kann nicht ohne startTakt gesetzt werden");
+  }
+  if (effektivStartTakt !== null && effektivEndTakt !== null && effektivStartTakt > effektivEndTakt) {
+    throw new Error("startTakt muss kleiner oder gleich endTakt sein");
+  }
+
   const updateData: Record<string, unknown> = {};
   if (data.name !== undefined) updateData.name = data.name.trim();
   if (data.istInstrumental !== undefined) updateData.istInstrumental = data.istInstrumental;
+  if (data.startTakt !== undefined) updateData.startTakt = data.startTakt;
+  if (data.endTakt !== undefined) updateData.endTakt = data.endTakt;
 
   const updated = await prisma.strophe.update({
     where: { id: stropheId },

@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import type { PitchBalken } from "@/lib/pitch-display/pitch-balken";
+import type { AnnotationsBalken } from "@/lib/pitch-display/annotations-aufbereitung";
 import {
   berechneViewport,
   filterSichtbareBalken,
@@ -33,6 +34,42 @@ function isNatural(midi: number): boolean {
   return [0, 2, 4, 5, 7, 9, 11].includes(noteIndex);
 }
 
+/** Annotation bar with assigned lane index for stacking. */
+export interface AnnotationMitLane extends AnnotationsBalken {
+  lane: number;
+}
+
+/**
+ * Assigns lanes to annotation bars using a greedy algorithm.
+ * Each bar is placed in the first lane where it doesn't overlap with any existing bar.
+ * Bars are processed in order (assumed sorted by startMs from erzeugeAnnotationsBalken).
+ */
+export function weiseLanesZu(annotationen: AnnotationsBalken[]): AnnotationMitLane[] {
+  if (annotationen.length === 0) return [];
+
+  // Track the end time of the last bar placed in each lane
+  const laneEnds: number[] = [];
+  const result: AnnotationMitLane[] = [];
+
+  for (const bar of annotationen) {
+    let assignedLane = -1;
+    for (let lane = 0; lane < laneEnds.length; lane++) {
+      if (laneEnds[lane] <= bar.startMs) {
+        assignedLane = lane;
+        break;
+      }
+    }
+    if (assignedLane === -1) {
+      assignedLane = laneEnds.length;
+      laneEnds.push(0);
+    }
+    laneEnds[assignedLane] = bar.endMs;
+    result.push({ ...bar, lane: assignedLane });
+  }
+
+  return result;
+}
+
 interface PitchDisplayProps {
   /** Array of aggregated pitch bars to display. */
   balken: PitchBalken[];
@@ -48,6 +85,8 @@ interface PitchDisplayProps {
   beatPositionenMs?: number[];
   /** Beats per measure (e.g. 4 for 4/4 time). Used to draw measure lines and count measures. */
   taktZaehler?: number;
+  /** Optional annotation bars for instrumental/comment sections. */
+  annotationen?: AnnotationsBalken[];
 }
 
 /** Left margin for the note-name scale in pixels. */
@@ -65,6 +104,39 @@ const ANNOUNCE_INTERVAL_MS = 5000;
 /** Keyboard viewport shift amount in ms. */
 const KEYBOARD_SHIFT_MS = 2000;
 
+/** Height per annotation lane in pixels (bar 16px + 6px spacing). */
+const ANNOTATION_LANE_HEIGHT = 22;
+/** Height of each annotation bar in pixels. */
+const ANNOTATION_BAR_HEIGHT = 16;
+/** Border radius for annotation bars. */
+const ANNOTATION_BAR_RADIUS = 4;
+/** Spacing between pitch area and annotation zone. */
+const ANNOTATION_ZONE_GAP = 4;
+/** Fill color for instrumental annotation bars. */
+const ANNOTATION_COLOR_INSTRUMENTAL = "rgba(56, 189, 248, 0.6)";
+/** Fill color for kommentar annotation bars. */
+const ANNOTATION_COLOR_KOMMENTAR = "rgba(251, 191, 36, 0.6)";
+/** Font size for annotation text in pixels. */
+const ANNOTATION_FONT_SIZE = 10;
+/** Average character width heuristic at ANNOTATION_FONT_SIZE. */
+const ANNOTATION_CHAR_WIDTH = 6.5;
+/** Horizontal padding inside annotation text or speech bubble. */
+const ANNOTATION_TEXT_PADDING = 6;
+/** Height of the speech bubble rectangle. */
+const SPEECH_BUBBLE_HEIGHT = 18;
+/** Height of the speech bubble triangle pointer. */
+const SPEECH_BUBBLE_TRIANGLE_HEIGHT = 4;
+/** Gap between speech bubble and bar top. */
+const SPEECH_BUBBLE_GAP = 2;
+
+/**
+ * Estimates the rendered width of annotation text using a character count heuristic.
+ * Returns the estimated width including horizontal padding.
+ */
+export function schaetzeTextBreite(text: string): number {
+  return text.length * ANNOTATION_CHAR_WIDTH + ANNOTATION_TEXT_PADDING * 2;
+}
+
 /**
  * SVG-based pitch visualization component.
  * Renders horizontal pitch bars, a playback cursor, guide lines, and a note-name scale.
@@ -81,6 +153,7 @@ export function PitchDisplay({
   windowDurationMs: rawWindowDurationMs = 25000,
   beatPositionenMs,
   taktZaehler = 4,
+  annotationen,
 }: PitchDisplayProps) {
   // Clamp window duration to valid range
   const windowDurationMs = Math.max(10000, Math.min(30000, rawWindowDurationMs));
@@ -190,6 +263,32 @@ export function PitchDisplay({
     [balken, viewport],
   );
 
+  // --- Annotation viewport filtering (reuse same overlap pattern) ---
+  const sichtbareAnnotationen = useMemo(() => {
+    if (!annotationen || annotationen.length === 0) return [];
+    return annotationen.filter(
+      (a) => a.endMs >= viewport.startMs && a.startMs <= viewport.endMs,
+    );
+  }, [annotationen, viewport]);
+
+  // --- Lane assignment for overlapping annotation bars (greedy algorithm) ---
+  const annotationenMitLane = useMemo(() => {
+    return weiseLanesZu(sichtbareAnnotationen);
+  }, [sichtbareAnnotationen]);
+
+  const anzahlLanes = useMemo(() => {
+    if (annotationenMitLane.length === 0) return 0;
+    return Math.max(...annotationenMitLane.map((a) => a.lane)) + 1;
+  }, [annotationenMitLane]);
+
+  // --- Compute annotation zone height ---
+  const annotationZoneHeight = anzahlLanes > 0
+    ? ANNOTATION_ZONE_GAP + anzahlLanes * ANNOTATION_LANE_HEIGHT
+    : 0;
+
+  // --- Total SVG height: pitch area + annotation zone ---
+  const totalSvgHeight = height + annotationZoneHeight;
+
   // --- Compute guide lines (natural notes within MIDI range) ---
   const guideNotes = useMemo(() => {
     if (midiMin === 0 && midiMax === 0) return [];
@@ -214,6 +313,34 @@ export function PitchDisplay({
       return { key: i, x, y, width: w };
     });
   }, [sichtbareBalken, viewport, plotWidth, midiMin, midiMax, height]);
+
+  // --- Compute annotation bar SVG elements ---
+  const annotationRects = useMemo(() => {
+    if (annotationenMitLane.length === 0) return [];
+    const annotationZoneTop = height + ANNOTATION_ZONE_GAP;
+    return annotationenMitLane.map((a, i) => {
+      const x = SCALE_MARGIN + berechneSvgX(a.startMs, viewport, plotWidth);
+      const xEnd = SCALE_MARGIN + berechneSvgX(a.endMs, viewport, plotWidth);
+      const w = Math.max(xEnd - x, 2);
+      const y = annotationZoneTop + a.lane * ANNOTATION_LANE_HEIGHT + (ANNOTATION_LANE_HEIGHT - ANNOTATION_BAR_HEIGHT) / 2;
+      const fill = a.typ === 'instrumental'
+        ? ANNOTATION_COLOR_INSTRUMENTAL
+        : ANNOTATION_COLOR_KOMMENTAR;
+      const textWidth = schaetzeTextBreite(a.text);
+      const needsBubble = w < textWidth;
+      // Build accessible title: "Instrumental: Solo, Takt 5 bis 12" or "Kommentar: text, Takt 3 bis 7"
+      const typLabel = a.typ === 'instrumental' ? 'Instrumental' : 'Kommentar';
+      let title = `${typLabel}: ${a.text}`;
+      if (a.startTakt != null) {
+        if (a.endTakt != null && a.endTakt !== a.startTakt) {
+          title += `, Takt ${a.startTakt} bis ${a.endTakt}`;
+        } else {
+          title += `, Takt ${a.startTakt}`;
+        }
+      }
+      return { key: `ann-${i}`, x, y, width: w, fill, text: a.text, typ: a.typ, needsBubble, textWidth, title };
+    });
+  }, [annotationenMitLane, viewport, plotWidth, height]);
 
   const cursorX = SCALE_MARGIN + berechneSvgX(effectiveTimeMs, viewport, plotWidth);
 
@@ -256,8 +383,12 @@ export function PitchDisplay({
     }
     const minNote = midiToNoteName(midiBereich.min);
     const maxNote = midiToNoteName(midiBereich.max);
-    return `Pitch-Anzeige: ${balken.length} Balken, Tonhöhenbereich ${minNote} bis ${maxNote}`;
-  }, [balken.length, midiBereich.min, midiBereich.max]);
+    let label = `Pitch-Anzeige: ${balken.length} Balken, Tonhöhenbereich ${minNote} bis ${maxNote}`;
+    if (annotationen && annotationen.length > 0) {
+      label += `, ${annotationen.length} Annotationen`;
+    }
+    return label;
+  }, [balken.length, midiBereich.min, midiBereich.max, annotationen]);
 
   return (
     <div
@@ -267,8 +398,8 @@ export function PitchDisplay({
     >
       <svg
         width="100%"
-        height={height}
-        viewBox={`0 0 ${svgWidth} ${height}`}
+        height={totalSvgHeight}
+        viewBox={`0 0 ${svgWidth} ${totalSvgHeight}`}
         role="img"
         aria-label={ariaLabel}
         tabIndex={0}
@@ -319,7 +450,7 @@ export function PitchDisplay({
                   x1={x}
                   y1={istTaktAnfang ? 0 : 0}
                   x2={x}
-                  y2={height}
+                  y2={totalSvgHeight}
                   stroke={istTaktAnfang ? "rgba(255, 255, 255, 0.30)" : "rgba(255, 255, 255, 0.12)"}
                   strokeWidth={istTaktAnfang ? 2 : 1}
                   strokeDasharray={istTaktAnfang ? undefined : "4 4"}
@@ -355,12 +486,85 @@ export function PitchDisplay({
           />
         ))}
 
+        {/* Annotation bars with text and speech bubbles */}
+        {annotationRects.map((rect) => (
+          <g key={rect.key}>
+            {/* Accessible title for annotation bar */}
+            <title>{rect.title}</title>
+            {/* Annotation bar */}
+            <rect
+              x={rect.x}
+              y={rect.y}
+              width={rect.width}
+              height={ANNOTATION_BAR_HEIGHT}
+              rx={ANNOTATION_BAR_RADIUS}
+              ry={ANNOTATION_BAR_RADIUS}
+              fill={rect.fill}
+            />
+            {rect.needsBubble ? (
+              /* Speech bubble: SVG group above the bar */
+              (() => {
+                const bubbleWidth = rect.textWidth;
+                const barCenterX = rect.x + rect.width / 2;
+                const bubbleX = barCenterX - bubbleWidth / 2;
+                const bubbleY = rect.y - SPEECH_BUBBLE_GAP - SPEECH_BUBBLE_TRIANGLE_HEIGHT - SPEECH_BUBBLE_HEIGHT;
+                const triangleTopY = bubbleY + SPEECH_BUBBLE_HEIGHT;
+                const triangleBottomY = triangleTopY + SPEECH_BUBBLE_TRIANGLE_HEIGHT;
+                return (
+                  <g data-testid="speech-bubble">
+                    {/* Bubble background */}
+                    <rect
+                      x={bubbleX}
+                      y={bubbleY}
+                      width={bubbleWidth}
+                      height={SPEECH_BUBBLE_HEIGHT}
+                      rx={3}
+                      ry={3}
+                      fill={rect.fill}
+                    />
+                    {/* Triangle pointing down to bar */}
+                    <polygon
+                      points={`${barCenterX - 4},${triangleTopY} ${barCenterX + 4},${triangleTopY} ${barCenterX},${triangleBottomY}`}
+                      fill={rect.fill}
+                    />
+                    {/* Text centered in bubble */}
+                    <text
+                      x={barCenterX}
+                      y={bubbleY + SPEECH_BUBBLE_HEIGHT / 2 + ANNOTATION_FONT_SIZE * 0.35}
+                      textAnchor="middle"
+                      fill="white"
+                      fontSize={ANNOTATION_FONT_SIZE}
+                      fontFamily="sans-serif"
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      {rect.text}
+                    </text>
+                  </g>
+                );
+              })()
+            ) : (
+              /* Text directly on bar (centered, white, small font) */
+              <text
+                x={rect.x + rect.width / 2}
+                y={rect.y + ANNOTATION_BAR_HEIGHT / 2 + ANNOTATION_FONT_SIZE * 0.35}
+                textAnchor="middle"
+                fill="white"
+                fontSize={ANNOTATION_FONT_SIZE}
+                fontFamily="sans-serif"
+                style={{ pointerEvents: 'none' }}
+              >
+                {rect.text}
+              </text>
+            )}
+          </g>
+        ))}
+
         {/* Playback cursor */}
         <line
           x1={cursorX}
           y1={0}
           x2={cursorX}
-          y2={height}
+          y2={totalSvgHeight}
           stroke="rgba(255, 255, 255, 0.8)"
           strokeWidth={2}
         />

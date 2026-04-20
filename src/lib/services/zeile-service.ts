@@ -13,6 +13,8 @@ function mapZeile(z: {
   uebersetzung: string | null;
   orderIndex: number;
   istKommentar: boolean;
+  startTakt: number | null;
+  endTakt: number | null;
   markups: { id: string; typ: string; ziel: string; wert: string | null; timecodeMs: number | null; wortIndex: number | null }[];
 }): ZeileDetail {
   return {
@@ -21,6 +23,8 @@ function mapZeile(z: {
     uebersetzung: z.uebersetzung,
     orderIndex: z.orderIndex,
     istKommentar: z.istKommentar,
+    startTakt: z.startTakt,
+    endTakt: z.endTakt,
     markups: z.markups.map(
       (m): MarkupResponse => ({
         id: m.id,
@@ -109,16 +113,41 @@ export async function updateZeile(
 ): Promise<ZeileDetail> {
   await verifySongOwnership(userId, songId);
   await verifyStropheBelongsToSong(stropheId, songId);
-  await verifyZeileBelongsToStrophe(zeileId, stropheId);
+  const bestehendeZeile = await verifyZeileBelongsToStrophe(zeileId, stropheId);
 
   if (data.text !== undefined && (!data.text || !data.text.trim())) {
     throw new Error("Text ist erforderlich");
+  }
+
+  // Taktbereich-Validierung
+  if (data.startTakt !== undefined) {
+    if (data.startTakt !== null && (!Number.isInteger(data.startTakt) || data.startTakt < 1)) {
+      throw new Error("startTakt muss eine positive Ganzzahl sein");
+    }
+  }
+  if (data.endTakt !== undefined) {
+    if (data.endTakt !== null && (!Number.isInteger(data.endTakt) || data.endTakt < 1)) {
+      throw new Error("endTakt muss eine positive Ganzzahl sein");
+    }
+  }
+
+  // Konsistenzprüfung
+  const effektivStartTakt = data.startTakt !== undefined ? data.startTakt : bestehendeZeile.startTakt;
+  const effektivEndTakt = data.endTakt !== undefined ? data.endTakt : bestehendeZeile.endTakt;
+
+  if (effektivEndTakt !== null && effektivStartTakt === null) {
+    throw new Error("endTakt kann nicht ohne startTakt gesetzt werden");
+  }
+  if (effektivStartTakt !== null && effektivEndTakt !== null && effektivStartTakt > effektivEndTakt) {
+    throw new Error("startTakt muss kleiner oder gleich endTakt sein");
   }
 
   const updateData: Record<string, unknown> = {};
   if (data.text !== undefined) updateData.text = data.text.trim();
   if (data.uebersetzung !== undefined) updateData.uebersetzung = data.uebersetzung;
   if (data.istKommentar !== undefined) updateData.istKommentar = data.istKommentar;
+  if (data.startTakt !== undefined) updateData.startTakt = data.startTakt;
+  if (data.endTakt !== undefined) updateData.endTakt = data.endTakt;
 
   const updated = await prisma.zeile.update({
     where: { id: zeileId },

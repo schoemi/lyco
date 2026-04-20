@@ -4,15 +4,15 @@ import { StropheCard } from "./strophe-card";
 import type { StropheDetail } from "@/types/song";
 
 const baseZeilen = [
-  { id: "z1", text: "In the car, I just can't wait", uebersetzung: "Im Auto, ich kann es kaum erwarten", orderIndex: 0, istKommentar: false, markups: [] },
-  { id: "z2", text: "To pick you up on our very first date", uebersetzung: "Dich abzuholen zu unserem ersten Date", orderIndex: 1, istKommentar: false, markups: [] },
-  { id: "z3", text: "Is it cool if I hold your hand?", uebersetzung: "Ist es okay, wenn ich deine Hand halte?", orderIndex: 2, istKommentar: false, markups: [] },
+  { id: "z1", text: "In the car, I just can't wait", uebersetzung: "Im Auto, ich kann es kaum erwarten", orderIndex: 0, istKommentar: false, startTakt: null, endTakt: null, markups: [] },
+  { id: "z2", text: "To pick you up on our very first date", uebersetzung: "Dich abzuholen zu unserem ersten Date", orderIndex: 1, istKommentar: false, startTakt: null, endTakt: null, markups: [] },
+  { id: "z3", text: "Is it cool if I hold your hand?", uebersetzung: "Ist es okay, wenn ich deine Hand halte?", orderIndex: 2, istKommentar: false, startTakt: null, endTakt: null, markups: [] },
 ];
 
 const kommentarZeilen = [
   ...baseZeilen,
-  { id: "z4", text: "(Spoken softly)", uebersetzung: null, orderIndex: 3, istKommentar: true, markups: [] },
-  { id: "z5", text: "I'm just scared of what you think", uebersetzung: "Ich habe nur Angst vor dem, was du denkst", orderIndex: 4, istKommentar: false, markups: [] },
+  { id: "z4", text: "(Spoken softly)", uebersetzung: null, orderIndex: 3, istKommentar: true, startTakt: null, endTakt: null, markups: [] },
+  { id: "z5", text: "I'm just scared of what you think", uebersetzung: "Ich habe nur Angst vor dem, was du denkst", orderIndex: 4, istKommentar: false, startTakt: null, endTakt: null, markups: [] },
 ];
 
 const normalStrophe: StropheDetail = {
@@ -23,6 +23,8 @@ const normalStrophe: StropheDetail = {
   notiz: null,
   analyse: null,
   istInstrumental: false,
+  startTakt: null,
+  endTakt: null,
   zeilen: baseZeilen,
   markups: [],
 };
@@ -35,8 +37,10 @@ const instrumentalStrophe: StropheDetail = {
   notiz: null,
   analyse: null,
   istInstrumental: true,
+  startTakt: null,
+  endTakt: null,
   zeilen: [
-    { id: "z-inst", text: "Instrumental Break – 4 Takte", uebersetzung: null, orderIndex: 0, istKommentar: false, markups: [] },
+    { id: "z-inst", text: "Instrumental Break – 4 Takte", uebersetzung: null, orderIndex: 0, istKommentar: false, startTakt: null, endTakt: null, markups: [] },
   ],
   markups: [],
 };
@@ -49,6 +53,8 @@ const stropheMitKommentar: StropheDetail = {
   notiz: null,
   analyse: null,
   istInstrumental: false,
+  startTakt: null,
+  endTakt: null,
   zeilen: kommentarZeilen,
   markups: [],
 };

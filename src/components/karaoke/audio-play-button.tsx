@@ -8,6 +8,7 @@ export interface AudioPlayButtonHandle {
   getCurrentTimeMs: () => number;
   getDurationMs: () => number;
   getIsPlaying: () => boolean;
+  stop: () => void;
 }
 
 interface AudioPlayButtonProps {
@@ -46,6 +47,14 @@ export const AudioPlayButton = forwardRef<AudioPlayButtonHandle, AudioPlayButton
       },
       getIsPlaying(): boolean {
         return isPlaying;
+      },
+      stop(): void {
+        const audio = audioRef.current;
+        if (!audio) return;
+        if (!audio.paused) {
+          audio.pause();
+        }
+        audio.currentTime = 0;
       },
     }), [activeQuelle, isPlaying]);
 

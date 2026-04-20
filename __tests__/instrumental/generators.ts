@@ -46,6 +46,8 @@ export const arbZeileDetail: fc.Arbitrary<ZeileDetail> = fc.record({
   }),
   orderIndex: fc.nat({ max: 100 }),
   istKommentar: fc.boolean(),
+  startTakt: fc.option(fc.nat({ max: 200 }).map((n) => n + 1), { nil: null }),
+  endTakt: fc.option(fc.nat({ max: 200 }).map((n) => n + 1), { nil: null }),
   markups: fc.array(arbMarkup, { minLength: 0, maxLength: 3 }),
 });
 
@@ -66,6 +68,8 @@ export const arbStropheDetail: fc.Arbitrary<StropheDetail> = fc.record({
     nil: null,
   }),
   istInstrumental: fc.boolean(),
+  startTakt: fc.option(fc.nat({ max: 200 }).map((n) => n + 1), { nil: null }),
+  endTakt: fc.option(fc.nat({ max: 200 }).map((n) => n + 1), { nil: null }),
   zeilen: fc.array(arbZeileDetail, { minLength: 0, maxLength: 8 }),
   markups: fc.array(arbMarkup, { minLength: 0, maxLength: 3 }),
 });
@@ -151,6 +155,8 @@ export const arbSongDetailWithLearnableContent: fc.Arbitrary<SongDetail> = fc
       notiz: fc.constant(null),
       analyse: fc.constant(null),
       istInstrumental: fc.constant(false),
+      startTakt: fc.constant(null),
+      endTakt: fc.constant(null),
       zeilen: fc.array(
         arbZeileDetail.map((z) => ({ ...z, istKommentar: false, text: z.text.length > 0 ? z.text : "placeholder" })),
         { minLength: 1, maxLength: 5 },

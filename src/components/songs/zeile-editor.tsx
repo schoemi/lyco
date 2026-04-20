@@ -39,6 +39,10 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
   const [reorderLoading, setReorderLoading] = useState(false);
   const [tagDefinitions, setTagDefinitions] = useState<TagDefinitionData[]>([]);
 
+  // Taktbereich state per zeile: { [zeileId]: { startTakt: string, endTakt: string } }
+  const [taktbereichInputs, setTaktbereichInputs] = useState<Record<string, { startTakt: string; endTakt: string }>>({});
+  const [taktbereichError, setTaktbereichError] = useState<Record<string, string | null>>({});
+
   const addTextInputRef = useRef<HTMLInputElement>(null);
   const editTextInputRef = useRef<HTMLInputElement>(null);
   const cancelDeleteRef = useRef<HTMLButtonElement>(null);
@@ -334,6 +338,118 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
     }
   }
 
+  // --- Taktbereich helpers ---
+  function getTaktbereichInput(zeile: ZeileDetail) {
+    if (taktbereichInputs[zeile.id]) return taktbereichInputs[zeile.id];
+    return {
+      startTakt: zeile.startTakt != null ? String(zeile.startTakt) : "",
+      endTakt: zeile.endTakt != null ? String(zeile.endTakt) : "",
+    };
+  }
+
+  function setTaktbereichField(zeileId: string, field: "startTakt" | "endTakt", value: string) {
+    setTaktbereichInputs((prev) => ({
+      ...prev,
+      [zeileId]: {
+        ...getTaktbereichInputForId(zeileId),
+        [field]: value,
+      },
+    }));
+    // Clear error on input change
+    if (taktbereichError[zeileId]) {
+      setTaktbereichError((prev) => ({ ...prev, [zeileId]: null }));
+    }
+  }
+
+  function getTaktbereichInputForId(zeileId: string) {
+    if (taktbereichInputs[zeileId]) return taktbereichInputs[zeileId];
+    const zeile = zeilen.find((z) => z.id === zeileId);
+    return {
+      startTakt: zeile?.startTakt != null ? String(zeile.startTakt) : "",
+      endTakt: zeile?.endTakt != null ? String(zeile.endTakt) : "",
+    };
+  }
+
+  async function handleTaktbereichSave(zeile: ZeileDetail) {
+    const input = getTaktbereichInput(zeile);
+    const startStr = input.startTakt.trim();
+    const endStr = input.endTakt.trim();
+
+    // Parse values: empty → null, otherwise integer
+    const startTakt = startStr === "" ? null : parseInt(startStr, 10);
+    const endTakt = endStr === "" ? null : parseInt(endStr, 10);
+
+    // Validate: positive integers only
+    if (startTakt !== null && (!Number.isInteger(startTakt) || startTakt < 1)) {
+      setTaktbereichError((prev) => ({ ...prev, [zeile.id]: "Takt von muss eine positive Ganzzahl sein" }));
+      return;
+    }
+    if (endTakt !== null && (!Number.isInteger(endTakt) || endTakt < 1)) {
+      setTaktbereichError((prev) => ({ ...prev, [zeile.id]: "Takt bis muss eine positive Ganzzahl sein" }));
+      return;
+    }
+
+    // Validate: endTakt >= startTakt
+    if (startTakt !== null && endTakt !== null && endTakt < startTakt) {
+      setTaktbereichError((prev) => ({ ...prev, [zeile.id]: "Takt bis muss ≥ Takt von sein" }));
+      return;
+    }
+
+    // Skip if values haven't changed
+    if (startTakt === zeile.startTakt && endTakt === zeile.endTakt) return;
+
+    // Clear error
+    setTaktbereichError((prev) => ({ ...prev, [zeile.id]: null }));
+
+    // Optimistic update
+    const previousZeilen = zeilen;
+    const updated = zeilen.map((z) =>
+      z.id === zeile.id ? { ...z, startTakt, endTakt } : z
+    );
+    onZeilenChanged(updated);
+
+    try {
+      const res = await fetch(`${baseUrl}/${zeile.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ startTakt, endTakt }),
+      });
+      if (!res.ok) {
+        // Rollback on error
+        onZeilenChanged(previousZeilen);
+        // Reset input to previous values
+        setTaktbereichInputs((prev) => ({
+          ...prev,
+          [zeile.id]: {
+            startTakt: zeile.startTakt != null ? String(zeile.startTakt) : "",
+            endTakt: zeile.endTakt != null ? String(zeile.endTakt) : "",
+          },
+        }));
+        showStatus("Fehler beim Speichern des Taktbereichs");
+        return;
+      }
+      showStatus("Taktbereich gespeichert");
+    } catch {
+      // Rollback on network error
+      onZeilenChanged(previousZeilen);
+      setTaktbereichInputs((prev) => ({
+        ...prev,
+        [zeile.id]: {
+          startTakt: zeile.startTakt != null ? String(zeile.startTakt) : "",
+          endTakt: zeile.endTakt != null ? String(zeile.endTakt) : "",
+        },
+      }));
+      showStatus("Netzwerkfehler beim Speichern des Taktbereichs");
+    }
+  }
+
+  function handleTaktbereichKeyDown(e: React.KeyboardEvent, zeile: ZeileDetail) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleTaktbereichSave(zeile);
+    }
+  }
+
   const deleteZeile = deleteConfirmId ? zeilen.find((z) => z.id === deleteConfirmId) : null;
 
   // --- Read-only view ---
@@ -456,6 +572,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
             </form>
           ) : (
             /* Display mode */
+            <>
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
                 {viewMode === "markup" && tagDefinitions.length > 0 ? (
@@ -523,6 +640,47 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
                 </button>
               </div>
             </div>
+            {/* Taktbereich input fields for comment zeilen */}
+            {zeile.istKommentar && (
+              <div className="mt-2 flex items-center gap-2">
+                <label htmlFor={`takt-von-${zeile.id}`} className="text-xs text-neutral-500">
+                  Takt von
+                </label>
+                <input
+                  id={`takt-von-${zeile.id}`}
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={getTaktbereichInput(zeile).startTakt}
+                  onChange={(e) => setTaktbereichField(zeile.id, "startTakt", e.target.value)}
+                  onBlur={() => handleTaktbereichSave(zeile)}
+                  onKeyDown={(e) => handleTaktbereichKeyDown(e, zeile)}
+                  className="w-16 rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-newsong-500"
+                  aria-label="Start-Takt"
+                />
+                <label htmlFor={`takt-bis-${zeile.id}`} className="text-xs text-neutral-500">
+                  bis
+                </label>
+                <input
+                  id={`takt-bis-${zeile.id}`}
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={getTaktbereichInput(zeile).endTakt}
+                  onChange={(e) => setTaktbereichField(zeile.id, "endTakt", e.target.value)}
+                  onBlur={() => handleTaktbereichSave(zeile)}
+                  onKeyDown={(e) => handleTaktbereichKeyDown(e, zeile)}
+                  className="w-16 rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-newsong-500"
+                  aria-label="End-Takt"
+                />
+                {taktbereichError[zeile.id] && (
+                  <span className="text-xs text-error-600" role="alert">
+                    {taktbereichError[zeile.id]}
+                  </span>
+                )}
+              </div>
+            )}
+            </>
           )}
         </div>
       ))}

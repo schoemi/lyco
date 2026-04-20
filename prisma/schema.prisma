@@ -194,6 +194,8 @@ model Strophe {
   songId          String
   analyse         String?
   istInstrumental Boolean  @default(false)
+  startTakt       Int?
+  endTakt         Int?
   createdAt       DateTime @default(now())
 
   song         Song          @relation(fields: [songId], references: [id], onDelete: Cascade)
@@ -214,6 +216,8 @@ model Zeile {
   orderIndex   Int
   stropheId    String
   istKommentar Boolean @default(false)
+  startTakt    Int?
+  endTakt      Int?
 
   strophe Strophe  @relation(fields: [stropheId], references: [id], onDelete: Cascade)
   markups Markup[]

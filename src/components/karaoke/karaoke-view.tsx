@@ -12,6 +12,7 @@ import { PlayPauseButton } from "@/components/karaoke/play-pause-button";
 import { ModusUmschalter } from "@/components/karaoke/modus-umschalter";
 import { AudioPlayButton } from "@/components/karaoke/audio-play-button";
 import type { AudioPlayButtonHandle } from "@/components/karaoke/audio-play-button";
+import { AudioStopButton } from "@/components/karaoke/audio-stop-button";
 import { PitchDisplay } from "@/components/pitch-display/pitch-display";
 import { aggregiereFramesZuBalken } from "@/lib/pitch-display/pitch-balken";
 import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
@@ -33,6 +34,7 @@ interface KaraokeViewProps {
   onToggleAutoScroll: () => void;
   onModeChange: (mode: DisplayMode) => void;
   onOpenSettings: () => void;
+  onStop: () => void;
   onBack: () => void;
   onAudioTimeUpdate?: (currentTimeMs: number) => void;
 }
@@ -54,6 +56,7 @@ export const KaraokeView = forwardRef<AudioPlayButtonHandle, KaraokeViewProps>(
     onPrevStrophe,
     onToggleAutoScroll,
     onModeChange,
+    onStop,
     onOpenSettings,
     onBack,
     onAudioTimeUpdate,
@@ -188,6 +191,12 @@ export const KaraokeView = forwardRef<AudioPlayButtonHandle, KaraokeViewProps>(
         <div className="flex items-center justify-center gap-3">
           {/* Audio player button (MP3 only) */}
           <AudioPlayButton ref={ref} audioQuellen={song.audioQuellen} activeQuelleId={activeAudioQuelleId} onTimeUpdate={handleAudioTimeUpdate} onPlayStateChange={setIsAudioPlaying} />
+
+          {/* Audio stop button */}
+          <AudioStopButton
+            onStop={onStop}
+            disabled={!song.audioQuellen.some((q) => q.typ === "MP3")}
+          />
 
           <PlayPauseButton
             isPlaying={isAutoScrolling}

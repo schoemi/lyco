@@ -95,6 +95,48 @@ export async function importSong(
     if (!strophe.zeilen || strophe.zeilen.length === 0) {
       throw new Error("Jede Strophe muss mindestens eine Zeile enthalten");
     }
+
+    // Taktbereich-Validierung für Strophe
+    if (strophe.startTakt !== undefined && strophe.startTakt !== null) {
+      if (!Number.isInteger(strophe.startTakt) || strophe.startTakt < 1) {
+        throw new Error("startTakt muss eine positive Ganzzahl sein");
+      }
+    }
+    if (strophe.endTakt !== undefined && strophe.endTakt !== null) {
+      if (!Number.isInteger(strophe.endTakt) || strophe.endTakt < 1) {
+        throw new Error("endTakt muss eine positive Ganzzahl sein");
+      }
+    }
+    const stropheStartTakt = strophe.startTakt ?? null;
+    const stropheEndTakt = strophe.endTakt ?? null;
+    if (stropheEndTakt !== null && stropheStartTakt === null) {
+      throw new Error("endTakt kann nicht ohne startTakt gesetzt werden");
+    }
+    if (stropheStartTakt !== null && stropheEndTakt !== null && stropheStartTakt > stropheEndTakt) {
+      throw new Error("startTakt muss kleiner oder gleich endTakt sein");
+    }
+
+    // Taktbereich-Validierung für Zeilen
+    for (const zeile of strophe.zeilen) {
+      if (zeile.startTakt !== undefined && zeile.startTakt !== null) {
+        if (!Number.isInteger(zeile.startTakt) || zeile.startTakt < 1) {
+          throw new Error("startTakt muss eine positive Ganzzahl sein");
+        }
+      }
+      if (zeile.endTakt !== undefined && zeile.endTakt !== null) {
+        if (!Number.isInteger(zeile.endTakt) || zeile.endTakt < 1) {
+          throw new Error("endTakt muss eine positive Ganzzahl sein");
+        }
+      }
+      const zeileStartTakt = zeile.startTakt ?? null;
+      const zeileEndTakt = zeile.endTakt ?? null;
+      if (zeileEndTakt !== null && zeileStartTakt === null) {
+        throw new Error("endTakt kann nicht ohne startTakt gesetzt werden");
+      }
+      if (zeileStartTakt !== null && zeileEndTakt !== null && zeileStartTakt > zeileEndTakt) {
+        throw new Error("startTakt muss kleiner oder gleich endTakt sein");
+      }
+    }
   }
 
   const song = await prisma.$transaction(async (tx) => {
@@ -116,6 +158,8 @@ export async function importSong(
           name: stropheInput.name,
           orderIndex: si,
           istInstrumental: stropheInput.istInstrumental ?? false,
+          startTakt: stropheInput.startTakt ?? null,
+          endTakt: stropheInput.endTakt ?? null,
           songId: createdSong.id,
         },
       });
@@ -144,6 +188,8 @@ export async function importSong(
             text: zeileInput.text,
             uebersetzung: zeileInput.uebersetzung ?? null,
             istKommentar: zeileInput.istKommentar ?? false,
+            startTakt: zeileInput.startTakt ?? null,
+            endTakt: zeileInput.endTakt ?? null,
             orderIndex: zi,
             stropheId: createdStrophe.id,
           },
@@ -236,6 +282,8 @@ export async function getSongDetail(
       uebersetzung: z.uebersetzung,
       orderIndex: z.orderIndex,
       istKommentar: z.istKommentar,
+      startTakt: z.startTakt,
+      endTakt: z.endTakt,
       markups: z.markups.map(
         (m): MarkupResponse => ({
           id: m.id,
@@ -265,6 +313,8 @@ export async function getSongDetail(
       notiz: notiz ? notiz.text : null,
       analyse: s.analyse ?? null,
       istInstrumental: s.istInstrumental,
+      startTakt: s.startTakt,
+      endTakt: s.endTakt,
       zeilen,
       markups: stropheMarkups,
     };
