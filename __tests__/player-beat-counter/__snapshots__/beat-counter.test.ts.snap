@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BeatCounter > variant='dark' > snapshot — dark active 1`] = `"<div class="rounded-full bg-white/10 px-4 py-2 text-lg font-bold text-white/90" aria-label="Takt 2, Schlag 2">2.2</div>"`;
+
+exports[`BeatCounter > variant='dark' > snapshot — dark placeholder 1`] = `"<div class="rounded-full bg-white/10 px-4 py-2 text-lg font-bold text-white/90" aria-label="Kein aktiver Takt">—</div>"`;
+
+exports[`BeatCounter > variant='light' (default) > snapshot — light active 1`] = `"<span class="rounded-md bg-neutral-100 px-2 py-0.5 text-sm tabular-nums font-mono text-neutral-700" aria-label="Takt 2, Schlag 2">2.2</span>"`;
+
+exports[`BeatCounter > variant='light' (default) > snapshot — light placeholder 1`] = `"<span class="rounded-md bg-neutral-100 px-2 py-0.5 text-sm tabular-nums font-mono text-neutral-700" aria-label="Kein aktiver Takt">—</span>"`;

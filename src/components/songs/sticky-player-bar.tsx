@@ -4,10 +4,12 @@ import { useRef, useState } from "react";
 import { formatTimecode } from "@/lib/audio/timecode";
 import { useSharedAudio } from "./shared-audio-provider";
 import BeatMarkerOverlay from "./beat-marker-overlay";
+import { BeatCounter } from "./beat-counter";
 
 interface StickyPlayerBarProps {
   visible: boolean;
   beatPositionenMs?: number[];
+  taktZaehler?: number;
 }
 
 function formatTime(ms: number): string {
@@ -20,7 +22,7 @@ function formatTime(ms: number): string {
  * scrolls out of the viewport. Can be collapsed to show only a
  * small handle tab. Shares audio state via SharedAudioProvider.
  */
-export default function StickyPlayerBar({ visible, beatPositionenMs }: StickyPlayerBarProps) {
+export default function StickyPlayerBar({ visible, beatPositionenMs, taktZaehler }: StickyPlayerBarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const {
@@ -113,6 +115,15 @@ export default function StickyPlayerBar({ visible, beatPositionenMs }: StickyPla
                   </button>
                 ))}
               </div>
+            )}
+
+            {beatPositionenMs && beatPositionenMs.length > 0 && (
+              <BeatCounter
+                beatPositionenMs={beatPositionenMs}
+                currentTimeMs={currentTimeMs}
+                taktZaehler={taktZaehler}
+                variant="light"
+              />
             )}
 
             <span className="ml-auto shrink-0 text-sm tabular-nums text-neutral-600">

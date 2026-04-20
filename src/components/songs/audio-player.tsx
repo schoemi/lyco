@@ -8,6 +8,7 @@ import type { AudioQuelleResponse } from "@/types/audio";
 import { formatTimecode } from "@/lib/audio/timecode";
 import { useSharedAudio } from "./shared-audio-provider";
 import BeatMarkerOverlay from "./beat-marker-overlay";
+import { BeatCounter } from "./beat-counter";
 
 export interface AudioPlayerHandle {
   seekTo: (ms: number) => boolean;
@@ -17,6 +18,7 @@ interface AudioPlayerProps {
   audioQuellen: AudioQuelleResponse[];
   onTimeUpdate?: (currentTimeMs: number) => void;
   beatPositionenMs?: number[];
+  taktZaehler?: number;
 }
 
 function formatTime(ms: number): string {
@@ -72,7 +74,7 @@ function youtubeEmbedUrl(url: string): string {
 }
 
 const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
-  function AudioPlayer({ audioQuellen, beatPositionenMs }, ref) {
+  function AudioPlayer({ audioQuellen, beatPositionenMs, taktZaehler }, ref) {
     const {
       isPlaying,
       currentTimeMs,
@@ -137,6 +139,14 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
               <span className="min-w-[80px] text-xs tabular-nums text-neutral-600">
                 {formatTime(currentTimeMs)} / {formatTime(durationMs)}
               </span>
+              {beatPositionenMs && beatPositionenMs.length > 0 && (
+                <BeatCounter
+                  beatPositionenMs={beatPositionenMs}
+                  currentTimeMs={currentTimeMs}
+                  taktZaehler={taktZaehler}
+                  variant="light"
+                />
+              )}
             </div>
 
             <div

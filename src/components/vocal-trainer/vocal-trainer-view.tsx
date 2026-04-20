@@ -19,6 +19,7 @@ import type { TagDefinitionData } from "@/types/vocal-tag";
 import { flattenLines } from "@/lib/karaoke/flatten-lines";
 import { messeLatenz, kompensiere } from "@/lib/vocal-trainer/latenz";
 import { aggregiereFramesZuBalken } from "@/lib/pitch-display/pitch-balken";
+import { erzeugeAnnotationsBalken } from "@/lib/pitch-display/annotations-aufbereitung";
 import { PitchDisplay } from "@/components/pitch-display/pitch-display";
 import { TextAnzeige } from "@/components/karaoke/text-anzeige";
 import { StrophenTitel } from "@/components/karaoke/strophen-titel";
@@ -148,6 +149,24 @@ export function VocalTrainerView({
     [referenzDaten.frames],
   );
   const [currentTimeMs, setCurrentTimeMs] = useState(0);
+
+  // --- Annotation bars (instrumental/comment sections) ---
+  const adjustedBeatPositionenMs = useMemo(() => {
+    if (!song.beatErgebnis?.beatPositionenMs) return undefined;
+    if (song.beatErgebnis.offsetMs) {
+      return song.beatErgebnis.beatPositionenMs.map((ms) => Math.max(0, ms + song.beatErgebnis!.offsetMs));
+    }
+    return song.beatErgebnis.beatPositionenMs;
+  }, [song.beatErgebnis]);
+
+  const annotationen = useMemo(() => {
+    if (!adjustedBeatPositionenMs || adjustedBeatPositionenMs.length === 0) return undefined;
+    return erzeugeAnnotationsBalken(
+      song.strophen,
+      adjustedBeatPositionenMs,
+      song.beatErgebnis?.taktZaehler ?? 4,
+    );
+  }, [song.strophen, adjustedBeatPositionenMs, song.beatErgebnis?.taktZaehler]);
 
   // --- Load tag definitions when vocal tag display is enabled ---
   useEffect(() => {
@@ -645,12 +664,9 @@ export function VocalTrainerView({
                 currentTimeMs={currentTimeMs}
                 isPlaying={zustand === "AUFNAHME"}
                 windowDurationMs={25000}
-                beatPositionenMs={
-                  song.beatErgebnis?.beatPositionenMs && song.beatErgebnis.offsetMs
-                    ? song.beatErgebnis.beatPositionenMs.map((ms) => Math.max(0, ms + song.beatErgebnis!.offsetMs))
-                    : song.beatErgebnis?.beatPositionenMs
-                }
+                beatPositionenMs={adjustedBeatPositionenMs}
                 taktZaehler={song.beatErgebnis?.taktZaehler}
+                annotationen={annotationen}
               />
             </div>
             {displayMode !== "keinText" && (

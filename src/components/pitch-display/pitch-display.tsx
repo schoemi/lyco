@@ -9,6 +9,7 @@ import {
 } from "react";
 import type { PitchBalken } from "@/lib/pitch-display/pitch-balken";
 import type { AnnotationsBalken } from "@/lib/pitch-display/annotations-aufbereitung";
+import { BeatCounter } from "@/components/songs/beat-counter";
 import {
   berechneViewport,
   filterSichtbareBalken,
@@ -572,62 +573,20 @@ export function PitchDisplay({
 
       {/* Beat/Measure counter overlay */}
       {beatPositionenMs && beatPositionenMs.length > 0 && (
-        <BeatCounter
-          beatPositionenMs={beatPositionenMs}
-          currentTimeMs={effectiveTimeMs}
-          taktZaehler={taktZaehler}
-        />
+        <div className="absolute top-2 right-2">
+          <BeatCounter
+            beatPositionenMs={beatPositionenMs}
+            currentTimeMs={effectiveTimeMs}
+            taktZaehler={taktZaehler}
+            variant="dark"
+          />
+        </div>
       )}
 
       {/* Aria-live region for time announcements */}
       <div aria-live="polite" className="sr-only">
         {announcedTime}
       </div>
-    </div>
-  );
-}
-
-/** Bubble overlay showing current measure and beat-within-measure, styled like the Pitch-View toggle. */
-function BeatCounter({
-  beatPositionenMs,
-  currentTimeMs,
-  taktZaehler,
-}: {
-  beatPositionenMs: number[];
-  currentTimeMs: number;
-  taktZaehler: number;
-}) {
-  // Find the index of the last beat that has been passed
-  let currentBeatIndex = -1;
-  for (let i = beatPositionenMs.length - 1; i >= 0; i--) {
-    if (beatPositionenMs[i] <= currentTimeMs) {
-      currentBeatIndex = i;
-      break;
-    }
-  }
-
-  if (currentBeatIndex < 0) {
-    return (
-      <div
-        className="absolute top-2 right-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/60 shadow-sm"
-        aria-label="Kein aktiver Takt"
-      >
-        —
-      </div>
-    );
-  }
-
-  const taktNummer = Math.floor(currentBeatIndex / taktZaehler) + 1;
-  const schlagImTakt = (currentBeatIndex % taktZaehler) + 1;
-
-  return (
-    <div
-      className="absolute top-2 right-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-white/10 px-4 py-2 shadow-sm tabular-nums font-mono"
-      aria-label={`Takt ${taktNummer}, Schlag ${schlagImTakt}`}
-    >
-      <span className="text-lg font-bold text-white/90">{taktNummer}</span>
-      <span className="text-base text-white/40 mx-0.5">.</span>
-      <span className="text-base font-medium text-white/70">{schlagImTakt}</span>
     </div>
   );
 }

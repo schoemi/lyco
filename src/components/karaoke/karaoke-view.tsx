@@ -15,6 +15,7 @@ import type { AudioPlayButtonHandle } from "@/components/karaoke/audio-play-butt
 import { AudioStopButton } from "@/components/karaoke/audio-stop-button";
 import { PitchDisplay } from "@/components/pitch-display/pitch-display";
 import { aggregiereFramesZuBalken } from "@/lib/pitch-display/pitch-balken";
+import { erzeugeAnnotationsBalken } from "@/lib/pitch-display/annotations-aufbereitung";
 import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
 
 interface KaraokeViewProps {
@@ -73,6 +74,24 @@ export const KaraokeView = forwardRef<AudioPlayButtonHandle, KaraokeViewProps>(
   const [currentTimeMs, setCurrentTimeMs] = useState(0);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
+  // --- Annotation bars (instrumental/comment sections) ---
+  const adjustedBeatPositionenMs = useMemo(() => {
+    if (!song.beatErgebnis?.beatPositionenMs) return undefined;
+    if (song.beatErgebnis.offsetMs) {
+      return song.beatErgebnis.beatPositionenMs.map((ms) => Math.max(0, ms + song.beatErgebnis!.offsetMs));
+    }
+    return song.beatErgebnis.beatPositionenMs;
+  }, [song.beatErgebnis]);
+
+  const annotationen = useMemo(() => {
+    if (!adjustedBeatPositionenMs || adjustedBeatPositionenMs.length === 0) return undefined;
+    return erzeugeAnnotationsBalken(
+      song.strophen,
+      adjustedBeatPositionenMs,
+      song.beatErgebnis?.taktZaehler ?? 4,
+    );
+  }, [song.strophen, adjustedBeatPositionenMs, song.beatErgebnis?.taktZaehler]);
+
   // Internal toggle state for pitch display, defaults to true when referenzDaten is available
   const [pitchToggle, setPitchToggle] = useState(!!referenzDaten);
 
@@ -128,12 +147,9 @@ export const KaraokeView = forwardRef<AudioPlayButtonHandle, KaraokeViewProps>(
               currentTimeMs={currentTimeMs}
               isPlaying={isAudioPlaying}
               windowDurationMs={25000}
-              beatPositionenMs={
-                song.beatErgebnis?.beatPositionenMs && song.beatErgebnis.offsetMs
-                  ? song.beatErgebnis.beatPositionenMs.map((ms) => Math.max(0, ms + song.beatErgebnis!.offsetMs))
-                  : song.beatErgebnis?.beatPositionenMs
-              }
+              beatPositionenMs={adjustedBeatPositionenMs}
               taktZaehler={song.beatErgebnis?.taktZaehler}
+              annotationen={annotationen}
             />
           </div>
         )}

@@ -458,6 +458,7 @@ export default function SongDetailPage() {
               ref={playerRef}
               audioQuellen={song.audioQuellen}
               beatPositionenMs={adjustedBeatPositionenMs}
+              taktZaehler={song.beatErgebnis?.taktZaehler}
             />
           </div>
 
@@ -480,6 +481,7 @@ export default function SongDetailPage() {
           <StickyPlayerBar
             visible={!isPlayerVisible}
             beatPositionenMs={adjustedBeatPositionenMs}
+            taktZaehler={song.beatErgebnis?.taktZaehler}
           />
         </SharedAudioProvider>
       )}
