@@ -11,7 +11,7 @@ import type { SongExportData, ExportOptions } from "@/lib/export/export-types";
 const ALL_OPTIONS: ExportOptions = {
   vocalTags: true,
   instrumental: true,
-  kommentare: true,
+  kommentare: true, uebersetzungen: true,
 };
 
 function makeSong(overrides: Partial<SongExportData> = {}): SongExportData {

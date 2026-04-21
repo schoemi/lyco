@@ -260,15 +260,6 @@ function collectComments(strophe: ExportStropheData): string[] {
     comments.push(strophe.analyse);
   }
 
-  const sortedZeilen = [...strophe.zeilen].sort(
-    (a, b) => a.orderIndex - b.orderIndex,
-  );
-  for (const zeile of sortedZeilen) {
-    if (zeile.istKommentar) {
-      comments.push(zeile.text);
-    }
-  }
-
   return comments;
 }
 
@@ -312,10 +303,17 @@ function renderZeile(
   knownTags: string[],
   tagLookup: Map<string, TagLookup>,
   showVocalTags: boolean,
+  showUebersetzungen: boolean,
   width: number,
 ): void {
-  // Kommentar-Zeilen werden separat in der rechten Spalte gerendert
-  if (zeile.istKommentar) return;
+  // Kommentar-Zeilen als kursive Regieanweisungen im Liedtext rendern (gesteuert durch vocalTags)
+  if (zeile.istKommentar) {
+    if (showVocalTags) {
+      doc.font("Helvetica-Oblique").fontSize(11).fillColor("#000000")
+        .text(stripChordPro(zeile.text), { width });
+    }
+    return;
+  }
 
   if (!showVocalTags) {
     doc.font("Helvetica").fontSize(11).fillColor("#000000").text(stripChordPro(zeile.text), { width });
@@ -323,7 +321,7 @@ function renderZeile(
     renderTextWithTags(doc, zeile.text, knownTags, tagLookup, 11, "Helvetica", "#000000", width);
   }
 
-  if (zeile.uebersetzung != null && zeile.uebersetzung !== "") {
+  if (showUebersetzungen && zeile.uebersetzung != null && zeile.uebersetzung !== "") {
     doc.font("Helvetica").fontSize(10).fillColor("#888888").text(zeile.uebersetzung, { width });
   }
 }
@@ -338,6 +336,7 @@ function renderStrophe(
   tagLookup: Map<string, TagLookup>,
   showVocalTags: boolean,
   showKommentare: boolean,
+  showUebersetzungen: boolean,
   layout: ColumnLayout,
 ): void {
   // Strophen-Name als Überschrift
@@ -352,7 +351,7 @@ function renderStrophe(
   // Y-Position merken für die rechte Spalte
   const stropheStartY = doc.y;
 
-  // Wenn keine Kommentar-Spalte: Analyse und Kommentare inline rendern (altes Verhalten)
+  // Wenn keine Kommentar-Spalte: Analyse inline rendern, Zeilen normal
   if (!showKommentare || !layout.hasRightColumn) {
     if (strophe.analyse != null && strophe.analyse.trim() !== "") {
       doc
@@ -366,12 +365,7 @@ function renderStrophe(
       (a, b) => a.orderIndex - b.orderIndex,
     );
     for (const zeile of sortedZeilen) {
-      if (zeile.istKommentar) {
-        doc.font("Helvetica-Oblique").fontSize(11).fillColor("#000000")
-          .text(zeile.text, { width: layout.leftWidth });
-      } else {
-        renderZeile(doc, zeile, knownTags, tagLookup, showVocalTags, layout.leftWidth);
-      }
+      renderZeile(doc, zeile, knownTags, tagLookup, showVocalTags, showUebersetzungen, layout.leftWidth);
     }
     return;
   }
@@ -383,7 +377,7 @@ function renderStrophe(
     (a, b) => a.orderIndex - b.orderIndex,
   );
   for (const zeile of sortedZeilen) {
-    renderZeile(doc, zeile, knownTags, tagLookup, showVocalTags, layout.leftWidth);
+    renderZeile(doc, zeile, knownTags, tagLookup, showVocalTags, showUebersetzungen, layout.leftWidth);
   }
 
   const leftEndY = doc.y;
@@ -454,6 +448,7 @@ export async function formatPdf(
       tagLookup,
       options.vocalTags,
       options.kommentare,
+      options.uebersetzungen,
       layout,
     );
   }

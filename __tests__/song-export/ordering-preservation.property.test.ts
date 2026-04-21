@@ -29,7 +29,7 @@ import type {
 const ALL_ON: ExportOptions = {
   vocalTags: true,
   instrumental: true,
-  kommentare: true,
+  kommentare: true, uebersetzungen: true,
 };
 
 // ---------------------------------------------------------------------------
@@ -224,6 +224,4 @@ describe("Property 6: Ordering Preservation", () => {
   // -------------------------------------------------------------------------
 
   describe.todo("OnSong");
-
-  describe.todo("SongbookPro");
 });

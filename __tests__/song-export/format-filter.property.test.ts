@@ -107,6 +107,7 @@ export function arbExportOptions(): fc.Arbitrary<ExportOptions> {
     vocalTags: fc.boolean(),
     instrumental: fc.boolean(),
     kommentare: fc.boolean(),
+    uebersetzungen: fc.boolean(),
   });
 }
 
@@ -157,7 +158,7 @@ describe("Property 2: Format Filter Correctness", () => {
         const options: ExportOptions = {
           vocalTags: false,
           instrumental: true,
-          kommentare: true,
+          kommentare: true, uebersetzungen: true,
         };
 
         const result = applyExportOptions(song, options);
@@ -168,10 +169,23 @@ describe("Property 2: Format Filter Correctness", () => {
           expect(isVocalTag(markup.typ)).toBe(false);
         }
 
-        // All TIMECODE markups from the input should be preserved
-        const inputTimecodes = collectAllMarkups(song).filter(
-          (m) => m.typ === "TIMECODE",
-        );
+        // No comment zeilen should remain (they are vocal-tag-like content)
+        for (const strophe of result.strophen) {
+          for (const zeile of strophe.zeilen) {
+            expect(zeile.istKommentar).toBe(false);
+          }
+        }
+
+        // All TIMECODE markups from non-comment zeilen in the input should be preserved
+        const inputTimecodes: ExportMarkupData[] = [];
+        for (const strophe of song.strophen) {
+          inputTimecodes.push(...strophe.markups.filter((m) => m.typ === "TIMECODE"));
+          for (const zeile of strophe.zeilen) {
+            if (!zeile.istKommentar) {
+              inputTimecodes.push(...zeile.markups.filter((m) => m.typ === "TIMECODE"));
+            }
+          }
+        }
         const outputTimecodes = allMarkups.filter(
           (m) => m.typ === "TIMECODE",
         );
@@ -194,7 +208,7 @@ describe("Property 2: Format Filter Correctness", () => {
         const options: ExportOptions = {
           vocalTags: true,
           instrumental: false,
-          kommentare: true,
+          kommentare: true, uebersetzungen: true,
         };
 
         const result = applyExportOptions(song, options);
@@ -215,13 +229,14 @@ describe("Property 2: Format Filter Correctness", () => {
    *
    * **Validates: Requirements 2.5**
    */
-  it("kommentare=false removes all comment zeilen and nullifies analyse", () => {
+  it("kommentare=false nullifies analyse", () => {
     fc.assert(
       fc.property(arbSongExportData(), (song) => {
         const options: ExportOptions = {
           vocalTags: true,
           instrumental: true,
           kommentare: false,
+          uebersetzungen: true,
         };
 
         const result = applyExportOptions(song, options);
@@ -229,11 +244,6 @@ describe("Property 2: Format Filter Correctness", () => {
         for (const strophe of result.strophen) {
           // analyse must be null
           expect(strophe.analyse).toBeNull();
-
-          // no comment zeilen
-          for (const zeile of strophe.zeilen) {
-            expect(zeile.istKommentar).toBe(false);
-          }
         }
       }),
       PBT_CONFIG,

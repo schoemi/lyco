@@ -60,13 +60,14 @@ function makeSong(strophen: ExportStropheData[]): SongExportData {
 const ALL_ON: ExportOptions = {
   vocalTags: true,
   instrumental: true,
-  kommentare: true,
+  kommentare: true, uebersetzungen: true,
 };
 
 const ALL_OFF: ExportOptions = {
   vocalTags: false,
   instrumental: false,
   kommentare: false,
+  uebersetzungen: false,
 };
 
 // ---------------------------------------------------------------------------
@@ -170,6 +171,22 @@ describe("applyExportOptions", () => {
       expect(result.strophen).toHaveLength(1);
       expect(result.strophen[0].zeilen).toHaveLength(2);
     });
+
+    it("entfernt Kommentar-Zeilen", () => {
+      const song = makeSong([
+        makeStrophe({
+          zeilen: [
+            makeZeile({ text: "Liedtext", istKommentar: false }),
+            makeZeile({ text: "Regieanweisung", istKommentar: true }),
+          ],
+        }),
+      ]);
+
+      const result = applyExportOptions(song, options);
+
+      expect(result.strophen[0].zeilen).toHaveLength(1);
+      expect(result.strophen[0].zeilen[0].text).toBe("Liedtext");
+    });
   });
 
   describe("instrumental=false", () => {
@@ -206,7 +223,7 @@ describe("applyExportOptions", () => {
   describe("kommentare=false", () => {
     const options: ExportOptions = { ...ALL_ON, kommentare: false };
 
-    it("entfernt Kommentar-Zeilen", () => {
+    it("behält Kommentar-Zeilen (werden durch vocalTags gesteuert)", () => {
       const song = makeSong([
         makeStrophe({
           zeilen: [
@@ -218,8 +235,7 @@ describe("applyExportOptions", () => {
 
       const result = applyExportOptions(song, options);
 
-      expect(result.strophen[0].zeilen).toHaveLength(1);
-      expect(result.strophen[0].zeilen[0].text).toBe("Liedtext");
+      expect(result.strophen[0].zeilen).toHaveLength(2);
     });
 
     it("setzt analyse auf null bei allen Strophen", () => {

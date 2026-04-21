@@ -30,10 +30,11 @@ function filterVocalTagMarkups(markups: ExportMarkupData[]): ExportMarkupData[] 
  * Wendet Export-Optionen auf Song-Daten an.
  *
  * - `vocalTags=false`: Entfernt alle Markups mit Typ ∈ VOCAL_TAG_TYPES
- *   aus Strophen und Zeilen. TIMECODE-Markups bleiben erhalten.
+ *   aus Strophen und Zeilen, sowie alle Kommentar-Zeilen (istKommentar=true).
+ *   TIMECODE-Markups bleiben erhalten.
  * - `instrumental=false`: Entfernt alle Strophen mit `istInstrumental=true`.
- * - `kommentare=false`: Entfernt alle Zeilen mit `istKommentar=true`
- *   und setzt `analyse` auf `null` bei allen Strophen.
+ * - `kommentare=false`: Setzt `analyse` auf `null` bei allen Strophen
+ *   (entfernt Seitenleisten-Kommentare).
  *
  * Nicht-betroffene Daten werden niemals entfernt.
  *
@@ -58,14 +59,14 @@ export function applyExportOptions(
     let stropheMarkups = strophe.markups;
     let analyse = strophe.analyse;
 
-    // kommentare=false: Kommentar-Zeilen entfernen und analyse auf null setzen
+    // kommentare=false: analyse auf null setzen (Seitenleisten-Kommentare)
     if (!options.kommentare) {
-      zeilen = zeilen.filter((z) => !z.istKommentar);
       analyse = null;
     }
 
-    // vocalTags=false: Vocal-Tag-Markups aus Strophe und Zeilen entfernen
+    // vocalTags=false: Vocal-Tag-Markups und Kommentar-Zeilen entfernen
     if (!options.vocalTags) {
+      zeilen = zeilen.filter((z) => !z.istKommentar);
       stropheMarkups = filterVocalTagMarkups(stropheMarkups);
       zeilen = zeilen.map((zeile) => ({
         ...zeile,

@@ -4,7 +4,7 @@ import { exportSong, exportSongFormatted } from "@/lib/services/export-service";
 import type { ExportFormat, ExportOptions } from "@/lib/export/export-types";
 
 /** Gültige Export-Formate */
-const VALID_FORMATS: ExportFormat[] = ["pdf", "chordpro", "onsong", "songbookpro"];
+const VALID_FORMATS: ExportFormat[] = ["pdf", "chordpro", "onsong"];
 
 function isValidFormat(value: string): value is ExportFormat {
   return VALID_FORMATS.includes(value as ExportFormat);
@@ -44,7 +44,7 @@ export async function GET(
     // Ungültiger format-Wert → 400
     if (!isValidFormat(format)) {
       return NextResponse.json(
-        { error: "Ungültiges Export-Format. Erlaubt: pdf, chordpro, onsong, songbookpro" },
+        { error: "Ungültiges Export-Format. Erlaubt: pdf, chordpro, onsong" },
         { status: 400 }
       );
     }
@@ -54,6 +54,7 @@ export async function GET(
       vocalTags: searchParams.get("vocalTags") !== "false",
       instrumental: searchParams.get("instrumental") !== "false",
       kommentare: searchParams.get("kommentare") !== "false",
+      uebersetzungen: searchParams.get("uebersetzungen") !== "false",
     };
 
     // Format-Export via exportSongFormatted()

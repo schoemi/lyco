@@ -29,7 +29,6 @@ const FORMAT_OPTIONS: FormatOption[] = [
   { value: "pdf", label: "PDF", description: "Zum Ausdrucken oder Teilen" },
   { value: "chordpro", label: "ChordPro", description: "Offener Austauschstandard" },
   { value: "onsong", label: "OnSong", description: "Für die OnSong-App" },
-  { value: "songbookpro", label: "SongbookPro", description: "Für die SongbookPro-App" },
   { value: "lyco", label: "Lyco (ZIP)", description: "Vollständiges Backup aller Daten" },
 ];
 
@@ -49,6 +48,7 @@ export default function ExportDialog({
   const [vocalTags, setVocalTags] = useState(true);
   const [instrumental, setInstrumental] = useState(true);
   const [kommentare, setKommentare] = useState(true);
+  const [uebersetzungen, setUebersetzungen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,6 +71,7 @@ export default function ExportDialog({
     setVocalTags(true);
     setInstrumental(true);
     setKommentare(true);
+    setUebersetzungen(true);
     setError(null);
     setLoading(false);
   }
@@ -130,6 +131,7 @@ export default function ExportDialog({
           vocalTags: String(vocalTags),
           instrumental: String(instrumental),
           kommentare: String(kommentare),
+          uebersetzungen: String(uebersetzungen),
         });
         res = await fetch(`/api/songs/${songId}/export?${params.toString()}`);
       }
@@ -166,7 +168,7 @@ export default function ExportDialog({
     } finally {
       setLoading(false);
     }
-  }, [selectedFormat, loading, vocalTags, instrumental, kommentare, songId, handleClose]);
+  }, [selectedFormat, loading, vocalTags, instrumental, kommentare, uebersetzungen, songId, handleClose]);
 
   // --- Early return --------------------------------------------------------
   if (!open) return null;
@@ -255,6 +257,14 @@ export default function ExportDialog({
                   label="Kommentare (Seitenspalte)"
                   checked={kommentare}
                   onChange={setKommentare}
+                />
+              )}
+              {selectedFormat === "pdf" && (
+                <ToggleSwitch
+                  id="export-uebersetzungen"
+                  label="Übersetzungen"
+                  checked={uebersetzungen}
+                  onChange={setUebersetzungen}
                 />
               )}
             </div>

@@ -1,5 +1,5 @@
-export const APP_VERSION = '0.20.0';
+export const APP_VERSION = '0.20.1';
 
 /**
- * Latest Feature: Improved Tag Management
+ * Latest Feature: Buttons Modified
  */

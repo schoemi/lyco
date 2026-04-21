@@ -69,7 +69,7 @@ function makeSong(
 const ALL_ON: ExportOptions = {
   vocalTags: true,
   instrumental: true,
-  kommentare: true,
+  kommentare: true, uebersetzungen: true,
 };
 
 /** Helper: Formatiert und gibt den Text als String zurück */
@@ -260,7 +260,7 @@ describe("formatChordPro", () => {
       expect(text).toContain("{comment: Dies ist ein Kommentar}");
     });
 
-    it("entfernt Kommentar-Zeilen wenn kommentare=false", () => {
+    it("entfernt Kommentar-Zeilen wenn vocalTags=false", () => {
       const song = makeSong([
         makeStrophe({
           zeilen: [
@@ -269,7 +269,7 @@ describe("formatChordPro", () => {
           ],
         }),
       ]);
-      const text = formatText(song, { ...ALL_ON, kommentare: false });
+      const text = formatText(song, { ...ALL_ON, vocalTags: false });
 
       expect(text).not.toContain("Kommentar");
       expect(text).toContain("Liedtext");

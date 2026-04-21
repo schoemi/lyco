@@ -33,7 +33,7 @@ import type {
 const ALL_ON: ExportOptions = {
   vocalTags: true,
   instrumental: true,
-  kommentare: true,
+  kommentare: true, uebersetzungen: true,
 };
 
 const VOCAL_TAG_TYPEN = [

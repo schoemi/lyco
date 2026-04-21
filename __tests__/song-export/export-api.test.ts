@@ -76,7 +76,7 @@ describe("Song-Export API", () => {
       expect(res.status).toBe(400);
       const json = await res.json();
       expect(json.error).toBe(
-        "Ungültiges Export-Format. Erlaubt: pdf, chordpro, onsong, songbookpro"
+        "Ungültiges Export-Format. Erlaubt: pdf, chordpro, onsong"
       );
     });
 
@@ -182,11 +182,6 @@ describe("Song-Export API", () => {
         contentType: "text/plain; charset=utf-8",
         filename: "Test Song - Test Artist.onsong",
       },
-      {
-        format: "songbookpro",
-        contentType: "text/plain; charset=utf-8",
-        filename: "Test Song - Test Artist.sbp",
-      },
     ];
 
     for (const { format, contentType, filename } of formatCases) {
@@ -214,7 +209,7 @@ describe("Song-Export API", () => {
   // ─── Export-Optionen Query-Parameter ───
 
   describe("Export-Optionen (Requirement 8.2)", () => {
-    it("passes vocalTags, instrumental, kommentare options to exportSongFormatted", async () => {
+    it("passes vocalTags, instrumental, kommentare, uebersetzungen options to exportSongFormatted", async () => {
       const data = Buffer.from("pdf-content");
       mockExportSongFormatted.mockResolvedValue({
         data,
@@ -223,7 +218,7 @@ describe("Song-Export API", () => {
       });
 
       const req = makeRequest(
-        "/api/songs/song-1/export?format=pdf&vocalTags=false&instrumental=false&kommentare=false"
+        "/api/songs/song-1/export?format=pdf&vocalTags=false&instrumental=false&kommentare=false&uebersetzungen=false"
       );
       const res = await GET(req, makeParams("song-1"));
 
@@ -232,7 +227,7 @@ describe("Song-Export API", () => {
         "user-1",
         "song-1",
         "pdf",
-        { vocalTags: false, instrumental: false, kommentare: false }
+        { vocalTags: false, instrumental: false, kommentare: false, uebersetzungen: false }
       );
     });
 
@@ -252,7 +247,7 @@ describe("Song-Export API", () => {
         "user-1",
         "song-1",
         "chordpro",
-        { vocalTags: true, instrumental: true, kommentare: true }
+        { vocalTags: true, instrumental: true, kommentare: true, uebersetzungen: true }
       );
     });
 
@@ -265,7 +260,7 @@ describe("Song-Export API", () => {
       });
 
       const req = makeRequest(
-        "/api/songs/song-1/export?format=onsong&vocalTags=true&instrumental=false&kommentare=true"
+        "/api/songs/song-1/export?format=onsong&vocalTags=true&instrumental=false&kommentare=true&uebersetzungen=true"
       );
       const res = await GET(req, makeParams("song-1"));
 
@@ -274,7 +269,7 @@ describe("Song-Export API", () => {
         "user-1",
         "song-1",
         "onsong",
-        { vocalTags: true, instrumental: false, kommentare: true }
+        { vocalTags: true, instrumental: false, kommentare: true, uebersetzungen: true }
       );
     });
   });

@@ -2,7 +2,7 @@
  * Export-Service für Song- und Set-Backup
  *
  * Erstellt ZIP-Archive mit Song-Manifest und Upload-Dateien.
- * Unterstützt zusätzlich Format-Export (PDF, ChordPro, OnSong, SongbookPro).
+ * Unterstützt zusätzlich Format-Export (PDF, ChordPro, OnSong).
  */
 
 import { prisma } from "@/lib/prisma";
@@ -23,7 +23,6 @@ import type {
 import { formatPdf } from "@/lib/export/formatters/pdf-formatter";
 import { formatChordPro } from "@/lib/export/formatters/chordpro-formatter";
 import { formatOnSong } from "@/lib/export/formatters/onsong-formatter";
-import { formatSongbookPro } from "@/lib/export/formatters/songbookpro-formatter";
 import { getAllTagDefinitions } from "@/lib/services/tag-definition-service";
 
 /**
@@ -130,14 +129,13 @@ export async function exportSong(
 /**
  * Formatter-Mapping: ExportFormat → Formatter-Funktion (ohne PDF, da PDF extra behandelt wird).
  */
-const TEXT_FORMATTERS: Record<Exclude<ExportFormat, "pdf">, (song: FormatExportData, options: ExportOptions) => FormatterResult | Promise<FormatterResult>> = {
+const TEXT_FORMATTERS: Record<Exclude<ExportFormat, "pdf" | "lyco">, (song: FormatExportData, options: ExportOptions) => FormatterResult | Promise<FormatterResult>> = {
   chordpro: formatChordPro,
   onsong: formatOnSong,
-  songbookpro: formatSongbookPro,
 };
 
 /**
- * Exportiert einen Song im angegebenen Format (PDF, ChordPro, OnSong, SongbookPro).
+ * Exportiert einen Song im angegebenen Format (PDF, ChordPro, OnSong).
  *
  * Lädt den Song mit allen Relationen, prüft Eigentümerschaft,
  * konvertiert die Daten in das SongExportData-Format und ruft
@@ -222,9 +220,11 @@ export async function exportSongFormatted(
     // PDF braucht Tag-Definitionen für farbige Vocal-Tags
     const tagDefinitions = await getAllTagDefinitions();
     result = await formatPdf(exportData, options, tagDefinitions);
-  } else {
-    const formatter = TEXT_FORMATTERS[format];
+  } else if (format in TEXT_FORMATTERS) {
+    const formatter = TEXT_FORMATTERS[format as keyof typeof TEXT_FORMATTERS];
     result = await formatter(exportData, options);
+  } else {
+    throw new Error(`Nicht unterstütztes Export-Format: ${format}`);
   }
 
   return {

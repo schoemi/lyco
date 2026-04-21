@@ -28,6 +28,7 @@ import type {
 import { VOCAL_TAG_TYPES } from "../export-types";
 import { applyExportOptions } from "../format-filter";
 import { generateExportFilename } from "../filename-generator";
+import { parseChordPro as parseInlineChordPro, stripChordPro } from "@/lib/vocal-tag/chordpro-parser";
 
 // ---------------------------------------------------------------------------
 // Section type mapping
@@ -131,20 +132,48 @@ function formatZeileVocalTags(zeile: ExportZeileData): string[] {
 // ---------------------------------------------------------------------------
 
 /**
+ * Konvertiert internen ChordPro-Zeilentext in das Export-Format.
+ * Vocal Tags werden als [* tag] Kommentare inline geschrieben.
+ *
+ * Beispiel: "Comin' down {pp:}(Hey){/pp}" → "Comin' down [* pp](Hey)"
+ */
+function convertVocalTagsForExport(text: string): string {
+  // Parse the internal ChordPro format to extract nodes
+  // We pass an empty knownTags array so all tags are parsed (unknown flag doesn't matter here)
+  const { nodes } = parseInlineChordPro(text, []);
+
+  return nodes
+    .map((node) => {
+      if (node.type === "text") {
+        return escapeChordProText(node.content ?? "");
+      }
+      if (node.type === "chordpro-range") {
+        const tag = node.tag ?? "";
+        const rangeText = escapeChordProText(node.rangeText ?? "");
+        return `[* ${tag}]${rangeText}`;
+      }
+      // Inline tag (no range text)
+      const tag = node.tag ?? "";
+      return `[* ${tag}]`;
+    })
+    .join("");
+}
+
+/**
  * Formatiert eine einzelne Zeile inkl. Vocal-Tags und Übersetzung.
  */
 function formatZeile(zeile: ExportZeileData): string[] {
   const lines: string[] = [];
 
-  // Vocal-Tags vor der Zeile
+  // Vocal-Tags vor der Zeile (strophe/zeile-level markups)
   lines.push(...formatZeileVocalTags(zeile));
 
   if (zeile.istKommentar) {
     // Kommentar-Zeilen als {comment:} Direktive
-    lines.push(`{comment: ${escapeChordProText(zeile.text)}}`);
+    lines.push(`{comment: ${escapeChordProText(stripChordPro(zeile.text))}}`);
   } else {
-    // Reguläre Zeile mit Escaping
-    lines.push(escapeChordProText(zeile.text));
+    // Reguläre Zeile: Vocal Tags als [* tag] Kommentare exportieren
+    lines.push(convertVocalTagsForExport(zeile.text));
   }
 
   // Übersetzung nach der Zeile

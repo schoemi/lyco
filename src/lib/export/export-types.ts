@@ -13,7 +13,7 @@ import type { MarkupTyp, MarkupZiel } from "@/generated/prisma/client";
 // ---------------------------------------------------------------------------
 
 /** Unterstützte Export-Formate */
-export type ExportFormat = "pdf" | "chordpro" | "onsong" | "songbookpro" | "lyco";
+export type ExportFormat = "pdf" | "chordpro" | "onsong" | "lyco";
 
 // ---------------------------------------------------------------------------
 // Export-Optionen
@@ -27,6 +27,8 @@ export interface ExportOptions {
   instrumental: boolean;
   /** Kommentar-Zeilen und Strophen-Analysen in der Ausgabe einschließen */
   kommentare: boolean;
+  /** Übersetzungen in der Ausgabe einschließen (nur PDF) */
+  uebersetzungen: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -64,7 +66,6 @@ export const FORMAT_CONFIG: Record<ExportFormat, { contentType: string; extensio
   pdf:         { contentType: "application/pdf",              extension: "pdf" },
   chordpro:    { contentType: "text/plain; charset=utf-8",    extension: "cho" },
   onsong:      { contentType: "text/plain; charset=utf-8",    extension: "onsong" },
-  songbookpro: { contentType: "text/plain; charset=utf-8",    extension: "sbp" },
   lyco:        { contentType: "application/zip",              extension: "zip" },
 };
 

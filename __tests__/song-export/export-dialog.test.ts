@@ -63,7 +63,6 @@ describe("ExportDialog Unit-Tests", () => {
     expect(screen.getByText("PDF")).toBeDefined();
     expect(screen.getByText("ChordPro")).toBeDefined();
     expect(screen.getByText("OnSong")).toBeDefined();
-    expect(screen.getByText("SongbookPro")).toBeDefined();
   });
 
   // -----------------------------------------------------------------------
@@ -73,6 +72,10 @@ describe("ExportDialog Unit-Tests", () => {
   it("renders 2 toggle switches initially (Kommentare only visible for PDF)", () => {
     renderDialog();
 
+    // Switches are only visible after selecting a non-lyco format
+    const chordProRadio = screen.getByText("ChordPro").closest("[role='radio']")!;
+    fireEvent.click(chordProRadio);
+
     const switches = screen.getAllByRole("switch");
     expect(switches).toHaveLength(2);
 
@@ -80,7 +83,7 @@ describe("ExportDialog Unit-Tests", () => {
     expect(screen.getByText("Instrumental-Sektionen")).toBeDefined();
   });
 
-  it("renders Kommentare toggle when PDF format is selected", () => {
+  it("renders Kommentare and Übersetzungen toggles when PDF format is selected", () => {
     renderDialog();
 
     // Select PDF format
@@ -88,8 +91,9 @@ describe("ExportDialog Unit-Tests", () => {
     fireEvent.click(pdfRadio);
 
     const switches = screen.getAllByRole("switch");
-    expect(switches).toHaveLength(3);
+    expect(switches).toHaveLength(4);
     expect(screen.getByText(/Kommentare/)).toBeDefined();
+    expect(screen.getByText(/Übersetzungen/)).toBeDefined();
   });
 
   // -----------------------------------------------------------------------
@@ -98,6 +102,10 @@ describe("ExportDialog Unit-Tests", () => {
 
   it("has all toggles checked by default", () => {
     renderDialog();
+
+    // Select a format first to make toggles visible
+    const chordProRadio = screen.getByText("ChordPro").closest("[role='radio']")!;
+    fireEvent.click(chordProRadio);
 
     const switches = screen.getAllByRole("switch");
     for (const sw of switches) {
@@ -175,6 +183,10 @@ describe("ExportDialog Unit-Tests", () => {
 
   it("toggles a switch off when clicked", () => {
     renderDialog();
+
+    // Select a format first to make toggles visible
+    const chordProRadio = screen.getByText("ChordPro").closest("[role='radio']")!;
+    fireEvent.click(chordProRadio);
 
     const switches = screen.getAllByRole("switch");
     const vocalTagSwitch = switches[0];
