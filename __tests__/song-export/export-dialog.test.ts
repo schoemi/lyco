@@ -70,15 +70,26 @@ describe("ExportDialog Unit-Tests", () => {
   // Rendering: 3 toggle switches (Requirement 2.1)
   // -----------------------------------------------------------------------
 
-  it("renders all 3 toggle switches", () => {
+  it("renders 2 toggle switches initially (Kommentare only visible for PDF)", () => {
     renderDialog();
 
     const switches = screen.getAllByRole("switch");
-    expect(switches).toHaveLength(3);
+    expect(switches).toHaveLength(2);
 
     expect(screen.getByText("Vocal-Tags")).toBeDefined();
     expect(screen.getByText("Instrumental-Sektionen")).toBeDefined();
-    expect(screen.getByText("Kommentare")).toBeDefined();
+  });
+
+  it("renders Kommentare toggle when PDF format is selected", () => {
+    renderDialog();
+
+    // Select PDF format
+    const pdfRadio = screen.getByText("PDF").closest("[role='radio']")!;
+    fireEvent.click(pdfRadio);
+
+    const switches = screen.getAllByRole("switch");
+    expect(switches).toHaveLength(3);
+    expect(screen.getByText(/Kommentare/)).toBeDefined();
   });
 
   // -----------------------------------------------------------------------

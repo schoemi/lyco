@@ -10,7 +10,7 @@ import { suggestionRenderer } from "@/lib/vocal-tag/suggestion-renderer";
 import { VocalTagToolbar } from "@/components/vocal-tag/vocal-tag-toolbar";
 import { parseChordPro } from "@/lib/vocal-tag/chordpro-parser";
 import { serializeChordPro } from "@/lib/vocal-tag/chordpro-serializer";
-import type { TagDefinitionData, ChordProNode as ChordProNodeType } from "@/types/vocal-tag";
+import type { TagDefinitionData, TagKategorieData, ChordProNode as ChordProNodeType } from "@/types/vocal-tag";
 
 /**
  * ZeileTagInput – Inline TipTap editor for a single zeile with ChordPro vocal tag support.
@@ -25,6 +25,7 @@ export interface ZeileTagInputProps {
   value: string;
   onChange: (chordProText: string) => void;
   tagDefinitions: TagDefinitionData[];
+  kategorien?: TagKategorieData[];
   ariaRequired?: boolean;
   ariaInvalid?: boolean;
   ariaDescribedBy?: string;
@@ -37,6 +38,7 @@ export function ZeileTagInput({
   value,
   onChange,
   tagDefinitions,
+  kategorien = [],
   ariaRequired,
   ariaInvalid,
   ariaDescribedBy,
@@ -119,7 +121,7 @@ export function ZeileTagInput({
 
   return (
     <div className={className}>
-      <VocalTagToolbar editor={editor} tagDefinitions={tagDefinitions} />
+      <VocalTagToolbar editor={editor} tagDefinitions={tagDefinitions} kategorien={kategorien} />
       <div
         id={id}
         className={`mt-1 rounded-md border px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-newsong-500 ${

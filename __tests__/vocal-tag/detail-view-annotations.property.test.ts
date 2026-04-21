@@ -43,6 +43,7 @@ function makeTagDef(tag: string, index: number): TagDefinitionData {
     icon: `fa-solid fa-icon-${index}`,
     color: `#${String(index + 1).padStart(6, "0")}`,
     indexNr: index,
+    categoryId: null,
   };
 }
 

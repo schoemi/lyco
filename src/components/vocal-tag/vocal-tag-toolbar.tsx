@@ -1,18 +1,22 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import type { Editor } from "@tiptap/core";
-import type { TagDefinitionData } from "@/types/vocal-tag";
+import type { TagDefinitionData, TagKategorieData } from "@/types/vocal-tag";
+import { gruppiereTagsNachKategorie } from "@/lib/vocal-tag/tag-gruppierung";
 
 /**
  * VocalTagToolbar – Toolbar for inserting ChordPro vocal tags into the TipTap editor.
  *
  * - Top-5 tags (by indexNr) as direct buttons with icon and label in tag color
- * - Dropdown "Weitere Techniken" for remaining tags
+ * - Dropdown "Weitere Techniken" for remaining tags, grouped by category
+ * - Category titles as non-selectable headings per group
+ * - Groups sorted by category orderIndex
+ * - Tags without category in a separate group at the end
  * - Button click inserts ChordPro tag at cursor position or before text selection
  * - aria-label on each button with tag label
  *
- * Validates: Requirements 6.1, 6.2, 6.3, 6.4, 6.5, 6.6
+ * Validates: Requirements 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.1, 7.2, 7.3, 7.4
  */
 
 export interface VocalTagToolbarProps {
@@ -20,17 +24,33 @@ export interface VocalTagToolbarProps {
   editor: Editor | null;
   /** Tag definitions sorted by indexNr */
   tagDefinitions: TagDefinitionData[];
+  /** Tag categories for grouping the dropdown (optional for backward compatibility) */
+  kategorien?: TagKategorieData[];
 }
 
 const TOP_COUNT = 5;
 
-export function VocalTagToolbar({ editor, tagDefinitions }: VocalTagToolbarProps) {
+export function VocalTagToolbar({ editor, tagDefinitions, kategorien = [] }: VocalTagToolbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const sorted = [...tagDefinitions].sort((a, b) => a.indexNr - b.indexNr);
   const topTags = sorted.slice(0, TOP_COUNT);
-  const moreTags = sorted.slice(TOP_COUNT);
+
+  // IDs of top-5 tags to exclude from dropdown
+  const topTagIds = useMemo(() => new Set(topTags.map((t) => t.id)), [topTags]);
+
+  // Tags for the dropdown: all tags except top-5
+  const moreTags = useMemo(
+    () => tagDefinitions.filter((td) => !topTagIds.has(td.id)),
+    [tagDefinitions, topTagIds],
+  );
+
+  // Group dropdown tags by category using the grouping function
+  const gruppierteDropdownTags = useMemo(
+    () => gruppiereTagsNachKategorie(moreTags, kategorien),
+    [moreTags, kategorien],
+  );
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -97,7 +117,7 @@ export function VocalTagToolbar({ editor, tagDefinitions }: VocalTagToolbarProps
         </button>
       ))}
 
-      {/* Dropdown for remaining tags */}
+      {/* Dropdown for remaining tags, grouped by category */}
       {moreTags.length > 0 && (
         <div className="relative" ref={dropdownRef}>
           <button
@@ -123,20 +143,37 @@ export function VocalTagToolbar({ editor, tagDefinitions }: VocalTagToolbarProps
           {dropdownOpen && (
             <div
               role="menu"
-              className="absolute left-0 z-50 mt-1 min-w-[200px] origin-top-left rounded-lg border border-neutral-200 bg-white py-1 shadow-lg"
+              className="absolute left-0 z-50 mt-1 max-h-[400px] min-w-[200px] origin-top-left overflow-y-auto rounded-lg border border-neutral-200 bg-white py-1 shadow-lg"
             >
-              {moreTags.map((td) => (
-                <button
-                  key={td.id}
-                  type="button"
-                  role="menuitem"
-                  onClick={() => insertTag(td.tag)}
-                  aria-label={td.label}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-neutral-50"
-                >
-                  <i className={td.icon} aria-hidden="true" style={{ color: td.color }} />
-                  <span className="text-neutral-700">{td.label}</span>
-                </button>
+              {gruppierteDropdownTags.map((gruppe, gruppeIndex) => (
+                <div key={gruppe.kategorie?.id ?? "__ohne_kategorie"} role="group" aria-label={gruppe.kategorie?.title ?? "Ohne Kategorie"}>
+                  {/* Category heading separator (not before first group) */}
+                  {gruppeIndex > 0 && (
+                    <div className="mx-2 my-1 border-t border-neutral-100" role="separator" />
+                  )}
+                  {/* Category title as non-selectable heading */}
+                  <div
+                    className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-400"
+                    role="presentation"
+                    aria-hidden="true"
+                  >
+                    {gruppe.kategorie?.title ?? "Ohne Kategorie"}
+                  </div>
+                  {/* Tag items in this group */}
+                  {gruppe.tags.map((td) => (
+                    <button
+                      key={td.id}
+                      type="button"
+                      role="menuitem"
+                      onClick={() => insertTag(td.tag)}
+                      aria-label={td.label}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-neutral-50"
+                    >
+                      <i className={td.icon} aria-hidden="true" style={{ color: td.color }} />
+                      <span className="text-neutral-700">{td.label}</span>
+                    </button>
+                  ))}
+                </div>
               ))}
             </div>
           )}

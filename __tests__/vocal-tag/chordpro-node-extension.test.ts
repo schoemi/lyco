@@ -125,6 +125,7 @@ describe("ChordProNode Extension", () => {
         icon: `fa-${tag}`,
         color: "#000000",
         indexNr,
+        categoryId: null,
       };
     }
 

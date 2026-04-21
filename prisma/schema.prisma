@@ -350,16 +350,33 @@ model AudioQuelle {
   @@map("audio_quellen")
 }
 
-model TagDefinition {
-  id       String @id @default(cuid())
-  tag      String @unique
-  label    String
-  icon     String
-  color    String
-  indexNr  Int
+model TagKategorie {
+  id         String @id @default(cuid())
+  title      String
+  slug       String @unique
+  orderIndex Int    @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  tagDefinitions TagDefinition[]
+
+  @@map("tag_kategorien")
+}
+
+model TagDefinition {
+  id         String  @id @default(cuid())
+  tag        String  @unique
+  label      String
+  icon       String
+  color      String
+  indexNr    Int
+  categoryId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category TagKategorie? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   @@map("tag_definitions")
 }

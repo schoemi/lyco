@@ -26,6 +26,7 @@ function makeTagDef(overrides: Partial<TagDefinitionData> & { tag: string }): Ta
     icon: overrides.icon ?? "fa-solid fa-microphone",
     color: overrides.color ?? "#ff0000",
     indexNr: overrides.indexNr ?? 1,
+    categoryId: null,
     ...overrides,
   };
 }

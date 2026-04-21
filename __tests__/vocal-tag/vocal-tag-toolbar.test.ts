@@ -19,6 +19,7 @@ function makeTags(count: number): TagDefinitionData[] {
     icon: `fa-solid fa-${i + 1}`,
     color: `#${String(i + 1).padStart(6, "0")}`,
     indexNr: i + 1,
+    categoryId: null,
   }));
 }
 

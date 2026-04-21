@@ -19,6 +19,7 @@ function makeTag(overrides: Partial<TagDefinitionData> = {}): TagDefinitionData 
     icon: "fa-solid fa-microphone",
     color: "#FF0000",
     indexNr: 1,
+    categoryId: null,
     ...overrides,
   };
 }

@@ -1,6 +1,6 @@
 import { createRoot, type Root } from "react-dom/client";
 import type { SuggestionOptions, SuggestionProps, SuggestionKeyDownProps } from "@tiptap/suggestion";
-import type { TagDefinitionData } from "@/types/vocal-tag";
+import type { TagDefinitionData, TagKategorieData } from "@/types/vocal-tag";
 import {
   SuggestionDropdown,
   type SuggestionDropdownRef,
@@ -11,11 +11,14 @@ import {
  *
  * Manages a floating React root that renders the SuggestionDropdown component.
  * Positions the dropdown below the cursor using the clientRect provided by TipTap.
+ * Passes kategorien through to the SuggestionDropdown for grouped display.
  *
  * @param onTagSelected Optional callback invoked after a tag is selected (e.g. to open TagPopover)
+ * @param kategorien Optional tag categories for grouped display in the dropdown
  */
 export function suggestionRenderer(
   onTagSelected?: (tag: TagDefinitionData) => void,
+  kategorien?: TagKategorieData[],
 ): NonNullable<SuggestionOptions<TagDefinitionData, TagDefinitionData>["render"]> {
   return () => {
     let container: HTMLDivElement | null = null;
@@ -73,6 +76,7 @@ export function suggestionRenderer(
             selectedTag = item;
             props.command(item);
           }}
+          kategorien={kategorien}
         />,
       );
     }

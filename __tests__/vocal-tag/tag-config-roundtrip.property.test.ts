@@ -46,6 +46,7 @@ const tagDefinitionArb = fc
     icon,
     color,
     indexNr,
+    categoryId: null,
   }));
 
 /**

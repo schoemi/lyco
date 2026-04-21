@@ -14,7 +14,7 @@ import { LivePreview } from "./live-preview";
 import { parseChordPro } from "@/lib/vocal-tag/chordpro-parser";
 import { serializeChordPro } from "@/lib/vocal-tag/chordpro-serializer";
 import { AppIcon } from "@/components/ui/iconify-icon";
-import type { TagDefinitionData, ChordProNode as ChordProNodeType } from "@/types/vocal-tag";
+import type { TagDefinitionData, TagKategorieData, ChordProNode as ChordProNodeType } from "@/types/vocal-tag";
 
 /**
  * VocalTagEditor – Hauptkomponente für den Vocal-Tag-Editor.
@@ -48,25 +48,37 @@ export function VocalTagEditor({
   exportFilename = "songtext",
 }: VocalTagEditorProps) {
   const [tagDefinitions, setTagDefinitions] = useState<TagDefinitionData[]>([]);
+  const [kategorien, setKategorien] = useState<TagKategorieData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rawText, setRawText] = useState(initialContent);
   const initialContentApplied = useRef(false);
 
-  // Fetch tag definitions from API on mount
+  // Fetch tag definitions and categories from API on mount
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchTags() {
+    async function fetchData() {
       try {
-        const res = await fetch("/api/tag-definitions");
-        if (!res.ok) {
-          throw new Error(`Fehler beim Laden der Tag-Definitionen (${res.status})`);
+        const [tagsRes, categoriesRes] = await Promise.all([
+          fetch("/api/tag-definitions"),
+          fetch("/api/tag-categories"),
+        ]);
+        if (!tagsRes.ok) {
+          throw new Error(`Fehler beim Laden der Tag-Definitionen (${tagsRes.status})`);
         }
-        const data = await res.json();
-        const defs: TagDefinitionData[] = Array.isArray(data) ? data : data.definitions ?? [];
+        const tagsData = await tagsRes.json();
+        const defs: TagDefinitionData[] = Array.isArray(tagsData) ? tagsData : tagsData.definitions ?? [];
+
+        let cats: TagKategorieData[] = [];
+        if (categoriesRes.ok) {
+          const catsData = await categoriesRes.json();
+          cats = Array.isArray(catsData) ? catsData : catsData.categories ?? [];
+        }
+
         if (!cancelled) {
           setTagDefinitions(defs);
+          setKategorien(cats);
           setError(null);
         }
       } catch (err) {
@@ -84,7 +96,7 @@ export function VocalTagEditor({
       }
     }
 
-    fetchTags();
+    fetchData();
     return () => {
       cancelled = true;
     };
@@ -96,8 +108,8 @@ export function VocalTagEditor({
     [tagDefinitions],
   );
 
-  // Suggestion render callbacks for the autocomplete plugin
-  const suggestionRender = useMemo(() => suggestionRenderer(), []);
+  // Suggestion render callbacks for the autocomplete plugin (with categories for grouped display)
+  const suggestionRender = useMemo(() => suggestionRenderer(undefined, kategorien), [kategorien]);
 
   // Initialize TipTap editor
   const editor = useEditor(
@@ -117,6 +129,7 @@ export function VocalTagEditor({
         }),
         AutocompletePlugin.configure({
           tagDefinitions,
+          kategorien,
           suggestion: {
             render: suggestionRender,
           },
@@ -136,7 +149,7 @@ export function VocalTagEditor({
         onChange?.(serialized);
       },
     },
-    [tagDefinitions],
+    [tagDefinitions, kategorien],
   );
 
   // Load initial content into the editor once tag definitions are available
@@ -199,7 +212,7 @@ export function VocalTagEditor({
     <div className="vocal-tag-editor">
       {/* Toolbar */}
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <VocalTagToolbar editor={editor} tagDefinitions={tagDefinitions} />
+        <VocalTagToolbar editor={editor} tagDefinitions={tagDefinitions} kategorien={kategorien} />
         <div className="ml-auto flex items-center gap-1.5">
           <ChordProImportButton
             knownTags={knownTags}

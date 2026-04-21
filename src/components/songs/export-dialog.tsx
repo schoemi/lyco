@@ -241,12 +241,14 @@ export default function ExportDialog({
               checked={instrumental}
               onChange={setInstrumental}
             />
-            <ToggleSwitch
-              id="export-kommentare"
-              label="Kommentare"
-              checked={kommentare}
-              onChange={setKommentare}
-            />
+            {selectedFormat === "pdf" && (
+              <ToggleSwitch
+                id="export-kommentare"
+                label="Kommentare (Seitenspalte)"
+                checked={kommentare}
+                onChange={setKommentare}
+              />
+            )}
           </div>
         </fieldset>
 

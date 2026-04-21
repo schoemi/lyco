@@ -33,6 +33,8 @@ const sampleTag = {
   icon: "fa-microphone",
   color: "#FF0000",
   indexNr: 1,
+  categoryId: null,
+  category: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -56,6 +58,7 @@ describe("TagDefinitionService", () => {
 
       expect(mockPrisma.tagDefinition.findMany).toHaveBeenCalledWith({
         orderBy: { indexNr: "asc" },
+        include: { category: true },
       });
       expect(result).toHaveLength(2);
       expect(result[0].tag).toBe("belt");
@@ -74,9 +77,36 @@ describe("TagDefinitionService", () => {
         icon: "fa-microphone",
         color: "#FF0000",
         indexNr: 1,
+        categoryId: null,
       });
       expect(result[0]).not.toHaveProperty("createdAt");
       expect(result[0]).not.toHaveProperty("updatedAt");
+    });
+
+    it("includes category object when tag has a category", async () => {
+      const tagWithCategory = {
+        ...sampleTag,
+        categoryId: "cat-1",
+        category: {
+          id: "cat-1",
+          title: "Technik",
+          slug: "technik",
+          orderIndex: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      };
+      mockPrisma.tagDefinition.findMany.mockResolvedValue([tagWithCategory] as any);
+
+      const result = await getAllTagDefinitions();
+
+      expect(result[0].categoryId).toBe("cat-1");
+      expect(result[0].category).toEqual({
+        id: "cat-1",
+        title: "Technik",
+        slug: "technik",
+        orderIndex: 0,
+      });
     });
 
     it("returns empty array when no definitions exist", async () => {
@@ -116,6 +146,28 @@ describe("TagDefinitionService", () => {
       });
       expect(result.tag).toBe("belt");
       expect(result.label).toBe("Belting");
+    });
+
+    it("creates a tag definition with categoryId when provided", async () => {
+      mockPrisma.tagDefinition.findUnique.mockResolvedValue(null);
+      mockPrisma.tagDefinition.create.mockResolvedValue({
+        ...sampleTag,
+        categoryId: "cat-1",
+      } as any);
+
+      const result = await createTagDefinition({ ...input, categoryId: "cat-1" });
+
+      expect(mockPrisma.tagDefinition.create).toHaveBeenCalledWith({
+        data: {
+          tag: "belt",
+          label: "Belting",
+          icon: "fa-microphone",
+          color: "#FF0000",
+          indexNr: 1,
+          categoryId: "cat-1",
+        },
+      });
+      expect(result.categoryId).toBe("cat-1");
     });
 
     it("throws error when tag with same kürzel already exists", async () => {
@@ -161,6 +213,41 @@ describe("TagDefinitionService", () => {
       });
       expect(result.label).toBe("Belting Neu");
       expect(result.color).toBe("#00FF00");
+    });
+
+    it("updates categoryId when provided", async () => {
+      mockPrisma.tagDefinition.findUnique.mockResolvedValue(sampleTag as any);
+      mockPrisma.tagDefinition.update.mockResolvedValue({
+        ...sampleTag,
+        categoryId: "cat-1",
+      } as any);
+
+      const result = await updateTagDefinition("tag-1", { categoryId: "cat-1" });
+
+      expect(mockPrisma.tagDefinition.update).toHaveBeenCalledWith({
+        where: { id: "tag-1" },
+        data: { categoryId: "cat-1" },
+      });
+      expect(result.categoryId).toBe("cat-1");
+    });
+
+    it("sets categoryId to null when explicitly passed null", async () => {
+      mockPrisma.tagDefinition.findUnique.mockResolvedValue({
+        ...sampleTag,
+        categoryId: "cat-1",
+      } as any);
+      mockPrisma.tagDefinition.update.mockResolvedValue({
+        ...sampleTag,
+        categoryId: null,
+      } as any);
+
+      const result = await updateTagDefinition("tag-1", { categoryId: null });
+
+      expect(mockPrisma.tagDefinition.update).toHaveBeenCalledWith({
+        where: { id: "tag-1" },
+        data: { categoryId: null },
+      });
+      expect(result.categoryId).toBeNull();
     });
 
     it("throws error when tag definition not found", async () => {

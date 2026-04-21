@@ -33,6 +33,7 @@ export async function PUT(
       icon: body.icon,
       color: body.color,
       indexNr: body.indexNr,
+      categoryId: body.categoryId,
     });
 
     return NextResponse.json({ definition });

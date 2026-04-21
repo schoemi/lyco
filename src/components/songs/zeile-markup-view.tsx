@@ -42,7 +42,7 @@ function MarkupNode({ node, tagDefinitions }: { node: ChordProNode; tagDefinitio
   if (node.type === "chordpro-range") {
     return (
       <span
-        className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 mx-0.5"
+        className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 mx-0.5 align-baseline"
         style={{ backgroundColor: `${color}20`, borderBottom: `2px solid ${color}` }}
         aria-label={zusatztext ? `${label}: ${zusatztext}` : label}
         title={zusatztext ? `${label}: ${zusatztext}` : label}
@@ -55,7 +55,7 @@ function MarkupNode({ node, tagDefinitions }: { node: ChordProNode; tagDefinitio
 
   return (
     <span
-      className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-xs font-medium mx-0.5"
+      className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-xs font-medium mx-0.5 align-baseline"
       style={{ backgroundColor: `${color}15`, color }}
       aria-label={zusatztext ? `${label}: ${zusatztext}` : label}
       title={zusatztext ? `${label}: ${zusatztext}` : label}

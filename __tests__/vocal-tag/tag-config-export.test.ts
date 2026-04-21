@@ -8,8 +8,8 @@ import {
 } from "@/lib/vocal-tag/tag-config-export";
 
 const sampleTags: TagDefinitionData[] = [
-  { id: "1", tag: "belt", label: "Belting", icon: "fa-solid fa-fire", color: "#ff0000", indexNr: 1 },
-  { id: "2", tag: "falsett", label: "Falsett", icon: "fa-solid fa-feather", color: "#0000ff", indexNr: 2 },
+  { id: "1", tag: "belt", label: "Belting", icon: "fa-solid fa-fire", color: "#ff0000", indexNr: 1, categoryId: null },
+  { id: "2", tag: "falsett", label: "Falsett", icon: "fa-solid fa-feather", color: "#0000ff", indexNr: 2, categoryId: null },
 ];
 
 describe("serializeTagConfig", () => {

@@ -23,6 +23,7 @@ export interface TagConfigImportItem {
   icon: string;
   color: string;
   indexNr: number;
+  category?: string;
 }
 
 /**
@@ -38,13 +39,13 @@ export interface DuplicateCheckResult {
  * Entfernt die `id`-Felder, da diese instanzspezifisch sind.
  */
 export function serializeTagConfig(definitions: TagDefinitionData[]): string {
-  const exportData = definitions.map(({ tag, label, icon, color, indexNr }) => ({
-    tag,
-    label,
-    icon,
-    color,
-    indexNr,
-  }));
+  const exportData = definitions.map(({ tag, label, icon, color, indexNr, category }) => {
+    const entry: Record<string, unknown> = { tag, label, icon, color, indexNr };
+    if (category) {
+      entry.category = category.slug;
+    }
+    return entry;
+  });
   return JSON.stringify(exportData, null, 2);
 }
 
@@ -141,21 +142,31 @@ export function validateTagConfigJson(jsonString: string): TagConfigValidationRe
       errors.push(`Eintrag ${pos}: Feld 'indexNr' muss eine Zahl sein.`);
     }
 
+    // Check optional category field type
+    if (obj.category !== undefined && typeof obj.category !== "string") {
+      errors.push(`Eintrag ${pos}: Feld 'category' muss ein String sein.`);
+    }
+
     // If no errors for this item, add to definitions
     if (
       typeof obj.tag === "string" &&
       typeof obj.label === "string" &&
       typeof obj.icon === "string" &&
       typeof obj.color === "string" &&
-      typeof obj.indexNr === "number"
+      typeof obj.indexNr === "number" &&
+      (obj.category === undefined || typeof obj.category === "string")
     ) {
-      definitions.push({
+      const item: TagConfigImportItem = {
         tag: obj.tag,
         label: obj.label,
         icon: obj.icon,
         color: obj.color,
         indexNr: obj.indexNr,
-      });
+      };
+      if (typeof obj.category === "string") {
+        item.category = obj.category;
+      }
+      definitions.push(item);
     }
   }
 
@@ -200,3 +211,4 @@ export function checkDuplicates(
 
   return { newItems, duplicates };
 }
+

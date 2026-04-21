@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import type { TagDefinitionData } from "@/types/vocal-tag";
+import type { TagDefinitionData, TagKategorieData } from "@/types/vocal-tag";
 import TagCreateDialog from "@/components/admin/tag-create-dialog";
 import TagDeleteDialog from "@/components/admin/tag-delete-dialog";
 import { TagConfigExportButton } from "@/components/vocal-tag/tag-config-export-button";
@@ -16,7 +16,7 @@ import { faClassToIconify } from "@/lib/icon-utils";
  * Tag-Verwaltungsseite – Admin-Oberfläche zum Anzeigen und Inline-Bearbeiten
  * von Vocal-Tag-Definitionen.
  *
- * Anforderungen: 3.1, 3.2, 3.3, 3.7, 3.8, 3.9
+ * Anforderungen: 3.1, 3.2, 3.3, 3.7, 3.8, 3.9, 4.1, 4.2, 4.3, 4.4
  */
 
 interface EditingState {
@@ -27,6 +27,7 @@ interface EditingState {
 
 export default function VocalTagsPage() {
   const [tags, setTags] = useState<TagDefinitionData[]>([]);
+  const [categories, setCategories] = useState<TagKategorieData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
@@ -38,7 +39,19 @@ export default function VocalTagsPage() {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [reordering, setReordering] = useState(false);
+  const [savingCategory, setSavingCategory] = useState<string | null>(null);
   const dragCounter = useRef(0);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await fetch("/api/tag-categories");
+      if (!res.ok) throw new Error("Fehler beim Laden der Kategorien");
+      const data = await res.json();
+      setCategories(data.categories);
+    } catch {
+      // Categories are non-critical; tags still work without them
+    }
+  }, []);
 
   const fetchTags = useCallback(async () => {
     try {
@@ -57,10 +70,17 @@ export default function VocalTagsPage() {
   useEffect(() => {
     async function doFetch() {
       try {
-        const res = await fetch("/api/tag-definitions");
-        if (!res.ok) throw new Error("Fehler beim Laden");
-        const data = await res.json();
-        setTags(data.definitions);
+        const [tagsRes, categoriesRes] = await Promise.all([
+          fetch("/api/tag-definitions"),
+          fetch("/api/tag-categories"),
+        ]);
+        if (!tagsRes.ok) throw new Error("Fehler beim Laden");
+        const tagsData = await tagsRes.json();
+        setTags(tagsData.definitions);
+        if (categoriesRes.ok) {
+          const categoriesData = await categoriesRes.json();
+          setCategories(categoriesData.categories);
+        }
         setError(null);
       } catch {
         setError("Tag-Definitionen konnten nicht geladen werden.");
@@ -159,6 +179,50 @@ export default function VocalTagsPage() {
     }
   }
 
+  async function handleCategoryChange(tagId: string, categoryId: string | null) {
+    setSavingCategory(tagId);
+    try {
+      const res = await fetch(`/api/tag-definitions/${tagId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categoryId }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Fehler beim Speichern der Kategorie");
+      }
+      // Update local state with the new categoryId and resolved category object
+      const matchedCategory = categoryId
+        ? categories.find((c) => c.id === categoryId) ?? null
+        : null;
+      setTags((prev) =>
+        prev.map((t) =>
+          t.id === tagId
+            ? {
+                ...t,
+                categoryId,
+                category: matchedCategory
+                  ? {
+                      id: matchedCategory.id,
+                      title: matchedCategory.title,
+                      slug: matchedCategory.slug,
+                      orderIndex: matchedCategory.orderIndex,
+                    }
+                  : undefined,
+              }
+            : t
+        )
+      );
+      setError(null);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Fehler beim Speichern der Kategorie"
+      );
+    } finally {
+      setSavingCategory(null);
+    }
+  }
+
   function handleDragStart(e: React.DragEvent<HTMLTableRowElement>, index: number) {
     setDragIndex(index);
     e.dataTransfer.effectAllowed = "move";
@@ -253,11 +317,60 @@ export default function VocalTagsPage() {
     setImporting(true);
     setError(null);
     try {
+      // Resolve category slugs to categoryIds before importing.
+      // Cache lookups to avoid redundant API calls for the same slug.
+      const slugToIdCache = new Map<string, string>();
+
+      // Pre-populate cache from already-loaded categories
+      for (const cat of categories) {
+        slugToIdCache.set(cat.slug, cat.id);
+      }
+
+      async function resolveCategoryId(slug: string | undefined): Promise<string | null> {
+        if (!slug) return null;
+
+        // Check cache
+        if (slugToIdCache.has(slug)) {
+          return slugToIdCache.get(slug)!;
+        }
+
+        // Not in cache — create a new category with slug as title
+        const createRes = await fetch("/api/tag-categories", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: slug, slug }),
+        });
+
+        if (createRes.status === 409) {
+          // Slug conflict means it was created concurrently; re-fetch categories
+          const refreshRes = await fetch("/api/tag-categories");
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            const cats: TagKategorieData[] = refreshData.categories ?? [];
+            for (const cat of cats) {
+              slugToIdCache.set(cat.slug, cat.id);
+            }
+          }
+          return slugToIdCache.get(slug) ?? null;
+        }
+
+        if (createRes.ok) {
+          const createData = await createRes.json();
+          const newCat: TagKategorieData = createData.category;
+          slugToIdCache.set(newCat.slug, newCat.id);
+          return newCat.id;
+        }
+
+        return null;
+      }
+
       for (const item of result.items) {
+        const categoryId = await resolveCategoryId(item.category);
         const existing = tags.find((t) => t.tag === item.tag);
+
         if (existing) {
           if (result.duplicateStrategy === "skip") continue;
-          // Overwrite: update existing
+          // Overwrite: update existing, including categoryId
           await fetch(`/api/tag-definitions/${existing.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -266,18 +379,27 @@ export default function VocalTagsPage() {
               icon: item.icon,
               color: item.color,
               indexNr: item.indexNr,
+              categoryId,
             }),
           });
         } else {
-          // Create new
+          // Create new, including categoryId
           await fetch("/api/tag-definitions", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(item),
+            body: JSON.stringify({
+              tag: item.tag,
+              label: item.label,
+              icon: item.icon,
+              color: item.color,
+              indexNr: item.indexNr,
+              categoryId,
+            }),
           });
         }
       }
       await fetchTags();
+      await fetchCategories();
     } catch {
       setError("Fehler beim Importieren der Tag-Konfiguration.");
     } finally {
@@ -423,6 +545,9 @@ export default function VocalTagsPage() {
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Nr.
                 </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Kategorie
+                </th>
                 <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                   Aktionen
                 </th>
@@ -474,6 +599,27 @@ export default function VocalTagsPage() {
                   <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
                     {renderCell(tag, "indexNr")}
                   </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-sm">
+                    <select
+                      value={tag.categoryId ?? ""}
+                      onChange={(e) =>
+                        handleCategoryChange(
+                          tag.id,
+                          e.target.value === "" ? null : e.target.value
+                        )
+                      }
+                      disabled={savingCategory === tag.id}
+                      className="rounded border border-gray-300 px-2 py-1 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+                      aria-label={`Kategorie auswählen für ${tag.label}`}
+                    >
+                      <option value="">Keine Kategorie</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.title}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
                   <td className="whitespace-nowrap px-4 py-3 text-right text-sm">
                     <button
                       type="button"
@@ -494,7 +640,7 @@ export default function VocalTagsPage() {
               {tags.length === 0 && (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-4 py-6 text-center text-sm text-gray-500"
                   >
                     Keine Tag-Definitionen vorhanden.

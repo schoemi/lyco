@@ -18,16 +18,17 @@ function makeTags(count: number): TagDefinitionData[] {
     icon: `fa-solid fa-${i + 1}`,
     color: `#${String(i + 1).padStart(6, "0")}`,
     indexNr: i + 1,
+    categoryId: null,
   }));
 }
 
 function makeRealisticTags(): TagDefinitionData[] {
   return [
-    { id: "1", tag: "belt", label: "Belting", icon: "fa-solid fa-fire", color: "#e53e3e", indexNr: 1 },
-    { id: "2", tag: "falsett", label: "Falsett", icon: "fa-solid fa-feather", color: "#805ad5", indexNr: 2 },
-    { id: "3", tag: "hauch", label: "Hauchig", icon: "fa-solid fa-wind", color: "#38b2ac", indexNr: 3 },
-    { id: "4", tag: "vibrato", label: "Vibrato", icon: "fa-solid fa-wave-square", color: "#dd6b20", indexNr: 4 },
-    { id: "5", tag: "staccato", label: "Staccato", icon: "fa-solid fa-bolt", color: "#3182ce", indexNr: 5 },
+    { id: "1", tag: "belt", label: "Belting", icon: "fa-solid fa-fire", color: "#e53e3e", indexNr: 1, categoryId: null },
+    { id: "2", tag: "falsett", label: "Falsett", icon: "fa-solid fa-feather", color: "#805ad5", indexNr: 2, categoryId: null },
+    { id: "3", tag: "hauch", label: "Hauchig", icon: "fa-solid fa-wind", color: "#38b2ac", indexNr: 3, categoryId: null },
+    { id: "4", tag: "vibrato", label: "Vibrato", icon: "fa-solid fa-wave-square", color: "#dd6b20", indexNr: 4, categoryId: null },
+    { id: "5", tag: "staccato", label: "Staccato", icon: "fa-solid fa-bolt", color: "#3182ce", indexNr: 5, categoryId: null },
   ];
 }
 
@@ -121,9 +122,9 @@ describe("AutocompletePlugin logic", () => {
 
     it("maintains indexNr sort after filtering", () => {
       const tags: TagDefinitionData[] = [
-        { id: "1", tag: "aaa", label: "Test A", icon: "fa-solid fa-a", color: "#000", indexNr: 3 },
-        { id: "2", tag: "bbb", label: "Test B", icon: "fa-solid fa-b", color: "#000", indexNr: 1 },
-        { id: "3", tag: "ccc", label: "Test C", icon: "fa-solid fa-c", color: "#000", indexNr: 2 },
+        { id: "1", tag: "aaa", label: "Test A", icon: "fa-solid fa-a", color: "#000", indexNr: 3, categoryId: null },
+        { id: "2", tag: "bbb", label: "Test B", icon: "fa-solid fa-b", color: "#000", indexNr: 1, categoryId: null },
+        { id: "3", tag: "ccc", label: "Test C", icon: "fa-solid fa-c", color: "#000", indexNr: 2, categoryId: null },
       ];
       const result = filterItems(tags, "Test");
       expect(result.map((t) => t.indexNr)).toEqual([1, 2, 3]);

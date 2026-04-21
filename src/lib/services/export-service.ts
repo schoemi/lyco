@@ -24,6 +24,7 @@ import { formatPdf } from "@/lib/export/formatters/pdf-formatter";
 import { formatChordPro } from "@/lib/export/formatters/chordpro-formatter";
 import { formatOnSong } from "@/lib/export/formatters/onsong-formatter";
 import { formatSongbookPro } from "@/lib/export/formatters/songbookpro-formatter";
+import { getAllTagDefinitions } from "@/lib/services/tag-definition-service";
 
 /**
  * Exportiert einen Song als ZIP-Archiv.
@@ -127,10 +128,9 @@ export async function exportSong(
 
 
 /**
- * Formatter-Mapping: ExportFormat → Formatter-Funktion.
+ * Formatter-Mapping: ExportFormat → Formatter-Funktion (ohne PDF, da PDF extra behandelt wird).
  */
-const FORMATTERS: Record<ExportFormat, (song: FormatExportData, options: ExportOptions) => FormatterResult | Promise<FormatterResult>> = {
-  pdf: formatPdf,
+const TEXT_FORMATTERS: Record<Exclude<ExportFormat, "pdf">, (song: FormatExportData, options: ExportOptions) => FormatterResult | Promise<FormatterResult>> = {
   chordpro: formatChordPro,
   onsong: formatOnSong,
   songbookpro: formatSongbookPro,
@@ -217,8 +217,15 @@ export async function exportSongFormatted(
   };
 
   // 4. Formatter aufrufen
-  const formatter = FORMATTERS[format];
-  const result = await formatter(exportData, options);
+  let result: FormatterResult;
+  if (format === "pdf") {
+    // PDF braucht Tag-Definitionen für farbige Vocal-Tags
+    const tagDefinitions = await getAllTagDefinitions();
+    result = await formatPdf(exportData, options, tagDefinitions);
+  } else {
+    const formatter = TEXT_FORMATTERS[format];
+    result = await formatter(exportData, options);
+  }
 
   return {
     data: result.data,

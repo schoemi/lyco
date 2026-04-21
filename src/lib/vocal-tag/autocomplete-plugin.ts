@@ -2,7 +2,7 @@ import { Extension } from "@tiptap/core";
 import Suggestion from "@tiptap/suggestion";
 import { PluginKey } from "@tiptap/pm/state";
 import type { SuggestionOptions, SuggestionProps, SuggestionKeyDownProps } from "@tiptap/suggestion";
-import type { TagDefinitionData } from "@/types/vocal-tag";
+import type { TagDefinitionData, TagKategorieData } from "@/types/vocal-tag";
 
 /**
  * AutocompletePlugin – TipTap extension that provides autocomplete for ChordPro tags.
@@ -12,14 +12,16 @@ import type { TagDefinitionData } from "@/types/vocal-tag";
  * Selection via click or Enter inserts tag and opens TagPopover.
  * Escape closes menu without inserting.
  * Sort by `indexNr`, navigate with arrow keys.
+ * Tags are grouped by categories in the suggestion dropdown.
  *
- * Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5, 7.6
+ * Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 8.1, 8.2, 8.3, 8.4
  */
 
 export const autocompletePluginKey = new PluginKey("chordproAutocomplete");
 
 export interface AutocompletePluginOptions {
   tagDefinitions: TagDefinitionData[];
+  kategorien: TagKategorieData[];
   suggestion: Partial<SuggestionOptions<TagDefinitionData, TagDefinitionData>>;
 }
 
@@ -29,6 +31,7 @@ export const AutocompletePlugin = Extension.create<AutocompletePluginOptions>({
   addOptions() {
     return {
       tagDefinitions: [],
+      kategorien: [],
       suggestion: {
         char: "{",
         pluginKey: autocompletePluginKey,

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ZeileDetail } from "../../types/song";
-import type { TagDefinitionData } from "@/types/vocal-tag";
+import type { TagDefinitionData, TagKategorieData } from "@/types/vocal-tag";
 import type { StrophenViewMode } from "./strophen-view-toggle";
 import { ZeileTagInput } from "./zeile-tag-input";
 import { ZeileMarkupView } from "./zeile-markup-view";
@@ -38,6 +38,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [reorderLoading, setReorderLoading] = useState(false);
   const [tagDefinitions, setTagDefinitions] = useState<TagDefinitionData[]>([]);
+  const [tagKategorien, setTagKategorien] = useState<TagKategorieData[]>([]);
 
   // Taktbereich state per zeile: { [zeileId]: { startTakt: string, endTakt: string } }
   const [taktbereichInputs, setTaktbereichInputs] = useState<Record<string, { startTakt: string; endTakt: string }>>({});
@@ -83,16 +84,25 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
     return () => document.removeEventListener("keydown", handleKeyDown);
   });
 
-  // Fetch tag definitions for vocal tag support
+  // Fetch tag definitions and categories for vocal tag support
   useEffect(() => {
     let cancelled = false;
     async function fetchTags() {
       try {
-        const res = await fetch("/api/tag-definitions");
-        if (!res.ok) return;
-        const data = await res.json();
-        const defs: TagDefinitionData[] = Array.isArray(data) ? data : data.definitions ?? [];
+        const [tagsRes, categoriesRes] = await Promise.all([
+          fetch("/api/tag-definitions"),
+          fetch("/api/tag-categories"),
+        ]);
+        if (!tagsRes.ok) return;
+        const tagsData = await tagsRes.json();
+        const defs: TagDefinitionData[] = Array.isArray(tagsData) ? tagsData : tagsData.definitions ?? [];
         if (!cancelled) setTagDefinitions(defs);
+
+        if (categoriesRes.ok) {
+          const catData = await categoriesRes.json();
+          const cats: TagKategorieData[] = Array.isArray(catData) ? catData : catData.categories ?? [];
+          if (!cancelled) setTagKategorien(cats);
+        }
       } catch {
         // silently ignore – tag toolbar just won't show
       }
@@ -507,6 +517,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
                       if (editValidationError) setEditValidationError(null);
                     }}
                     tagDefinitions={tagDefinitions}
+                    kategorien={tagKategorien}
                     ariaRequired
                     ariaInvalid={editValidationError !== null}
                     ariaDescribedBy={editValidationError ? `edit-zeile-text-error-${zeile.id}` : undefined}
@@ -575,7 +586,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
             <>
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                {viewMode === "markup" && tagDefinitions.length > 0 ? (
+                {tagDefinitions.length > 0 ? (
                   <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>
                     <ZeileMarkupView text={zeile.text} tagDefinitions={tagDefinitions} />
                   </p>
@@ -701,6 +712,7 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
                   if (addValidationError) setAddValidationError(null);
                 }}
                 tagDefinitions={tagDefinitions}
+                kategorien={tagKategorien}
                 ariaRequired
                 ariaInvalid={addValidationError !== null}
                 ariaDescribedBy={addValidationError ? `add-zeile-text-error-${stropheId}` : undefined}

@@ -8,6 +8,7 @@ import type {
 export async function getAllTagDefinitions(): Promise<TagDefinitionData[]> {
   const definitions = await prisma.tagDefinition.findMany({
     orderBy: { indexNr: "asc" },
+    include: { category: true },
   });
 
   return definitions.map((d) => ({
@@ -17,6 +18,17 @@ export async function getAllTagDefinitions(): Promise<TagDefinitionData[]> {
     icon: d.icon,
     color: d.color,
     indexNr: d.indexNr,
+    categoryId: d.categoryId,
+    ...(d.category
+      ? {
+          category: {
+            id: d.category.id,
+            title: d.category.title,
+            slug: d.category.slug,
+            orderIndex: d.category.orderIndex,
+          },
+        }
+      : {}),
   }));
 }
 
@@ -40,6 +52,9 @@ export async function createTagDefinition(
         icon: input.icon,
         color: input.color,
         indexNr: input.indexNr,
+        ...(input.categoryId !== undefined
+          ? { categoryId: input.categoryId ?? null }
+          : {}),
       },
     });
   } catch (err) {
@@ -64,6 +79,7 @@ export async function createTagDefinition(
     icon: created.icon,
     color: created.color,
     indexNr: created.indexNr,
+    categoryId: created.categoryId,
   };
 }
 
@@ -84,6 +100,7 @@ export async function updateTagDefinition(
   if (input.icon !== undefined) updateData.icon = input.icon;
   if (input.color !== undefined) updateData.color = input.color;
   if (input.indexNr !== undefined) updateData.indexNr = input.indexNr;
+  if (input.categoryId !== undefined) updateData.categoryId = input.categoryId ?? null;
 
   const updated = await prisma.tagDefinition.update({
     where: { id },
@@ -97,6 +114,7 @@ export async function updateTagDefinition(
     icon: updated.icon,
     color: updated.color,
     indexNr: updated.indexNr,
+    categoryId: updated.categoryId,
   };
 }
 
