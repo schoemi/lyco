@@ -30,6 +30,7 @@ const FORMAT_OPTIONS: FormatOption[] = [
   { value: "chordpro", label: "ChordPro", description: "Offener Austauschstandard" },
   { value: "onsong", label: "OnSong", description: "Für die OnSong-App" },
   { value: "songbookpro", label: "SongbookPro", description: "Für die SongbookPro-App" },
+  { value: "lyco", label: "Lyco (ZIP)", description: "Vollständiges Backup aller Daten" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -118,14 +119,20 @@ export default function ExportDialog({
     setLoading(true);
 
     try {
-      const params = new URLSearchParams({
-        format: selectedFormat,
-        vocalTags: String(vocalTags),
-        instrumental: String(instrumental),
-        kommentare: String(kommentare),
-      });
+      let res: Response;
 
-      const res = await fetch(`/api/songs/${songId}/export?${params.toString()}`);
+      if (selectedFormat === "lyco") {
+        // Lyco-ZIP-Export: kein format-Parameter → API liefert ZIP
+        res = await fetch(`/api/songs/${songId}/export`);
+      } else {
+        const params = new URLSearchParams({
+          format: selectedFormat,
+          vocalTags: String(vocalTags),
+          instrumental: String(instrumental),
+          kommentare: String(kommentare),
+        });
+        res = await fetch(`/api/songs/${songId}/export?${params.toString()}`);
+      }
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
@@ -136,7 +143,7 @@ export default function ExportDialog({
       // Trigger file download via blob URL
       const blob = await res.blob();
       const contentDisposition = res.headers.get("Content-Disposition");
-      let filename = `export.${selectedFormat}`;
+      let filename = selectedFormat === "lyco" ? `song-${songId}.zip` : `export.${selectedFormat}`;
       if (contentDisposition) {
         const match = contentDisposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';\n]+)/i);
         if (match) {
@@ -225,32 +232,34 @@ export default function ExportDialog({
           </div>
         </fieldset>
 
-        {/* Export options */}
-        <fieldset className="mt-4">
-          <legend className="mb-2 text-sm font-medium text-neutral-700">Optionen</legend>
-          <div className="space-y-3">
-            <ToggleSwitch
-              id="export-vocal-tags"
-              label="Vocal-Tags"
-              checked={vocalTags}
-              onChange={setVocalTags}
-            />
-            <ToggleSwitch
-              id="export-instrumental"
-              label="Instrumental-Sektionen"
-              checked={instrumental}
-              onChange={setInstrumental}
-            />
-            {selectedFormat === "pdf" && (
+        {/* Export options – not applicable for lyco format */}
+        {selectedFormat && selectedFormat !== "lyco" && (
+          <fieldset className="mt-4">
+            <legend className="mb-2 text-sm font-medium text-neutral-700">Optionen</legend>
+            <div className="space-y-3">
               <ToggleSwitch
-                id="export-kommentare"
-                label="Kommentare (Seitenspalte)"
-                checked={kommentare}
-                onChange={setKommentare}
+                id="export-vocal-tags"
+                label="Vocal-Tags"
+                checked={vocalTags}
+                onChange={setVocalTags}
               />
-            )}
-          </div>
-        </fieldset>
+              <ToggleSwitch
+                id="export-instrumental"
+                label="Instrumental-Sektionen"
+                checked={instrumental}
+                onChange={setInstrumental}
+              />
+              {selectedFormat === "pdf" && (
+                <ToggleSwitch
+                  id="export-kommentare"
+                  label="Kommentare (Seitenspalte)"
+                  checked={kommentare}
+                  onChange={setKommentare}
+                />
+              )}
+            </div>
+          </fieldset>
+        )}
 
         {/* Error message */}
         {error && (

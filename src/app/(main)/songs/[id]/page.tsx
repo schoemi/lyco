@@ -255,21 +255,23 @@ export default function SongDetailPage() {
             {!istFreigabe && !editing && !editingText && (
               <button
                 type="button"
-                onClick={() => setExportDialogOpen(true)}
-                className="rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
-                aria-label="Song exportieren"
+                onClick={() => setEditing(true)}
+                className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md border border-neutral-200 bg-white px-2 py-2 text-neutral-700 hover:bg-neutral-50"
+                aria-label="Song bearbeiten"
+                title="Bearbeiten"
               >
-                Exportieren
+                <AppIcon icon="lucide:pencil" className="text-base" />
               </button>
             )}
             {!istFreigabe && !editing && !editingText && (
               <button
                 type="button"
-                onClick={() => setFreigabeDialogOpen(true)}
-                className="rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
-                aria-label="Song teilen"
+                onClick={() => setExportDialogOpen(true)}
+                className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md border border-neutral-200 bg-white px-2 py-2 text-neutral-700 hover:bg-neutral-50"
+                aria-label="Song exportieren"
+                title="Exportieren"
               >
-                Teilen
+                <AppIcon icon="lucide:download" className="text-base" />
               </button>
             )}
             {!istFreigabe && !editing && !editingText && (
@@ -281,8 +283,8 @@ export default function SongDetailPage() {
                 hasTranslations={hasTranslations}
                 onAnalyze={handleAnalyze}
                 onTranslate={handleTranslate}
-                onEdit={() => setEditing(true)}
                 onEditText={() => setEditingText(true)}
+                onShare={() => setFreigabeDialogOpen(true)}
                 onDelete={() => setDeleteDialogOpen(true)}
                 onZielspracheChange={setZielsprache}
               />
