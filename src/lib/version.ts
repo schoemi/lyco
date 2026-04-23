@@ -1,5 +1,5 @@
-export const APP_VERSION = '0.20.2';
+export const APP_VERSION = '0.21.1';
 
 /**
- * Latest Feature: PDF Button Bugfixing
+ * Latest Feature: ChordPro Support and Login redirection fix
 **/

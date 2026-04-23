@@ -32,6 +32,7 @@ export interface UpdateSongInput {
   sprache?: string;
   emotionsTags?: string[];
   coverUrl?: string | null;
+  tonart?: string | null;
 }
 
 export interface ImportStropheInput {
@@ -66,6 +67,10 @@ export interface ImportSongInput {
   sprache?: string;
   emotionsTags?: string[];
   coverUrl?: string;
+  tonart?: string;
+  bpm?: number;
+  taktZaehler?: number;
+  taktNenner?: number;
   strophen: ImportStropheInput[];
 }
 
@@ -134,6 +139,7 @@ export interface SongDetail {
   sprache: string | null;
   emotionsTags: string[];
   coverUrl: string | null;
+  tonart: string | null;
   progress: number;
   sessionCount: number;
   analyse: string | null;

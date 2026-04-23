@@ -16,3 +16,4 @@ export const Manuell: Story = { args: { active: "manuell" } };
 export const Text: Story = { args: { active: "text" } };
 export const Pdf: Story = { args: { active: "pdf" } };
 export const Genius: Story = { args: { active: "genius" } };
+export const ChordPro: Story = { args: { active: "chordpro" } };

@@ -1,4 +1,4 @@
-export type ImportMode = "manuell" | "text" | "pdf" | "genius";
+export type ImportMode = "manuell" | "text" | "pdf" | "genius" | "chordpro";
 
 export interface ParsedSong {
   strophen: ParsedStrophe[];

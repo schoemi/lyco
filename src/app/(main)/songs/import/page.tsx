@@ -6,9 +6,11 @@ import { ImportTabs } from "@/components/import/import-tabs";
 import { TextEditor } from "@/components/import/text-editor";
 import { PdfUploader } from "@/components/import/pdf-uploader";
 import { GeniusSearchPanel } from "@/components/import/genius-search-panel";
+import { ChordProImportPanel } from "@/components/import/chordpro-import-panel";
 import { parseSongtext } from "@/lib/import/songtext-parser";
 import { toImportSongInput } from "@/lib/import/to-import-input";
 import type { ImportMode } from "@/types/import";
+import type { ImportSongInput } from "@/types/song";
 
 interface Zeile {
   text: string;
@@ -215,6 +217,31 @@ export default function SongImportPage() {
     setTextKuenstler(data.kuenstler);
     setSongtext(data.text);
     setActiveTab("text");
+  }
+
+  // --- ChordPro import handler ---
+
+  async function handleChordProImport(input: ImportSongInput) {
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/songs/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Import fehlgeschlagen");
+        setLoading(false);
+        return;
+      }
+      const data = await res.json();
+      router.push(`/songs/${data.song.id}`);
+    } catch {
+      setError("Netzwerkfehler. Bitte versuche es erneut.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -495,6 +522,17 @@ export default function SongImportPage() {
           onImportSuccess={(songId) => router.push(`/songs/${songId}`)}
           onError={() => {}}
         />
+      </div>
+
+      {/* Tab: ChordPro */}
+      <div id="tabpanel-chordpro" role="tabpanel" className={activeTab === "chordpro" ? "" : "hidden"}>
+        <div className="mt-6">
+          <ChordProImportPanel
+            onImport={handleChordProImport}
+            onError={(msg) => setError(msg)}
+            loading={loading}
+          />
+        </div>
       </div>
     </div>
   );

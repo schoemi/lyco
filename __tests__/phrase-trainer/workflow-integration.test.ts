@@ -242,6 +242,7 @@ function makeSong(overrides?: Partial<SongDetail>): SongDetail {
     sprache: "de",
     emotionsTags: [],
     coverUrl: null,
+    tonart: null,
     progress: 0,
     sessionCount: 0,
     analyse: null,
@@ -253,6 +254,7 @@ function makeSong(overrides?: Partial<SongDetail>): SongDetail {
     ],
     audioQuellen: [makeInstrumental(), makeReferenzVokal()],
     sets: [],
+    beatErgebnis: null,
     ...overrides,
   };
 }

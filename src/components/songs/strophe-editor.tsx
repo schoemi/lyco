@@ -9,6 +9,8 @@ import type { StrophenViewMode } from "./strophen-view-toggle";
 import { StrophenViewToggle } from "./strophen-view-toggle";
 import { ZeileMarkupView } from "./zeile-markup-view";
 import { stripChordPro } from "@/lib/vocal-tag/chordpro-parser";
+import { parseChords } from "@/lib/chords/chord-parser";
+import { ChordAnzeige } from "@/components/songs/chord-anzeige";
 import type { TagDefinitionData } from "@/types/vocal-tag";
 import { AppIcon } from "@/components/ui/iconify-icon";
 
@@ -41,6 +43,8 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
   const [reorderLoading, setReorderLoading] = useState(false);
   const [tagDefinitions, setTagDefinitions] = useState<TagDefinitionData[]>([]);
   const [editViewMode, setEditViewMode] = useState<StrophenViewMode>("normal");
+  const [showChords, setShowChords] = useState(false);
+  const [fontSize, setFontSize] = useState(14);
 
   // Taktbereich state per strophe: { [stropheId]: { startTakt: string, endTakt: string } }
   const [taktbereichInputs, setTaktbereichInputs] = useState<Record<string, { startTakt: string; endTakt: string }>>({});
@@ -455,10 +459,62 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
   const effectiveViewMode = isEditing ? editViewMode : viewMode;
   const effectiveShowTranslations = isEditing ? editShowTranslation : showTranslations;
 
+  // Check if any zeile in the song contains chords (for showing the toggle)
+  const hasAnyChords = strophen.some((s) =>
+    s.zeilen.some((z) => parseChords(z.text).chords.length > 0)
+  );
+
+  const FONT_SIZES = [10, 12, 14, 16, 18, 20] as const;
+
   // --- Read-only view ---
   if (!isEditing) {
     return (
       <div className="space-y-4">
+        {hasAnyChords && (
+          <div className="flex items-center justify-end gap-2">
+            <div className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-1 py-0.5">
+              <button
+                type="button"
+                onClick={() => setFontSize((prev) => {
+                  const idx = FONT_SIZES.indexOf(prev as typeof FONT_SIZES[number]);
+                  return idx > 0 ? FONT_SIZES[idx - 1] : prev;
+                })}
+                disabled={fontSize <= FONT_SIZES[0]}
+                aria-label="Schriftgröße verkleinern"
+                className="rounded p-1 text-neutral-500 hover:bg-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <AppIcon icon="lucide:minus" className="text-sm" />
+              </button>
+              <span className="min-w-[3ch] text-center text-xs text-neutral-500 tabular-nums">{fontSize}</span>
+              <button
+                type="button"
+                onClick={() => setFontSize((prev) => {
+                  const idx = FONT_SIZES.indexOf(prev as typeof FONT_SIZES[number]);
+                  return idx < FONT_SIZES.length - 1 ? FONT_SIZES[idx + 1] : prev;
+                })}
+                disabled={fontSize >= FONT_SIZES[FONT_SIZES.length - 1]}
+                aria-label="Schriftgröße vergrößern"
+                className="rounded p-1 text-neutral-500 hover:bg-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <AppIcon icon="lucide:plus" className="text-sm" />
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowChords((prev) => !prev)}
+              aria-label="Akkordanzeige umschalten"
+              aria-pressed={showChords}
+              className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors ${
+                showChords
+                  ? "bg-newsong-100 text-newsong-700"
+                  : "text-neutral-500 hover:bg-neutral-100"
+              }`}
+            >
+              <AppIcon icon="lucide:music" className="text-sm" />
+              Akkorde
+            </button>
+          </div>
+        )}
         {sorted.length === 0 ? (
           <p className="text-sm text-neutral-400 italic">Keine Strophen vorhanden.</p>
         ) : (
@@ -491,21 +547,30 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
                 {sortedZeilen.length === 0 ? (
                   <p className="text-sm text-neutral-400 italic">Keine Zeilen.</p>
                 ) : (
-                  <div className="space-y-0.5">
-                    {sortedZeilen.map((zeile) => (
-                      <div key={zeile.id} className={zeile.istKommentar ? "rounded bg-amber-50 border border-amber-200 px-2 py-1" : ""}>
-                        {viewMode === "markup" && tagDefinitions.length > 0 ? (
-                          <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>
-                            <ZeileMarkupView text={zeile.text} tagDefinitions={tagDefinitions} />
-                          </p>
-                        ) : (
-                          <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>{stripChordPro(zeile.text)}</p>
-                        )}
-                        {showTranslations && zeile.uebersetzung && (
-                          <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
-                        )}
-                      </div>
-                    ))}
+                  <div
+                    className={`space-y-0.5 ${showChords ? "font-mono" : ""}`}
+                    style={{ fontSize: `${fontSize}px` }}
+                  >
+                    {sortedZeilen.map((zeile) => {
+                      const parsed = parseChords(zeile.text);
+                      const hasChords = showChords && parsed.chords.length > 0;
+                      return (
+                        <div key={zeile.id} className={zeile.istKommentar ? "rounded bg-amber-50 border border-amber-200 px-2 py-1" : ""}>
+                          {hasChords ? (
+                            <ChordAnzeige text={zeile.text} tagDefinitions={tagDefinitions} />
+                          ) : viewMode === "markup" && tagDefinitions.length > 0 ? (
+                            <p className={`leading-relaxed ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>
+                              <ZeileMarkupView text={parsed.plainText} tagDefinitions={tagDefinitions} />
+                            </p>
+                          ) : (
+                            <p className={`leading-relaxed ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>{stripChordPro(parsed.plainText)}</p>
+                          )}
+                          {showTranslations && zeile.uebersetzung && (
+                            <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -524,7 +589,21 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
       </div>
 
       {/* View toggle for edit mode */}
-      <div className="flex justify-end">
+      <div className="flex items-center justify-end gap-2">
+        <button
+          type="button"
+          onClick={() => setShowChords((prev) => !prev)}
+          aria-label="Akkordanzeige umschalten"
+          aria-pressed={showChords}
+          className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors ${
+            showChords
+              ? "bg-newsong-100 text-newsong-700"
+              : "text-neutral-500 hover:bg-neutral-100"
+          }`}
+        >
+          <AppIcon icon="lucide:music" className="text-sm" />
+          Akkorde
+        </button>
         <StrophenViewToggle
           mode={editViewMode}
           onChange={setEditViewMode}
@@ -767,6 +846,7 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
               zeilen={strophe.zeilen}
               viewMode={effectiveViewMode}
               showTranslations={effectiveShowTranslations}
+              showChords={showChords}
               onZeilenChanged={(updatedZeilen: ZeileDetail[]) => {
                 const updatedStrophen = strophen.map((s) =>
                   s.id === strophe.id ? { ...s, zeilen: updatedZeilen } : s

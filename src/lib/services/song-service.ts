@@ -147,9 +147,24 @@ export async function importSong(
         sprache: data.sprache ?? null,
         emotionsTags: data.emotionsTags ?? [],
         coverUrl: data.coverUrl ?? null,
+        tonart: data.tonart ?? null,
         userId,
       },
     });
+
+    // BeatErgebnis mit methode MANUELL erstellen, wenn bpm vorhanden
+    if (data.bpm !== undefined && data.bpm !== null) {
+      await tx.beatErgebnis.create({
+        data: {
+          songId: createdSong.id,
+          bpm: data.bpm,
+          methode: "MANUELL",
+          beatPositionenMs: [],
+          taktZaehler: data.taktZaehler ?? 4,
+          taktNenner: data.taktNenner ?? 4,
+        },
+      });
+    }
 
     for (let si = 0; si < data.strophen.length; si++) {
       const stropheInput = data.strophen[si];
@@ -335,6 +350,7 @@ export async function getSongDetail(
     sprache: song.sprache,
     emotionsTags: song.emotionsTags,
     coverUrl: song.coverUrl ?? null,
+    tonart: song.tonart ?? null,
     progress,
     sessionCount,
     analyse: song.analyse ?? null,
@@ -402,6 +418,7 @@ export async function updateSong(
   if (data.emotionsTags !== undefined)
     updateData.emotionsTags = data.emotionsTags;
   if (data.coverUrl !== undefined) updateData.coverUrl = data.coverUrl;
+  if (data.tonart !== undefined) updateData.tonart = data.tonart;
 
   return prisma.song.update({
     where: { id: songId },

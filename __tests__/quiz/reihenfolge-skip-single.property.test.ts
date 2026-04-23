@@ -78,6 +78,7 @@ const arbSongDetail = fc
       sprache: null,
       emotionsTags: [],
       coverUrl: null,
+      tonart: null,
       progress: 0,
       sessionCount: 0,
       analyse: null,

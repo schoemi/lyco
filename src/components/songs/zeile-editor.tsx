@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import type { ZeileDetail } from "../../types/song";
 import type { TagDefinitionData, TagKategorieData } from "@/types/vocal-tag";
 import type { StrophenViewMode } from "./strophen-view-toggle";
 import { ZeileTagInput } from "./zeile-tag-input";
 import { ZeileMarkupView } from "./zeile-markup-view";
 import { stripChordPro } from "@/lib/vocal-tag/chordpro-parser";
+import { parseChords } from "@/lib/chords/chord-parser";
+import { ChordAnzeige } from "@/components/songs/chord-anzeige";
 import { AppIcon } from "@/components/ui/iconify-icon";
 interface ZeileEditorProps {
   songId: string;
@@ -17,9 +19,11 @@ interface ZeileEditorProps {
   viewMode?: StrophenViewMode;
   /** Controls whether translation fields are shown in edit mode */
   showTranslations?: boolean;
+  /** Controls whether chord display is shown above text lines */
+  showChords?: boolean;
 }
 
-export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged, editing: isEditing = true, viewMode = "normal", showTranslations = true }: ZeileEditorProps) {
+export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged, editing: isEditing = true, viewMode = "normal", showTranslations = true, showChords = false }: ZeileEditorProps) {
   const [statusMessage, setStatusMessage] = useState("");
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [addText, setAddText] = useState("");
@@ -50,6 +54,54 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
   const triggerDeleteRef = useRef<HTMLButtonElement | null>(null);
 
   const sorted = [...zeilen].sort((a, b) => a.orderIndex - b.orderIndex);
+
+  // Collect recently used chords from all zeilen in this strophe
+  const recentChords = useMemo(() => {
+    if (!showChords) return [];
+    const seen = new Set<string>();
+    const chords: string[] = [];
+    for (const zeile of zeilen) {
+      const parsed = parseChords(zeile.text);
+      for (const chord of parsed.chords) {
+        if (chord.name && !seen.has(chord.name)) {
+          seen.add(chord.name);
+          chords.push(chord.name);
+        }
+      }
+    }
+    // Return last 8 unique chords
+    return chords.slice(-8);
+  }, [zeilen, showChords]);
+
+  // Insert chord notation at cursor position in an input element
+  const insertChordAtCursor = useCallback(
+    (
+      inputRef: React.RefObject<HTMLInputElement | null>,
+      currentValue: string,
+      setValue: (val: string) => void,
+      chordNotation: string,
+      placeCursorInside?: boolean,
+    ) => {
+      const input = inputRef.current;
+      const cursorPos = input?.selectionStart ?? currentValue.length;
+      const before = currentValue.slice(0, cursorPos);
+      const after = currentValue.slice(cursorPos);
+      const newValue = before + chordNotation + after;
+      setValue(newValue);
+
+      // Restore cursor position after React re-render
+      requestAnimationFrame(() => {
+        if (input) {
+          const newPos = placeCursorInside
+            ? cursorPos + 1 // Place cursor between [ and ]
+            : cursorPos + chordNotation.length;
+          input.setSelectionRange(newPos, newPos);
+          input.focus();
+        }
+      });
+    },
+    [],
+  );
 
   // Focus add text input when form opens
   useEffect(() => {
@@ -130,6 +182,16 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
       return;
     }
 
+    // Validate chord brackets on save
+    if (showChords) {
+      const chordError = validateChordBrackets(addText);
+      if (chordError) {
+        setAddValidationError(chordError);
+        addTextInputRef.current?.focus();
+        return;
+      }
+    }
+
     setAddLoading(true);
     try {
       const body: { text: string; uebersetzung?: string } = { text: addText.trim() };
@@ -179,6 +241,23 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
     setEditError(null);
   }
 
+  // Validate chord brackets in text — returns error message or null
+  function validateChordBrackets(text: string): string | null {
+    let i = 0;
+    while (i < text.length) {
+      if (text[i] === "[") {
+        const closingBracket = text.indexOf("]", i + 1);
+        if (closingBracket === -1) {
+          return "Nicht geschlossene Akkord-Klammer gefunden";
+        }
+        i = closingBracket + 1;
+      } else {
+        i++;
+      }
+    }
+    return null;
+  }
+
   async function handleEditSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!editingId) return;
@@ -189,6 +268,16 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
       setEditValidationError("Text ist erforderlich");
       editTextInputRef.current?.focus();
       return;
+    }
+
+    // Validate chord brackets on save
+    if (showChords) {
+      const chordError = validateChordBrackets(editText);
+      if (chordError) {
+        setEditValidationError(chordError);
+        editTextInputRef.current?.focus();
+        return;
+      }
     }
 
     setEditLoading(true);
@@ -466,20 +555,26 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
   if (!isEditing) {
     return (
       <div className="space-y-0.5">
-        {sorted.map((zeile) => (
-          <div key={zeile.id} className={zeile.istKommentar ? "rounded bg-amber-50 border border-amber-200 px-2 py-1" : ""}>
-            {viewMode === "markup" && tagDefinitions.length > 0 ? (
-              <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>
-                <ZeileMarkupView text={zeile.text} tagDefinitions={tagDefinitions} />
-              </p>
-            ) : (
-              <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>{stripChordPro(zeile.text)}</p>
-            )}
-            {showTranslations && zeile.uebersetzung && (
-              <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
-            )}
-          </div>
-        ))}
+        {sorted.map((zeile) => {
+          const parsed = parseChords(zeile.text);
+          const hasChords = parsed.chords.length > 0;
+          return (
+            <div key={zeile.id} className={zeile.istKommentar ? "rounded bg-amber-50 border border-amber-200 px-2 py-1" : ""}>
+              {hasChords ? (
+                <ChordAnzeige text={zeile.text} tagDefinitions={tagDefinitions} />
+              ) : viewMode === "markup" && tagDefinitions.length > 0 ? (
+                <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>
+                  <ZeileMarkupView text={parsed.plainText} tagDefinitions={tagDefinitions} />
+                </p>
+              ) : (
+                <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>{stripChordPro(parsed.plainText)}</p>
+              )}
+              {showTranslations && zeile.uebersetzung && (
+                <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
+              )}
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -504,6 +599,35 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
           {editingId === zeile.id ? (
             /* Inline edit form */
             <form onSubmit={handleEditSubmit} className="space-y-2" noValidate>
+              {/* Chord quick-access toolbar (when showChords is active) */}
+              {showChords && (
+                <div className="flex flex-wrap items-center gap-1" role="toolbar" aria-label="Akkord-Schnellzugriff">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      insertChordAtCursor(editTextInputRef, editText, setEditText, "[]", true)
+                    }
+                    className="inline-flex items-center gap-1 rounded border border-dashed border-neutral-400 px-2 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-100 transition-colors"
+                    aria-label="Leeren Akkord einfügen"
+                  >
+                    <AppIcon icon="lucide:music" className="text-xs" />
+                    Leerer Akkord
+                  </button>
+                  {recentChords.map((chord) => (
+                    <button
+                      key={chord}
+                      type="button"
+                      onClick={() =>
+                        insertChordAtCursor(editTextInputRef, editText, setEditText, `[${chord}]`)
+                      }
+                      className="rounded border border-newsong-200 bg-newsong-50 px-2 py-1 text-xs font-medium text-newsong-700 hover:bg-newsong-100 transition-colors"
+                      aria-label={`Akkord ${chord} einfügen`}
+                    >
+                      {chord}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div>
                 <label htmlFor={`edit-zeile-text-${zeile.id}`} className="block text-sm font-medium text-neutral-700">
                   Text
@@ -586,13 +710,23 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
             <>
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                {tagDefinitions.length > 0 ? (
-                  <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>
-                    <ZeileMarkupView text={zeile.text} tagDefinitions={tagDefinitions} />
-                  </p>
-                ) : (
-                  <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>{stripChordPro(zeile.text)}</p>
-                )}
+                {(() => {
+                  const parsed = parseChords(zeile.text);
+                  const hasChords = showChords && parsed.chords.length > 0;
+                  if (hasChords) {
+                    return <ChordAnzeige text={zeile.text} tagDefinitions={tagDefinitions} />;
+                  }
+                  if (tagDefinitions.length > 0) {
+                    return (
+                      <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>
+                        <ZeileMarkupView text={parsed.plainText} tagDefinitions={tagDefinitions} />
+                      </p>
+                    );
+                  }
+                  return (
+                    <p className={`text-sm ${zeile.istKommentar ? "text-amber-800 italic" : "text-neutral-900"}`}>{stripChordPro(parsed.plainText)}</p>
+                  );
+                })()}
                 {showTranslations && zeile.uebersetzung && (
                   <p className="text-xs text-neutral-500 italic">{zeile.uebersetzung}</p>
                 )}
@@ -699,6 +833,35 @@ export default function ZeileEditor({ songId, stropheId, zeilen, onZeilenChanged
       {/* Add zeile form / button */}
       {addFormOpen ? (
         <form onSubmit={handleAddSubmit} className="space-y-2 rounded border border-dashed border-neutral-300 bg-white p-3" noValidate>
+          {/* Chord quick-access toolbar for add form (when showChords is active) */}
+          {showChords && (
+            <div className="flex flex-wrap items-center gap-1" role="toolbar" aria-label="Akkord-Schnellzugriff">
+              <button
+                type="button"
+                onClick={() =>
+                  insertChordAtCursor(addTextInputRef, addText, setAddText, "[]", true)
+                }
+                className="inline-flex items-center gap-1 rounded border border-dashed border-neutral-400 px-2 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-100 transition-colors"
+                aria-label="Leeren Akkord einfügen"
+              >
+                <AppIcon icon="lucide:music" className="text-xs" />
+                Leerer Akkord
+              </button>
+              {recentChords.map((chord) => (
+                <button
+                  key={chord}
+                  type="button"
+                  onClick={() =>
+                    insertChordAtCursor(addTextInputRef, addText, setAddText, `[${chord}]`)
+                  }
+                  className="rounded border border-newsong-200 bg-newsong-50 px-2 py-1 text-xs font-medium text-newsong-700 hover:bg-newsong-100 transition-colors"
+                  aria-label={`Akkord ${chord} einfügen`}
+                >
+                  {chord}
+                </button>
+              ))}
+            </div>
+          )}
           <div>
             <label htmlFor={`add-zeile-text-${stropheId}`} className="block text-sm font-medium text-neutral-700">
               Text

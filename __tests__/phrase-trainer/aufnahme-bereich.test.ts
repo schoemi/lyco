@@ -182,6 +182,7 @@ function makeSong(strophen: StropheDetail[]): SongDetail {
     sprache: "de",
     emotionsTags: [],
     coverUrl: null,
+    tonart: null,
     progress: 0,
     sessionCount: 0,
     analyse: null,
@@ -189,6 +190,7 @@ function makeSong(strophen: StropheDetail[]): SongDetail {
     strophen,
     audioQuellen: [],
     sets: [],
+    beatErgebnis: null,
   };
 }
 

@@ -113,6 +113,7 @@ const arbSongDetail: fc.Arbitrary<SongDetail> = fc.record({
   sprache: arbOptionalString,
   emotionsTags: arbEmotionsTags,
   coverUrl: arbOptionalString,
+  tonart: arbOptionalString,
   progress: fc.integer({ min: 0, max: 100 }),
   sessionCount: fc.nat({ max: 1000 }),
   analyse: arbOptionalString,

@@ -30,6 +30,10 @@ export default function DashboardPage() {
     try {
       setLoading(true);
       const res = await fetch("/api/dashboard");
+      if (res.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
       if (!res.ok) {
         throw new Error("Fehler beim Laden der Dashboard-Daten");
       }
@@ -49,6 +53,10 @@ export default function DashboardPage() {
       try {
         setLoading(true);
         const res = await fetch("/api/dashboard");
+        if (res.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
         if (!res.ok) {
           throw new Error("Fehler beim Laden der Dashboard-Daten");
         }

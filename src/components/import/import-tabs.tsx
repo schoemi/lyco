@@ -12,6 +12,7 @@ const tabs: { mode: ImportMode; label: string }[] = [
   { mode: "text", label: "Text einfügen" },
   { mode: "pdf", label: "PDF Upload" },
   { mode: "genius", label: "Genius" },
+  { mode: "chordpro", label: "ChordPro" },
 ];
 
 export function ImportTabs({ active, onChange }: ImportTabsProps) {
