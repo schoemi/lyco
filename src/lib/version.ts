@@ -1,5 +1,5 @@
-export const APP_VERSION = '0.21.3';
+export const APP_VERSION = '0.21.4';
 
 /**
- * Latest Feature: Replace New Song Button
+ * Latest Feature: Changes to menu structure and stage view feature
 **/

@@ -57,8 +57,20 @@ export default function StageSetlistPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
+      {/* Header */}
       <div className="flex items-center justify-between px-4 pt-6 pb-4">
-        <h1 className="text-xl font-bold">Setlist</h1>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard"
+            aria-label="Zurück zum Dashboard"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-white/10 text-white/60 transition-colors hover:bg-white/20 hover:text-white"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+            </svg>
+          </Link>
+          <h1 className="text-xl font-bold">Setlist</h1>
+        </div>
         <button
           onClick={() => setSettingsOpen(true)}
           aria-label="Stage-Einstellungen öffnen"
@@ -81,20 +93,6 @@ export default function StageSetlistPage() {
         </button>
       </div>
 
-      {/* Last sync timestamp (Req 4.6) */}
-      {syncTimestamp && (
-        <p
-          data-testid="last-sync-timestamp"
-          className="px-4 pb-3 text-xs text-white/40"
-          aria-label="Letzte Synchronisation"
-        >
-          Letzte Sync:{" "}
-          <time dateTime={syncTimestamp}>
-            {new Date(syncTimestamp).toLocaleString("de-DE")}
-          </time>
-        </p>
-      )}
-
       {/* Error state */}
       {error && (
         <div className="px-4 pb-4">
@@ -110,15 +108,29 @@ export default function StageSetlistPage() {
             onError={() => setShowPreflight(false)}
           />
         ) : (
-          <button
-            type="button"
-            onClick={() => setShowPreflight(true)}
-            aria-label="Bühne vorbereiten"
-            data-testid="preflight-button"
-            className="w-full rounded-lg bg-white py-3 text-sm font-bold text-black transition-colors hover:bg-white/90"
-          >
-            Bühne vorbereiten
-          </button>
+          <div className="space-y-2">
+            {syncTimestamp && (
+              <p
+                data-testid="last-sync-timestamp"
+                className="text-xs text-white/40"
+                aria-label="Letzte Synchronisation"
+              >
+                Letzte Sync:{" "}
+                <time dateTime={syncTimestamp}>
+                  {new Date(syncTimestamp).toLocaleString("de-DE")}
+                </time>
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowPreflight(true)}
+              aria-label="Bühne vorbereiten"
+              data-testid="preflight-button"
+              className="w-full rounded-lg bg-white py-3 text-sm font-bold text-black transition-colors hover:bg-white/90"
+            >
+              Bühne vorbereiten
+            </button>
+          </div>
         )}
       </div>
 

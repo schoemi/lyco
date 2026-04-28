@@ -52,6 +52,24 @@ export default function MainLayout({
               >
                 Dashboard
               </Link>
+              <Link
+                href="/stage"
+                className="text-sm font-medium text-neutral-600 hover:text-neutral-900"
+              >
+                Stage
+              </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin/users"
+                  className={`text-sm font-medium ${
+                    pathname.startsWith("/admin")
+                      ? "text-newsong-600"
+                      : "text-neutral-600 hover:text-neutral-900"
+                  }`}
+                >
+                  Administration
+                </Link>
+              )}
             </div>
             <UserMenu userName={userName} isAdmin={isAdmin} />
           </div>
