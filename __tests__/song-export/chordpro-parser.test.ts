@@ -432,7 +432,7 @@ describe("parseChordPro", () => {
       expect(parsed.strophen[0].istInstrumental).toBe(false);
       expect(parsed.strophen[0].zeilen).toHaveLength(2);
       expect(parsed.strophen[0].zeilen[0].text).toBe("Hello World");
-      expect(parsed.strophen[0].zeilen[0].uebersetzung).toBe("Hallo Welt");
+      expect(parsed.strophen[0].zeilen[0].uebersetzung).toBeNull();
       expect(parsed.strophen[0].zeilen[0].istKommentar).toBe(false);
       expect(parsed.strophen[0].zeilen[1].text).toBe("This is a comment");
       expect(parsed.strophen[0].zeilen[1].istKommentar).toBe(true);
@@ -547,9 +547,8 @@ describe("parseChordPro", () => {
       expect(parsed.strophen[0].zeilen[0].text).toBe(
         "Text mit {Klammern} und }mehr{",
       );
-      expect(parsed.strophen[0].zeilen[0].uebersetzung).toBe(
-        "Übersetzung mit {Klammern}",
-      );
+      // Übersetzungen werden im ChordPro-Format nicht exportiert
+      expect(parsed.strophen[0].zeilen[0].uebersetzung).toBeNull();
     });
   });
 });

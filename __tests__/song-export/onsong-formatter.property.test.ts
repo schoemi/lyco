@@ -236,10 +236,11 @@ describe("Property 4: OnSong Formatter Structure", () => {
         }
 
         const semicolonLines = bodyLines.filter((l) => l.startsWith(";"));
-        // ";" lines in body >= vocal tags + comment zeilen + translations
+        // ";" lines in body >= vocal tags + comment zeilen
         // (regular text starting with ";" may add more)
+        // Translations are no longer exported in OnSong format
         expect(semicolonLines.length).toBeGreaterThanOrEqual(
-          vocalTagCount + commentZeilenCount + translationCount,
+          vocalTagCount + commentZeilenCount,
         );
       }),
       PBT_CONFIG,
@@ -247,27 +248,17 @@ describe("Property 4: OnSong Formatter Structure", () => {
   });
 
   /**
-   * Sub-property 4h: Zeilen with translations produce a line containing "↳"
+   * Sub-property 4h: Translations are not exported in OnSong format
    *
    * **Validates: Requirements 11.1**
    */
-  it("zeilen with translations produce a line containing '↳'", () => {
+  it("translations are not included in OnSong output", () => {
     fc.assert(
       fc.property(arbSongExportData(), (song) => {
         const lines = outputLines(song, ALL_ON);
 
-        // Count zeilen with non-null, non-empty uebersetzung
-        let translationCount = 0;
-        for (const strophe of song.strophen) {
-          for (const zeile of strophe.zeilen) {
-            if (zeile.uebersetzung != null && zeile.uebersetzung !== "") {
-              translationCount++;
-            }
-          }
-        }
-
         const translationLines = lines.filter((l) => l.includes("↳"));
-        expect(translationLines.length).toBe(translationCount);
+        expect(translationLines.length).toBe(0);
       }),
       PBT_CONFIG,
     );

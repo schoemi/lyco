@@ -78,10 +78,8 @@ function formatZeile(zeile: ExportZeileData): string[] {
     lines.push(zeile.text);
   }
 
-  // Übersetzung nach der Zeile
-  if (zeile.uebersetzung != null && zeile.uebersetzung !== "") {
-    lines.push(`; ↳ ${zeile.uebersetzung}`);
-  }
+  // Übersetzungen werden im OnSong-Format nicht exportiert,
+  // da das Format keine standardisierte Darstellung dafür bietet.
 
   return lines;
 }

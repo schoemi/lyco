@@ -276,8 +276,8 @@ describe("formatChordPro", () => {
     });
   });
 
-  describe("Übersetzungen (Req 11.1, 11.2)", () => {
-    it("gibt Übersetzungen als {comment: ↳ <Text>} nach der Zeile aus", () => {
+  describe("Übersetzungen", () => {
+    it("exportiert keine Übersetzungen im ChordPro-Format", () => {
       const song = makeSong([
         makeStrophe({
           zeilen: [
@@ -288,11 +288,11 @@ describe("formatChordPro", () => {
           ],
         }),
       ]);
-      const lines = formatLines(song);
+      const text = formatText(song);
 
-      const textLine = lines.findIndex((l) => l === "Hello World");
-      expect(textLine).toBeGreaterThan(-1);
-      expect(lines[textLine + 1]).toBe("{comment: ↳ Hallo Welt}");
+      expect(text).toContain("Hello World");
+      expect(text).not.toContain("Hallo Welt");
+      expect(text).not.toContain("↳");
     });
 
     it("gibt keine Übersetzung aus wenn uebersetzung null ist", () => {
@@ -330,7 +330,7 @@ describe("formatChordPro", () => {
       expect(text).toContain("Text mit \\{Klammern\\}");
     });
 
-    it("escaped { und } in Übersetzungen", () => {
+    it("exportiert keine Übersetzungen im ChordPro-Format", () => {
       const song = makeSong([
         makeStrophe({
           zeilen: [
@@ -343,7 +343,8 @@ describe("formatChordPro", () => {
       ]);
       const text = formatText(song);
 
-      expect(text).toContain("{comment: ↳ Hallo \\{Welt\\}}");
+      expect(text).not.toContain("Hallo");
+      expect(text).not.toContain("↳");
     });
 
     it("escaped { und } in Kommentar-Zeilen", () => {
@@ -494,7 +495,7 @@ describe("formatChordPro", () => {
       expect(text).toContain("{start_of_verse: Verse 1}");
       expect(text).toContain("{comment: [BELT] stark}");
       expect(text).toContain("Hello World");
-      expect(text).toContain("{comment: ↳ Hallo Welt}");
+      expect(text).not.toContain("{comment: ↳ Hallo Welt}");
       expect(text).toContain("{comment: This is a comment}");
       expect(text).toContain("{end_of_verse}");
 

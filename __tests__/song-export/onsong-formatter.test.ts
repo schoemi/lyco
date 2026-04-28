@@ -153,7 +153,7 @@ describe("formatOnSong", () => {
     expect(text).toContain("Normal line");
   });
 
-  it("should format translations as ; ↳ <translation> after the line", () => {
+  it("should not include translations in OnSong format", () => {
     const song = makeSong({
       strophen: [
         {
@@ -170,11 +170,11 @@ describe("formatOnSong", () => {
     });
 
     const result = formatOnSong(song, ALL_OPTIONS);
-    const lines = result.data.toString("utf-8").split("\n");
+    const text = result.data.toString("utf-8");
 
-    const halloIdx = lines.indexOf("Hallo Welt");
-    expect(halloIdx).toBeGreaterThan(-1);
-    expect(lines[halloIdx + 1]).toBe("; ↳ Hello World");
+    expect(text).toContain("Hallo Welt");
+    expect(text).not.toContain("Hello World");
+    expect(text).not.toContain("↳");
   });
 
   it("should sort strophen by orderIndex ascending", () => {

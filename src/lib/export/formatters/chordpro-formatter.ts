@@ -12,8 +12,10 @@
  *
  * Vocal-Tags → {comment: [<MarkupTyp>] <Wert>}
  * Kommentar-Zeilen → {comment: <Text>}
- * Übersetzungen → {comment: ↳ <Übersetzung>}
  * Escaping: { → \{, } → \} in Liedtexten
+ *
+ * Übersetzungen werden bewusst nicht exportiert, da das ChordPro-Format
+ * keine standardisierte Darstellung dafür bietet.
  *
  * Reine Funktion ohne Seiteneffekte.
  */
@@ -176,10 +178,8 @@ function formatZeile(zeile: ExportZeileData): string[] {
     lines.push(convertVocalTagsForExport(zeile.text));
   }
 
-  // Übersetzung nach der Zeile
-  if (zeile.uebersetzung != null && zeile.uebersetzung !== "") {
-    lines.push(`{comment: ↳ ${escapeChordProText(zeile.uebersetzung)}}`);
-  }
+  // Übersetzungen werden im ChordPro-Format nicht exportiert,
+  // da das Format keine standardisierte Darstellung dafür bietet.
 
   return lines;
 }
