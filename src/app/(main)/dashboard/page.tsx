@@ -123,13 +123,21 @@ export default function DashboardPage() {
       <section className="space-y-2">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-neutral-700">Sets</h2>
-          <button
-            type="button"
-            onClick={() => setCreateSetDialogOpen(true)}
-            className="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700"
-          >
-            + Neues Set
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/songs/import"
+              className="rounded-md bg-newsong-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-newsong-700"
+            >
+              + Neuer Song
+            </Link>
+            <button
+              type="button"
+              onClick={() => setCreateSetDialogOpen(true)}
+              className="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700"
+            >
+              + Neues Set
+            </button>
+          </div>
         </div>
         {data.sets.length === 0 ? (
           <div className="rounded-lg border border-dashed border-neutral-300 px-4 py-8 text-center">
@@ -179,12 +187,6 @@ export default function DashboardPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-          <Link
-            href="/songs/import"
-            className="rounded-md bg-newsong-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-newsong-700"
-          >
-            + Neuer Song
-          </Link>
         </div>
         {unassignedExpanded && (
           <div id="unassigned-songs">

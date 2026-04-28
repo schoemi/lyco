@@ -1,5 +1,5 @@
-export const APP_VERSION = '0.21.1';
+export const APP_VERSION = '0.21.3';
 
 /**
- * Latest Feature: ChordPro Support and Login redirection fix
+ * Latest Feature: Replace New Song Button
 **/
