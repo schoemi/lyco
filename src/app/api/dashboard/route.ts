@@ -35,6 +35,7 @@ export async function GET() {
       where: { userId },
       include: {
         songs: {
+          orderBy: { orderIndex: "asc" },
           include: {
             song: { select: { id: true } },
           },
