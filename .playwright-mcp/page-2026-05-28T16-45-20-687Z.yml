@@ -1,0 +1,27 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e29]:
+    - heading "Anmelden" [level=1] [ref=e30]
+    - generic [ref=e31]:
+      - generic [ref=e32]:
+        - generic [ref=e33]: E-Mail
+        - textbox "E-Mail-Adresse" [ref=e34]:
+          - /placeholder: name@beispiel.de
+      - generic [ref=e35]:
+        - generic [ref=e36]: Passwort
+        - textbox "Passwort" [ref=e37]:
+          - /placeholder: Passwort eingeben
+        - link "Passwort vergessen?" [ref=e39] [cursor=pointer]:
+          - /url: /passwort-vergessen
+      - generic [ref=e41] [cursor=pointer]:
+        - checkbox "Angemeldet bleiben" [ref=e42]
+        - generic [ref=e43]: Angemeldet bleiben
+      - button "Anmelden" [ref=e44]
+    - generic [ref=e49]: oder
+    - button "Mit Passkey anmelden" [ref=e52]
+    - paragraph [ref=e53]:
+      - text: Noch kein Konto?
+      - link "Registrieren" [ref=e54] [cursor=pointer]:
+        - /url: /register
+  - button "Open Next.js Dev Tools" [ref=e22] [cursor=pointer]:
+    - img [ref=e23]
+  - alert [ref=e26]: Anmelden

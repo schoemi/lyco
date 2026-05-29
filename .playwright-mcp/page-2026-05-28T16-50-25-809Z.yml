@@ -1,0 +1,214 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e36] [cursor=pointer]:
+    - img [ref=e37]
+  - alert [ref=e40]: Lyco - Songtext Lernen
+  - generic [ref=e41]:
+    - navigation [ref=e42]:
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - link "Lyco – Zur Startseite" [ref=e46] [cursor=pointer]:
+            - /url: /dashboard
+            - text: Lyco
+          - link "Dashboard" [ref=e47] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Stage" [ref=e48] [cursor=pointer]:
+            - /url: /stage
+          - link "Administration" [ref=e49] [cursor=pointer]:
+            - /url: /admin/users
+        - button "D Dirk" [ref=e51]:
+          - generic [ref=e52]: D
+          - generic [ref=e53]: Dirk
+          - img [ref=e54]
+    - main [ref=e56]:
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - heading "Dashboard" [level=1] [ref=e59]
+          - button "Backup importieren" [ref=e61]:
+            - img [ref=e62]
+            - text: Backup importieren
+        - button "Spaced Repetition 15 Strophen heute fällig" [ref=e66]:
+          - paragraph [ref=e67]: Spaced Repetition
+          - paragraph [ref=e68]:
+            - text: "15"
+            - generic [ref=e69]: Strophen heute fällig
+        - generic [ref=e70]:
+          - generic [ref=e71]:
+            - paragraph [ref=e72]: Songs aktiv
+            - paragraph [ref=e73]: "5"
+          - generic [ref=e74]:
+            - paragraph [ref=e75]: Sessions gesamt
+            - paragraph [ref=e76]: "134"
+          - generic [ref=e77]:
+            - paragraph [ref=e78]: Ø Fortschritt
+            - paragraph [ref=e79]: 15%
+            - 'progressbar "Ø Fortschritt: 15%" [ref=e80]'
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - heading "Sets" [level=2] [ref=e84]
+            - generic [ref=e85]:
+              - link "+ Neuer Song" [ref=e86] [cursor=pointer]:
+                - /url: /songs/import
+              - button "+ Neues Set" [ref=e87]
+          - generic [ref=e88]:
+            - generic [ref=e89]:
+              - generic [ref=e90]:
+                - button "Set „Wacken 2027\" einklappen" [expanded] [ref=e91]:
+                  - heading "Wacken 20271 Song" [level=2] [ref=e92]:
+                    - text: Wacken 2027
+                    - generic [ref=e93]: 1 Song
+                  - img [ref=e94]
+                - link "Set „Wacken 2027\" bearbeiten" [ref=e96] [cursor=pointer]:
+                  - /url: /sets/cmmyrnri90000dr8coz5gcxej
+                  - img [ref=e97]
+              - link "First Date, Blink-182 – 83% gelernt" [ref=e101] [cursor=pointer]:
+                - /url: /songs/cmms89smd000mwp8c16isgdmp
+                - generic [ref=e102]:
+                  - 'img "Fortschritt: 83%" [ref=e105]'
+                  - generic [ref=e106]:
+                    - paragraph [ref=e107]: First Date
+                    - paragraph [ref=e108]: Blink-182
+                    - progressbar [ref=e109]
+            - generic [ref=e111]:
+              - generic [ref=e112]:
+                - button "Set „Rock am Kreis\" einklappen" [expanded] [ref=e113]:
+                  - heading "Rock am Kreis7 Songs" [level=2] [ref=e114]:
+                    - text: Rock am Kreis
+                    - generic [ref=e115]: 7 Songs
+                  - img [ref=e116]
+                - link "Set „Rock am Kreis\" bearbeiten" [ref=e118] [cursor=pointer]:
+                  - /url: /sets/cmmxbtxec0000li8cddd29yyl
+                  - img [ref=e119]
+              - generic [ref=e122]:
+                - link "Basket Case by Green Day – neu" [ref=e123] [cursor=pointer]:
+                  - /url: /songs/cmmx4y3rr000jmc8cplhretm3
+                  - generic [ref=e124]:
+                    - 'img "Fortschritt: 0%" [ref=e127]'
+                    - generic [ref=e128]:
+                      - paragraph [ref=e129]: Basket Case by Green Day
+                      - progressbar [ref=e130]
+                - link "First Date, Blink-182 – 83% gelernt" [ref=e131] [cursor=pointer]:
+                  - /url: /songs/cmms89smd000mwp8c16isgdmp
+                  - generic [ref=e132]:
+                    - 'img "Fortschritt: 83%" [ref=e135]'
+                    - generic [ref=e136]:
+                      - paragraph [ref=e137]: First Date
+                      - paragraph [ref=e138]: Blink-182
+                      - progressbar [ref=e139]
+                - link "Down in the Past, Mando Diao – neu" [ref=e141] [cursor=pointer]:
+                  - /url: /songs/cmmwingmq001hhf8chs2nfn9i
+                  - generic [ref=e142]:
+                    - 'img "Fortschritt: 0%" [ref=e145]'
+                    - generic [ref=e146]:
+                      - paragraph [ref=e147]: Down in the Past
+                      - paragraph [ref=e148]: Mando Diao
+                      - progressbar [ref=e149]
+                - link "Sex on Fire, Kings of Leon – neu" [ref=e150] [cursor=pointer]:
+                  - /url: /songs/cmmvxmdju002tf38cf8zg2oer
+                  - generic [ref=e151]:
+                    - 'img "Fortschritt: 0%" [ref=e154]'
+                    - generic [ref=e155]:
+                      - paragraph [ref=e156]: Sex on Fire
+                      - paragraph [ref=e157]: Kings of Leon
+                      - progressbar [ref=e158]
+                - link "Bubbles, Biffy Clyro – neu" [ref=e159] [cursor=pointer]:
+                  - /url: /songs/cmmvvxlti0000f38c6las7six
+                  - generic [ref=e160]:
+                    - 'img "Fortschritt: 0%" [ref=e163]'
+                    - generic [ref=e164]:
+                      - paragraph [ref=e165]: Bubbles
+                      - paragraph [ref=e166]: Biffy Clyro
+                      - progressbar [ref=e167]
+                - link "When I Come Around, Green Day – neu" [ref=e168] [cursor=pointer]:
+                  - /url: /songs/cmmvx5ns7001sf38cbpbxmzof
+                  - generic [ref=e169]:
+                    - 'img "Fortschritt: 0%" [ref=e172]'
+                    - generic [ref=e173]:
+                      - paragraph [ref=e174]: When I Come Around
+                      - paragraph [ref=e175]: Green Day
+                      - progressbar [ref=e176]
+                - link "American Idiot, Green Day – gelernt" [ref=e177] [cursor=pointer]:
+                  - /url: /songs/cmmssh3l40007zj8csz732v2g
+                  - generic [ref=e178]:
+                    - 'img "Fortschritt: 100%" [ref=e181]'
+                    - generic [ref=e182]:
+                      - paragraph [ref=e183]: American Idiot
+                      - paragraph [ref=e184]: Green Day
+                      - progressbar [ref=e185]
+        - generic [ref=e187]:
+          - button "Ohne Set9 Songs" [expanded] [ref=e189]:
+            - heading "Ohne Set9 Songs" [level=2] [ref=e190]:
+              - text: Ohne Set
+              - generic [ref=e191]: 9 Songs
+            - img [ref=e192]
+          - generic [ref=e195]:
+            - link "Bubbles, Biffy Clyro – neu" [ref=e196] [cursor=pointer]:
+              - /url: /songs/19cba6c1-ae5b-4f8e-9eb7-1380502e1cdd
+              - generic [ref=e197]:
+                - 'img "Fortschritt: 0%" [ref=e200]'
+                - generic [ref=e201]:
+                  - paragraph [ref=e202]: Bubbles
+                  - paragraph [ref=e203]: Biffy Clyro
+                  - progressbar [ref=e204]
+            - link "All Of Me With intro – neu" [ref=e205] [cursor=pointer]:
+              - /url: /songs/cmoa62ss40019zv8cxxrk6wgc
+              - generic [ref=e206]:
+                - 'img "Fortschritt: 0%" [ref=e209]'
+                - generic [ref=e210]:
+                  - paragraph [ref=e211]: All Of Me With intro
+                  - progressbar [ref=e212]
+            - link "Der Test Song, Tester – neu" [ref=e213] [cursor=pointer]:
+              - /url: /songs/cmo8ajqh70000cq8cwjk8wfua
+              - generic [ref=e214]:
+                - 'img "Fortschritt: 0%" [ref=e217]'
+                - generic [ref=e218]:
+                  - paragraph [ref=e219]: Der Test Song
+                  - paragraph [ref=e220]: Tester
+                  - progressbar [ref=e221]
+            - link "Holiday, Green Day – neu" [ref=e222] [cursor=pointer]:
+              - /url: /songs/1b4bbc5c-8ab9-4f7c-8609-1d2b63a53c49
+              - generic [ref=e223]:
+                - 'img "Fortschritt: 0%" [ref=e226]'
+                - generic [ref=e227]:
+                  - paragraph [ref=e228]: Holiday
+                  - paragraph [ref=e229]: Green Day
+                  - progressbar [ref=e230]
+            - link "First Date, Blink-182 – neu" [ref=e231] [cursor=pointer]:
+              - /url: /songs/91a4975d-a132-4275-a73b-2f4427c64c9e
+              - generic [ref=e232]:
+                - 'img "Fortschritt: 0%" [ref=e235]'
+                - generic [ref=e236]:
+                  - paragraph [ref=e237]: First Date
+                  - paragraph [ref=e238]: Blink-182
+                  - progressbar [ref=e239]
+            - link "Second Date, Blink-182 – neu" [ref=e240] [cursor=pointer]:
+              - /url: /songs/44a29b79-8ad3-4735-99af-6b1ea421eb4c
+              - generic [ref=e241]:
+                - 'img "Fortschritt: 0%" [ref=e244]'
+                - generic [ref=e245]:
+                  - paragraph [ref=e246]: Second Date
+                  - paragraph [ref=e247]: Blink-182
+                  - progressbar [ref=e248]
+            - link "Down in the Past, Mando Diao – neu" [ref=e249] [cursor=pointer]:
+              - /url: /songs/a52664a5-62e4-41ab-8a50-7eb41b1454c3
+              - generic [ref=e250]:
+                - 'img "Fortschritt: 0%" [ref=e253]'
+                - generic [ref=e254]:
+                  - paragraph [ref=e255]: Down in the Past
+                  - paragraph [ref=e256]: Mando Diao
+                  - progressbar [ref=e257]
+            - link "Many of Horror by Biffy Clyro – neu" [ref=e258] [cursor=pointer]:
+              - /url: /songs/cmmwbgnsc0000hf8clozs3zaw
+              - generic [ref=e259]:
+                - 'img "Fortschritt: 0%" [ref=e262]'
+                - generic [ref=e263]:
+                  - paragraph [ref=e264]: Many of Horror by Biffy Clyro
+                  - progressbar [ref=e265]
+            - link "Boulevard of broken dreams, Green Day – 65% gelernt" [ref=e266] [cursor=pointer]:
+              - /url: /songs/cmmrs26xc000cmz8c6feu1i5l
+              - generic [ref=e267]:
+                - 'img "Fortschritt: 65%" [ref=e270]'
+                - generic [ref=e271]:
+                  - paragraph [ref=e272]: Boulevard of broken dreams
+                  - paragraph [ref=e273]: Green Day
+                  - progressbar [ref=e274]
+    - contentinfo [ref=e276]: v0.21.4

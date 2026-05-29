@@ -3,6 +3,7 @@ import "./globals.css";
 import { getThemeConfig } from "@/lib/services/theme-service";
 import { themeToCssVars, cssVarsToStyleObject } from "@/lib/theme/serializer";
 import ThemeHydrator from "@/components/ThemeHydrator";
+import { HealthCheck } from "@/components/HealthCheck";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,7 @@ export default async function RootLayout({
     <html lang="de" style={styleObj} data-app-name={theme.appName}>
       <head />
       <body>
+        <HealthCheck />
         <ThemeHydrator />
         {children}
       </body>

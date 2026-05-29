@@ -1,5 +1,6 @@
 import { DefaultSession } from "next-auth";
 import { AccountStatus } from "./auth";
+import { AuthMethod } from "@/lib/types/auth-extensions";
 
 declare module "next-auth" {
   interface Session {
@@ -7,6 +8,7 @@ declare module "next-auth" {
       id: string;
       role: "ADMIN" | "USER";
       accountStatus: AccountStatus;
+      authMethod?: AuthMethod;
     } & DefaultSession["user"];
   }
 
@@ -21,5 +23,7 @@ declare module "next-auth/jwt" {
     id: string;
     role: "ADMIN" | "USER";
     accountStatus: AccountStatus;
+    rememberMe?: boolean;
+    authMethod?: AuthMethod;
   }
 }

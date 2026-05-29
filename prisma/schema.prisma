@@ -114,6 +114,8 @@ model User {
   songFreigabenAlsEmpfaenger SongFreigabe[] @relation("SongFreigabenAlsEmpfaenger")
   setFreigabenAlsEigentuemer  SetFreigabe[]  @relation("SetFreigabenAlsEigentuemer")
   setFreigabenAlsEmpfaenger  SetFreigabe[]  @relation("SetFreigabenAlsEmpfaenger")
+  passkeys    Passkey[]
+  ssoAccounts SsoAccount[]
   auditLogs    AuditLog[]    @relation("AuditLogActor")
   serverErrors ServerError[] @relation("ServerErrorUser")
 
@@ -508,4 +510,50 @@ model BeatErgebnis {
   song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
 
   @@map("beat_ergebnisse")
+}
+
+
+model Passkey {
+  id            String   @id @default(cuid())
+  userId        String
+  credentialId  String   @unique  // Base64URL-encoded credential ID
+  publicKey     Bytes              // COSE public key
+  counter       Int      @default(0) // Signature counter
+  name          String   @db.VarChar(64)
+  algorithm     Int                // COSE algorithm identifier (-7 = ES256, -257 = RS256)
+  transports    String[] @default([]) // e.g. ["usb", "ble", "nfc", "internal"]
+  isCompromised Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("passkeys")
+}
+
+model SsoAccount {
+  id                String   @id @default(cuid())
+  userId            String
+  provider          String   // "authentik"
+  providerAccountId String   // Subject claim from ID token
+  createdAt         DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("sso_accounts")
+}
+
+model WebAuthnChallenge {
+  id        String   @id @default(cuid())
+  challenge String   @unique
+  userId    String?  // null for authentication (discoverable), set for registration
+  type      String   // "registration" | "authentication"
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([challenge])
+  @@index([expiresAt])
+  @@map("webauthn_challenges")
 }

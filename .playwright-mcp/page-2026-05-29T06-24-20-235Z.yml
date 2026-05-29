@@ -1,0 +1,20 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - link "Lyco – Zur Startseite" [ref=e7] [cursor=pointer]:
+            - /url: /dashboard
+            - text: Lyco
+          - link "Dashboard" [ref=e8] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Stage" [ref=e9] [cursor=pointer]:
+            - /url: /stage
+        - button [ref=e11]:
+          - img [ref=e13]
+    - main [ref=e15]:
+      - generic [ref=e17]: Profil wird geladen…
+    - contentinfo [ref=e18]: v0.21.4
+  - button "Open Next.js Dev Tools" [ref=e24] [cursor=pointer]:
+    - img [ref=e25]
+  - alert [ref=e28]

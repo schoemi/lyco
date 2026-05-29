@@ -1,0 +1,9 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e5]:
+    - heading "Passwort zurücksetzen" [level=1] [ref=e6]
+    - status [ref=e27]: Dein Passwort wurde erfolgreich zurückgesetzt. Du kannst dich jetzt anmelden.
+    - link "Zur Anmeldung" [ref=e28] [cursor=pointer]:
+      - /url: /login
+  - button "Open Next.js Dev Tools" [ref=e22] [cursor=pointer]:
+    - img [ref=e23]
+  - alert [ref=e26]

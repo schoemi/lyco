@@ -32,6 +32,20 @@ vi.mock("@/lib/services/auth-service", () => ({
   authorize: vi.fn(),
 }));
 
+vi.mock("@/lib/services/log-service", () => ({
+  logAudit: vi.fn(),
+  LOGIN_SUCCESS: "LOGIN_SUCCESS",
+  LOGIN_FAILED: "LOGIN_FAILED",
+  SSO_AUTH_SUCCESS: "SSO_AUTH_SUCCESS",
+  SSO_AUTH_FAILED: "SSO_AUTH_FAILED",
+}));
+
+vi.mock("next/headers", () => ({
+  headers: vi.fn(async () => ({
+    get: () => null,
+  })),
+}));
+
 describe("Property 15: Session-Cookie-Sicherheitsattribute", () => {
   beforeEach(async () => {
     capturedConfig = null;
@@ -39,6 +53,12 @@ describe("Property 15: Session-Cookie-Sicherheitsattribute", () => {
     vi.resetModules();
 
     // Re-mock after resetModules
+    vi.doMock("next/headers", () => ({
+      headers: vi.fn(async () => ({
+        get: () => null,
+      })),
+    }));
+
     vi.doMock("next-auth", () => ({
       default: (config: Record<string, unknown>) => {
         capturedConfig = config;

@@ -1,0 +1,25 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e55] [cursor=pointer]:
+    - generic [ref=e58]:
+      - text: Compiling
+      - generic [ref=e59]:
+        - generic [ref=e60]: .
+        - generic [ref=e61]: .
+        - generic [ref=e62]: .
+  - alert [ref=e26]: Lyco - Songtext Lernen
+  - generic [ref=e63]:
+    - navigation [ref=e64]:
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - link "Lyco – Zur Startseite" [ref=e68] [cursor=pointer]:
+            - /url: /dashboard
+            - text: Lyco
+          - link "Dashboard" [ref=e69] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Stage" [ref=e70] [cursor=pointer]:
+            - /url: /stage
+        - button [ref=e72]:
+          - img [ref=e74]
+    - main [ref=e76]:
+      - generic [ref=e78]: Dashboard wird geladen…
+    - contentinfo [ref=e79]: v0.21.4

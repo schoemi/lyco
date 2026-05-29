@@ -20,6 +20,8 @@
     "@iconify/react": "^6.0.2",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
+    "@simplewebauthn/browser": "^9.0.1",
+    "@simplewebauthn/server": "^9.0.3",
     "@tailwindcss/typography": "^0.5.19",
     "@tiptap/core": "^3.20.4",
     "@tiptap/pm": "^3.20.4",

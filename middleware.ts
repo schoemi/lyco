@@ -97,7 +97,7 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Kontostatus prüfen – bei nicht-aktivem Konto Session beenden (Anforderung 3.4)
+  // Kontostatus prüfen – bei nicht-aktivem Konto Session beenden (Anforderung 3.4, 1.8)
   const accountStatus = session.user?.accountStatus;
   if (accountStatus && accountStatus !== "ACTIVE") {
     if (isApiRoute(pathname)) {
@@ -108,6 +108,14 @@ export default auth((req) => {
     }
 
     const loginUrl = new URL("/login", req.url);
+
+    // Provide specific error context based on account status
+    if (accountStatus === "SUSPENDED") {
+      loginUrl.searchParams.set("error", "suspended");
+    } else if (accountStatus === "PENDING") {
+      loginUrl.searchParams.set("error", "pending");
+    }
+
     const response = NextResponse.redirect(loginUrl);
 
     // Session-Cookies löschen, um die Session zu invalidieren

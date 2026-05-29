@@ -12,6 +12,10 @@ import type { Prisma } from "@/generated/prisma/client";
 
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGIN_FAILED = "LOGIN_FAILED";
+export const PASSKEY_AUTH_SUCCESS = "PASSKEY_AUTH_SUCCESS";
+export const PASSKEY_AUTH_FAILED = "PASSKEY_AUTH_FAILED";
+export const SSO_AUTH_SUCCESS = "SSO_AUTH_SUCCESS";
+export const SSO_AUTH_FAILED = "SSO_AUTH_FAILED";
 export const USER_CREATED = "USER_CREATED";
 export const USER_UPDATED = "USER_UPDATED";
 export const USER_DELETED = "USER_DELETED";

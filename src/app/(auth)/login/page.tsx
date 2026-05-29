@@ -4,6 +4,9 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
+import { RememberMeCheckbox } from "@/components/auth/remember-me-checkbox";
+import { PasskeyLoginButton } from "@/components/auth/passkey-login-button";
+import { SsoLoginButton } from "@/components/auth/sso-login-button";
 
 function LoginForm() {
   const router = useRouter();
@@ -11,12 +14,19 @@ function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [generalError, setGeneralError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const expired = searchParams.get("expired") === "true";
+  const errorParam = searchParams.get("error");
+  const isSuspended = errorParam === "suspended";
+  const isPending = errorParam === "pending";
+  const isSsoFailed = errorParam === "sso-failed" || errorParam === "OAuthCallbackError" || errorParam === "OAuthSignin";
+  const isSsoTimeout = errorParam === "sso-timeout";
+  const isNoAccount = errorParam === "no-account";
 
   function clearErrors() {
     setEmailError("");
@@ -48,6 +58,7 @@ function LoginForm() {
       const result = await signIn("credentials", {
         email: email.trim(),
         password,
+        rememberMe: rememberMe ? "true" : "false",
         redirect: false,
       });
 
@@ -75,7 +86,52 @@ function LoginForm() {
           role="alert"
           className="mb-4 rounded-md bg-info-50 p-3 text-sm text-info-800"
         >
-          Sitzung abgelaufen. Bitte melden Sie sich erneut an.
+          Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.
+        </div>
+      )}
+
+      {isSuspended && (
+        <div
+          role="alert"
+          className="mb-4 rounded-md bg-error-50 p-3 text-sm text-error-700"
+        >
+          Ihr Konto wurde gesperrt. Bitte wenden Sie sich an den Administrator.
+        </div>
+      )}
+
+      {isPending && (
+        <div
+          role="alert"
+          className="mb-4 rounded-md bg-warning-50 p-3 text-sm text-warning-800"
+        >
+          Ihr Konto wartet auf Freigabe durch einen Administrator.
+        </div>
+      )}
+
+      {isSsoFailed && (
+        <div
+          role="alert"
+          className="mb-4 rounded-md bg-error-50 p-3 text-sm text-error-700"
+        >
+          SSO-Authentifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.
+        </div>
+      )}
+
+      {isSsoTimeout && (
+        <div
+          role="alert"
+          className="mb-4 rounded-md bg-error-50 p-3 text-sm text-error-700"
+        >
+          SSO-Kommunikationsproblem. Bitte versuchen Sie es erneut.
+        </div>
+      )}
+
+      {isNoAccount && (
+        <div
+          role="alert"
+          className="mb-4 rounded-md bg-warning-50 p-3 text-sm text-warning-800"
+        >
+          Kein Konto gefunden. Bitte registrieren Sie sich zuerst.
         </div>
       )}
 
@@ -151,6 +207,10 @@ function LoginForm() {
           </div>
         </div>
 
+        <div>
+          <RememberMeCheckbox checked={rememberMe} onChange={setRememberMe} />
+        </div>
+
         <button
           type="submit"
           disabled={loading}
@@ -159,6 +219,22 @@ function LoginForm() {
           {loading ? "Anmelden…" : "Anmelden"}
         </button>
       </form>
+
+      {/* Alternative login methods divider */}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-neutral-300" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="bg-white px-2 text-neutral-500">oder</span>
+        </div>
+      </div>
+
+      {/* Alternative authentication methods */}
+      <div className="space-y-3">
+        <PasskeyLoginButton />
+        <SsoLoginButton />
+      </div>
 
       <p className="mt-4 text-center text-sm text-neutral-600">
         Noch kein Konto?{" "}

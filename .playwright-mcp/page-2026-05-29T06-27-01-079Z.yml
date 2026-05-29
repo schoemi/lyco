@@ -1,0 +1,135 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - link "Lyco – Zur Startseite" [ref=e7] [cursor=pointer]:
+            - /url: /dashboard
+            - text: Lyco
+          - link "Dashboard" [ref=e8] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Stage" [ref=e9] [cursor=pointer]:
+            - /url: /stage
+          - link "Administration" [ref=e29] [cursor=pointer]:
+            - /url: /admin/users
+        - button "D Dirk" [ref=e30]:
+          - generic [ref=e12]: D
+          - generic [ref=e31]: Dirk
+          - img [ref=e13]
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - heading "Mein Profil" [level=1] [ref=e32]
+        - generic [ref=e33]:
+          - heading "Profildaten" [level=2] [ref=e34]
+          - generic [ref=e35]:
+            - generic [ref=e36]:
+              - generic [ref=e37]: E-Mail-Adresse
+              - textbox "E-Mail-Adresse" [ref=e38]: dirk@schoemakers.com
+            - generic [ref=e39]:
+              - generic [ref=e40]: Name
+              - textbox "Name" [ref=e41]: Dirk
+            - generic [ref=e42]:
+              - generic [ref=e43]: Alter
+              - spinbutton "Alter" [ref=e44]: "45"
+            - generic [ref=e45]:
+              - generic [ref=e46]: Geschlecht
+              - combobox "Geschlecht" [ref=e47]:
+                - option "— Bitte wählen —"
+                - option "Männlich" [selected]
+                - option "Weiblich"
+                - option "Divers"
+            - generic [ref=e48]:
+              - generic [ref=e49]: Erfahrungslevel
+              - combobox "Erfahrungslevel" [ref=e50]:
+                - option "— Bitte wählen —"
+                - option "Anfänger" [selected]
+                - option "Fortgeschritten"
+                - option "Erfahren"
+                - option "Profi"
+            - generic [ref=e51]:
+              - generic [ref=e52]: Stimmlage
+              - textbox "Stimmlage" [ref=e53]:
+                - /placeholder: z.B. Tenor, Sopran, Alt…
+                - text: Tenor
+            - generic [ref=e54]:
+              - generic [ref=e55]: Genre
+              - textbox "Genre" [ref=e56]:
+                - /placeholder: z.B. Pop, Rock, Jazz…
+                - text: Rock, Punk, Highschool-Rock, Alternative-Rock
+            - generic [ref=e57]:
+              - generic [ref=e58]: Sprache (KI-Antworten)
+              - combobox "Sprache (KI-Antworten)" [ref=e59]:
+                - option "Deutsch" [selected]
+                - option "English"
+                - option "Français"
+                - option "Español"
+                - option "Italiano"
+                - option "Português"
+              - paragraph [ref=e60]: In dieser Sprache antwortet die KI bei Analyse, Coach und Übersetzung.
+            - generic [ref=e61]:
+              - generic [ref=e62]: Genius API-Schlüssel
+              - paragraph [ref=e63]: "Aktuell gespeichert: ••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••BYSQ"
+              - textbox "Genius API-Schlüssel" [ref=e64]:
+                - /placeholder: Neuen Schlüssel eingeben oder leer lassen
+              - paragraph [ref=e65]:
+                - text: Benötigt für den Genius Song-Import. Erstelle einen Token auf
+                - link "genius.com/api-clients" [ref=e66] [cursor=pointer]:
+                  - /url: https://genius.com/api-clients
+            - button "Profil speichern" [ref=e68]
+        - generic [ref=e69]:
+          - heading "Theme auswählen" [level=2] [ref=e70]
+          - paragraph [ref=e71]: Wähle ein Theme, um das Erscheinungsbild der Anwendung anzupassen.
+          - generic [ref=e73]:
+            - button "Theme Standard (Standard)" [ref=e74] [cursor=pointer]:
+              - generic [ref=e82]:
+                - generic [ref=e83]: Standard
+                - generic [ref=e84]: Standard
+            - button "Theme Colourful 1" [ref=e85] [cursor=pointer]:
+              - generic [ref=e94]: Colourful 1
+            - button "Theme Colourful 2 – ausgewählt" [pressed] [ref=e95] [cursor=pointer]:
+              - generic [ref=e104]: Colourful 2
+              - img [ref=e106]
+        - generic [ref=e108]:
+          - heading "Passkeys" [level=2] [ref=e109]
+          - paragraph [ref=e110]: Passkeys ermöglichen eine sichere Anmeldung ohne Passwort über biometrische Daten oder einen Sicherheitsschlüssel.
+          - alert [ref=e149]: Fehler bei der Passkey-Registrierung.
+          - paragraph [ref=e111]: Noch keine Passkeys registriert.
+          - generic [ref=e142]:
+            - generic [ref=e143]:
+              - generic [ref=e144]: Name für den neuen Passkey
+              - textbox "Name für den neuen Passkey" [ref=e145]:
+                - /placeholder: z.B. MacBook Touch ID, iPhone
+                - text: MacBook Pro
+            - generic [ref=e146]:
+              - button "Passkey registrieren" [ref=e147]
+              - button "Abbrechen" [ref=e148]
+        - generic [ref=e113]:
+          - heading "Single Sign-On (SSO)" [level=2] [ref=e114]
+          - paragraph [ref=e116]: Ihr Konto ist nicht mit SSO verknüpft
+        - generic [ref=e117]:
+          - heading "E-Mail-Adresse ändern" [level=2] [ref=e118]
+          - generic [ref=e119]:
+            - generic [ref=e120]:
+              - generic [ref=e121]: Neue E-Mail-Adresse
+              - textbox "Neue E-Mail-Adresse" [ref=e122]
+            - generic [ref=e123]:
+              - generic [ref=e124]: Aktuelles Passwort
+              - textbox "Aktuelles Passwort" [ref=e125]
+            - button "E-Mail ändern" [ref=e127]
+        - generic [ref=e128]:
+          - heading "Passwort ändern" [level=2] [ref=e129]
+          - generic [ref=e130]:
+            - generic [ref=e131]:
+              - generic [ref=e132]: Aktuelles Passwort
+              - textbox "Aktuelles Passwort" [ref=e133]
+            - generic [ref=e134]:
+              - generic [ref=e135]: Neues Passwort
+              - textbox "Neues Passwort" [ref=e136]
+            - generic [ref=e137]:
+              - generic [ref=e138]: Neues Passwort bestätigen
+              - textbox "Neues Passwort bestätigen" [ref=e139]
+            - button "Passwort ändern" [ref=e141]
+    - contentinfo [ref=e18]: v0.21.4
+  - button "Open Next.js Dev Tools" [ref=e24] [cursor=pointer]:
+    - img [ref=e25]
+  - alert [ref=e28]

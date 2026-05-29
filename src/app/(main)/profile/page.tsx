@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import type { ProfileData, ChangePasswordInput, ChangeEmailInput } from "@/types/profile";
 import ThemeSelector from "@/components/ThemeSelector";
+import { PasskeyManager } from "@/components/auth/passkey-manager";
+import { SsoStatus } from "@/components/auth/sso-status";
 
 export default function ProfilePage() {
   // Profile form state
@@ -423,6 +425,12 @@ export default function ProfilePage() {
           />
         )}
       </div>
+
+      {/* Passkey management section */}
+      <PasskeyManager />
+
+      {/* SSO status section */}
+      <SsoStatus />
 
       {/* Email change section */}
       <div className="rounded-lg border border-neutral-200 bg-white px-4 py-5 sm:px-6">

@@ -89,6 +89,12 @@ async function networkFirst(request, cache) {
  */
 async function handleFetch(event) {
   const { request } = event;
+
+  // POST-Requests und API-Auth-Requests niemals cachen — direkt ans Netzwerk
+  if (request.method !== "GET" || new URL(request.url).pathname.startsWith("/api/auth")) {
+    return fetch(request);
+  }
+
   const cache = await caches.open(STAGE_CACHE);
 
   if (isStageApiUrl(request.url) || isStageAsset(request.url)) {
