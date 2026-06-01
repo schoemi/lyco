@@ -1,5 +1,6 @@
 import type { NextAuthConfig } from "next-auth";
 import type { AuthMethod } from "@/lib/types/auth-extensions";
+import type { AccountStatus } from "@/types/auth";
 
 /** 24 hours in seconds */
 const SESSION_MAX_AGE_DEFAULT = 24 * 60 * 60;
@@ -22,10 +23,10 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     jwt: async ({ token, user }) => {
       // Initial sign-in: populate token from user object
-      if (user) {
+      if (user && user.id) {
         token.id = user.id;
         token.role = (user as { role: "ADMIN" | "USER" }).role;
-        token.accountStatus = (user as { accountStatus: string }).accountStatus;
+        token.accountStatus = (user as { accountStatus: AccountStatus }).accountStatus;
         token.authMethod = ((user as { authMethod?: AuthMethod }).authMethod ?? "credentials") as AuthMethod;
 
         const rememberMe = (user as { rememberMe?: boolean }).rememberMe ?? false;

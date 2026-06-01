@@ -39,7 +39,7 @@ export function getWebAuthnConfig(): WebAuthnConfig {
     );
   }
 
-  return { rpId, rpName, origin };
+  return { rpId: rpId!, rpName: rpName!, origin: origin! };
 }
 
 /**

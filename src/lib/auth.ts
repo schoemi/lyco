@@ -218,9 +218,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           // Populate user object for JWT callback
           user.id = existingUser.id;
-          (user as Record<string, unknown>).role = existingUser.role;
-          (user as Record<string, unknown>).accountStatus = existingUser.accountStatus;
-          (user as Record<string, unknown>).authMethod = "sso" as AuthMethod;
+          (user as unknown as Record<string, unknown>).role = existingUser.role;
+          (user as unknown as Record<string, unknown>).accountStatus = existingUser.accountStatus;
+          (user as unknown as Record<string, unknown>).authMethod = "sso" as AuthMethod;
 
           // Log successful SSO login
           logAudit({
@@ -273,9 +273,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         // Populate user object for JWT callback
         user.id = newUser.id;
-        (user as Record<string, unknown>).role = newUser.role;
-        (user as Record<string, unknown>).accountStatus = newUser.accountStatus;
-        (user as Record<string, unknown>).authMethod = "sso" as AuthMethod;
+        (user as unknown as Record<string, unknown>).role = newUser.role;
+        (user as unknown as Record<string, unknown>).accountStatus = newUser.accountStatus;
+        (user as unknown as Record<string, unknown>).authMethod = "sso" as AuthMethod;
 
         // Log successful SSO login with account creation
         logAudit({
@@ -315,7 +315,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Delegate to the base config's jwt callback first
       const baseJwt = authConfig.callbacks?.jwt;
       if (baseJwt) {
-        token = await baseJwt({ token, user, trigger } as Parameters<typeof baseJwt>[0]);
+        const result = await baseJwt({ token, user, trigger } as Parameters<typeof baseJwt>[0]);
+        if (result) token = result;
       }
 
       // On subsequent requests (not initial sign-in), check the database
