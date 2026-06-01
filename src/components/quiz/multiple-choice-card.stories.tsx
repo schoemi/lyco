@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn } from "storybook/test";
+import { fn, userEvent, within, expect } from "storybook/test";
 import { MultipleChoiceCard } from "./multiple-choice-card";
 
 const meta: Meta<typeof MultipleChoiceCard> = {
@@ -36,5 +36,17 @@ export const MitKontext: Story = {
       correctIndex: 0,
       contextHint: "Strophe 1, nach: Don't wanna be an American idiot",
     },
+  },
+};
+
+export const SelectAnswer: Story = {
+  args: {
+    ...Default.args,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const options = canvas.getAllByRole("radio");
+    await userEvent.click(options[0]);
+    await expect(args.onAnswer).toHaveBeenCalledOnce();
   },
 };

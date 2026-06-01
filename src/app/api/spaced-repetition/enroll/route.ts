@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     // Verify song ownership
     const song = await prisma.song.findUnique({
       where: { id: songId },
-      include: { strophen: { select: { id: true } } },
+      include: { strophen: { select: { id: true, istInstrumental: true } } },
     });
 
     if (!song) {
@@ -43,7 +43,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (song.strophen.length === 0) {
+    // Only vocal strophes can be enrolled
+    const vokalStrophen = song.strophen.filter((s) => !s.istInstrumental);
+
+    if (vokalStrophen.length === 0) {
       return NextResponse.json(
         { error: "Song hat keine Strophen" },
         { status: 400 }
@@ -52,13 +55,13 @@ export async function POST(request: NextRequest) {
 
     // Find which strophes are already enrolled
     const existing = await prisma.wiederholung.findMany({
-      where: { userId, stropheId: { in: song.strophen.map((s) => s.id) } },
+      where: { userId, stropheId: { in: vokalStrophen.map((s) => s.id) } },
       select: { stropheId: true },
     });
     const enrolledIds = new Set(existing.map((e) => e.stropheId));
 
     // Enroll missing strophes
-    const neueStrophen = song.strophen.filter((s) => !enrolledIds.has(s.id));
+    const neueStrophen = vokalStrophen.filter((s) => !enrolledIds.has(s.id));
     const ergebnisse = await Promise.all(
       neueStrophen.map((s) => erstelleWiederholung(userId, s.id))
     );
@@ -66,7 +69,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       enrolled: ergebnisse.length,
       alreadyEnrolled: enrolledIds.size,
-      total: song.strophen.length,
+      total: vokalStrophen.length,
     });
   } catch (error) {
     console.error("POST /api/spaced-repetition/enroll error:", error);

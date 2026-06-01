@@ -61,7 +61,7 @@ export default function UserCreateDialog({ open, onClose, onCreated }: UserCreat
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={handleClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 cursor-pointer" onClick={handleClose}>
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <h2 className="mb-4 text-lg font-semibold text-gray-900">Neuen Benutzer erstellen</h2>
         <form onSubmit={handleSubmit} className="space-y-4">

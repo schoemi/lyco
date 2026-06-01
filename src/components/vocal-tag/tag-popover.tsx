@@ -45,13 +45,13 @@ export function TagPopover({
 
   // Close on outside click
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
+    function handleClickOutside(e: PointerEvent) {
       if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
         onCancel();
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("pointerdown", handleClickOutside);
+    return () => document.removeEventListener("pointerdown", handleClickOutside);
   }, [onCancel]);
 
   const handleConfirm = useCallback(() => {

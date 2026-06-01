@@ -26,6 +26,11 @@ export function PreflightCheck({ onComplete, onError }: PreflightCheckProps) {
   const hasCompleted = !isRunning && lastSync !== null;
   const hasProgress = progress.total > 0;
 
+  const handleStart = async () => {
+    hasStarted.current = false;
+    await start();
+  };
+
   // Automatisch starten beim Mounten
   useEffect(() => {
     if (hasStarted.current) return;
@@ -41,8 +46,9 @@ export function PreflightCheck({ onComplete, onError }: PreflightCheckProps) {
     if (isRunning || !hasStarted.current) return;
     if (!lastSync) return;
 
-    if (failedSongs.length > 0) {
-      onError(failedSongs);
+    const failed = failedSongs;
+    if (failed.length > 0) {
+      onError(failed);
     } else {
       onComplete();
     }
@@ -119,7 +125,7 @@ export function PreflightCheck({ onComplete, onError }: PreflightCheckProps) {
           <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" className="shrink-0 text-emerald-400" aria-hidden="true">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
           </svg>
-          <p className="text-sm text-emerald-400">Alle Songs synchronisiert</p>
+          <p className="text-sm text-emerald-400">Alle Songs erfolgreich synchronisiert</p>
         </div>
       )}
 
@@ -137,10 +143,11 @@ export function PreflightCheck({ onComplete, onError }: PreflightCheckProps) {
       {!isRunning && hasCompleted && (
         <button
           type="button"
-          onClick={() => { hasStarted.current = false; start(); }}
+          onClick={handleStart}
+          disabled={isRunning}
           aria-label="Erneut synchronisieren"
           data-testid="start-button"
-          className="w-full rounded-lg border border-white/20 bg-white/10 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/20 hover:text-white"
+          className="w-full rounded-lg border border-white/20 bg-white/10 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/20 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Erneut synchronisieren
         </button>

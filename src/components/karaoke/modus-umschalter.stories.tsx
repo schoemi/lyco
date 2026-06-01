@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn } from "storybook/test";
+import { fn, userEvent, within, expect } from "storybook/test";
 import { ModusUmschalter } from "./modus-umschalter";
 
 const meta: Meta<typeof ModusUmschalter> = {
@@ -18,3 +18,13 @@ type Story = StoryObj<typeof ModusUmschalter>;
 export const Einzelzeile: Story = { args: { activeMode: "einzelzeile" } };
 export const Strophe: Story = { args: { activeMode: "strophe" } };
 export const Song: Story = { args: { activeMode: "song" } };
+
+export const SwitchMode: Story = {
+  args: { activeMode: "einzelzeile" },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const stropheButton = canvas.getByRole("radio", { name: "Strophe" });
+    await userEvent.click(stropheButton);
+    await expect(args.onChange).toHaveBeenCalledOnce();
+  },
+};

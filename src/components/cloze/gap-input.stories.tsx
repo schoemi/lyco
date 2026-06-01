@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn } from "storybook/test";
+import { fn, userEvent, within, expect } from "storybook/test";
 import { GapInput } from "./gap-input";
 
 const meta: Meta<typeof GapInput> = {
@@ -56,5 +56,21 @@ export const WithHint: Story = {
     feedback: null,
     hintActive: true,
     ariaLabel: "Lücke 1 von 3",
+  },
+};
+
+export const WithInteraction: Story = {
+  args: {
+    gapId: "g1",
+    targetWord: "hello",
+    value: "",
+    feedback: null,
+    hintActive: false,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox");
+    await userEvent.type(input, "hello");
+    await expect(input).toHaveValue("hello");
   },
 };

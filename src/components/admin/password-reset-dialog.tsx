@@ -44,7 +44,7 @@ export default function PasswordResetDialog({ open, user, onClose }: PasswordRes
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={handleClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 cursor-pointer" onClick={handleClose}>
       <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <h2 className="mb-2 text-lg font-semibold text-gray-900">Passwort zurücksetzen</h2>
 

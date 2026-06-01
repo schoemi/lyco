@@ -13,7 +13,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:stories": "test-storybook --config-dir .storybook",
-    "test:stories:ci": "storybook build -o storybook-static && npx -y http-server storybook-static -p 6006 --silent & npx -y wait-on tcp:6006 && npm run test:stories -- --url http://localhost:6006"
+    "test:stories:ci": "storybook build -o storybook-static && npx -y http-server storybook-static -p 6006 --silent & npx -y wait-on tcp:6006 && npm run test:stories -- --url http://localhost:6006 --junit"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.102",

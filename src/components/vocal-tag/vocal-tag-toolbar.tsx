@@ -55,13 +55,13 @@ export function VocalTagToolbar({ editor, tagDefinitions, kategorien = [] }: Voc
   // Close dropdown on outside click
   useEffect(() => {
     if (!dropdownOpen) return;
-    function handleClickOutside(e: MouseEvent) {
+    function handleClickOutside(e: PointerEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("pointerdown", handleClickOutside);
+    return () => document.removeEventListener("pointerdown", handleClickOutside);
   }, [dropdownOpen]);
 
   // Close dropdown on Escape

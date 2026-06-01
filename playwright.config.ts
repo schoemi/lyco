@@ -17,7 +17,9 @@ export default defineConfig({
   retries: process.env.CI ? 0 : 1,
 
   /* Reporter */
-  reporter: process.env.CI ? "github" : "html",
+  reporter: process.env.CI
+    ? [["github"], ["junit", { outputFile: "e2e/test-results/results.xml" }]]
+    : [["html", { outputFolder: "e2e/playwright-report" }]],
 
   use: {
     /* Base-URL aus env oder localhost:3000 */

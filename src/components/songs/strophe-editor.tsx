@@ -499,20 +499,6 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
                 <AppIcon icon="lucide:plus" className="text-sm" />
               </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowChords((prev) => !prev)}
-              aria-label="Akkordanzeige umschalten"
-              aria-pressed={showChords}
-              className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors ${
-                showChords
-                  ? "bg-newsong-100 text-newsong-700"
-                  : "text-neutral-500 hover:bg-neutral-100"
-              }`}
-            >
-              <AppIcon icon="lucide:music" className="text-sm" />
-              Akkorde
-            </button>
           </div>
         )}
         {sorted.length === 0 ? (
@@ -923,7 +909,7 @@ export default function StropheEditor({ songId, strophen, onStrophenChanged, edi
       {/* Delete confirmation dialog */}
       {deleteConfirmId && deleteStrophe && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 cursor-pointer"
           role="dialog"
           aria-modal="true"
           aria-label="Strophe löschen"

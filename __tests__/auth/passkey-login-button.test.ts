@@ -87,7 +87,7 @@ describe("PasskeyLoginButton", () => {
         expect(mockFetch).toHaveBeenCalledWith("/api/auth/passkey/authenticate/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(mockAssertion),
+          body: JSON.stringify({ assertion: mockAssertion }),
         });
         expect(mockPush).toHaveBeenCalledWith("/");
         expect(mockRefresh).toHaveBeenCalled();
