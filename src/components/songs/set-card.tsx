@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { SongCardGrid } from "./song-card-grid";
+import { SetCardFooter } from "@/components/songs/set-card-footer";
 import type { DashboardSet } from "../../types/song";
 
 interface SetCardProps {
@@ -61,6 +62,10 @@ export function SetCard({ set }: SetCardProps) {
             <SongCardGrid songs={set.songs} />
           )}
         </div>
+      )}
+
+      {set.stats && (
+        <SetCardFooter setId={set.id} stats={set.stats} />
       )}
     </div>
   );

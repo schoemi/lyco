@@ -116,6 +116,7 @@ model User {
   setFreigabenAlsEmpfaenger  SetFreigabe[]  @relation("SetFreigabenAlsEmpfaenger")
   passkeys    Passkey[]
   ssoAccounts SsoAccount[]
+  ssoLinkingSessions SsoLinkingSession[]
   auditLogs    AuditLog[]    @relation("AuditLogActor")
   serverErrors ServerError[] @relation("ServerErrorUser")
 
@@ -556,4 +557,19 @@ model WebAuthnChallenge {
   @@index([challenge])
   @@index([expiresAt])
   @@map("webauthn_challenges")
+}
+
+model SsoLinkingSession {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  state        String   @unique
+  codeVerifier String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([state])
+  @@index([expiresAt])
+  @@map("sso_linking_sessions")
 }

@@ -5,7 +5,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import React from "react";
 import { render, screen, cleanup, waitFor } from "@testing-library/react";
-import { SsoStatus } from "@/components/auth/sso-status";
+import { SsoLinkingPanel } from "@/components/auth/sso-linking-panel";
 
 // Mock fetch
 const mockFetch = vi.fn();
@@ -20,7 +20,7 @@ describe("SsoStatus", () => {
   it("shows loading state initially", () => {
     mockFetch.mockReturnValueOnce(new Promise(() => {})); // never resolves
 
-    render(React.createElement(SsoStatus));
+    render(React.createElement(SsoLinkingPanel));
     expect(screen.getByText("SSO-Status wird geladen…")).toBeDefined();
   });
 
@@ -30,7 +30,7 @@ describe("SsoStatus", () => {
       json: async () => ({ linked: true, provider: "Authentik" }),
     });
 
-    render(React.createElement(SsoStatus));
+    render(React.createElement(SsoLinkingPanel));
 
     await waitFor(() => {
       expect(screen.getByText("Ihr Konto ist mit SSO verknüpft")).toBeDefined();
@@ -44,7 +44,7 @@ describe("SsoStatus", () => {
       json: async () => ({ linked: false }),
     });
 
-    render(React.createElement(SsoStatus));
+    render(React.createElement(SsoLinkingPanel));
 
     await waitFor(() => {
       expect(screen.getByText("Ihr Konto ist nicht mit SSO verknüpft")).toBeDefined();
@@ -58,7 +58,7 @@ describe("SsoStatus", () => {
       json: async () => ({ error: "Interner Serverfehler" }),
     });
 
-    render(React.createElement(SsoStatus));
+    render(React.createElement(SsoLinkingPanel));
 
     await waitFor(() => {
       expect(screen.getByRole("alert")).toBeDefined();
@@ -69,7 +69,7 @@ describe("SsoStatus", () => {
   it("shows error message when fetch throws", async () => {
     mockFetch.mockRejectedValueOnce(new Error("Network error"));
 
-    render(React.createElement(SsoStatus));
+    render(React.createElement(SsoLinkingPanel));
 
     await waitFor(() => {
       expect(screen.getByRole("alert")).toBeDefined();
@@ -83,7 +83,7 @@ describe("SsoStatus", () => {
       json: async () => ({ linked: false }),
     });
 
-    render(React.createElement(SsoStatus));
+    render(React.createElement(SsoLinkingPanel));
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith("/api/auth/sso/link-status");

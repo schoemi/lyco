@@ -7,6 +7,7 @@ import type {
   SetDetail,
   SetSongWithProgress,
 } from "../../types/song";
+import type { SetPlaylistResponse, PlaylistSong } from "../../types/playlist";
 import { deriveSongStatus } from "./song-service";
 
 function validateSetInput(input: { name: string; description?: string }): void {
@@ -264,4 +265,71 @@ export async function reorderSetSongs(
       })
     )
   );
+}
+
+export async function getSetPlaylist(
+  userId: string,
+  setId: string
+): Promise<SetPlaylistResponse> {
+  const set = await prisma.set.findUnique({
+    where: { id: setId },
+    include: {
+      songs: {
+        orderBy: [{ orderIndex: "asc" }, { song: { titel: "asc" } }],
+        include: {
+          song: {
+            include: {
+              audioQuellen: {
+                where: { typ: "MP3" },
+                orderBy: { orderIndex: "asc" },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!set) {
+    throw new Error("Set nicht gefunden");
+  }
+  if (set.userId !== userId) {
+    throw new Error("Zugriff verweigert");
+  }
+
+  // Split songs into those with at least one MP3 source and those without
+  const allSongs = set.songs;
+  const songsWithMp3 = allSongs.filter((ss) => ss.song.audioQuellen.length > 0);
+  const skippedSongCount = allSongs.length - songsWithMp3.length;
+
+  // Map to PlaylistSong, applying secondary sort by titel as tiebreaker
+  // (Primary sort orderIndex is already applied by the Prisma orderBy above)
+  const songs: PlaylistSong[] = songsWithMp3
+    .sort((a, b) => {
+      if (a.orderIndex !== b.orderIndex) {
+        return a.orderIndex - b.orderIndex;
+      }
+      return a.song.titel.localeCompare(b.song.titel);
+    })
+    .map((ss) => ({
+      id: ss.song.id,
+      titel: ss.song.titel,
+      kuenstler: ss.song.kuenstler ?? null,
+      orderIndex: ss.orderIndex,
+      audioQuellen: ss.song.audioQuellen.map((aq) => ({
+        id: aq.id,
+        url: aq.url,
+        typ: aq.typ,
+        label: aq.label,
+        orderIndex: aq.orderIndex,
+        rolle: aq.rolle,
+      })),
+    }));
+
+  return {
+    setId: set.id,
+    setName: set.name,
+    songs,
+    skippedSongCount,
+  };
 }

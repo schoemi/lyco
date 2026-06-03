@@ -10,6 +10,8 @@ interface SetSongListProps {
   setId: string;
   onSongRemoved: () => void;
   onReordered: () => void;
+  activeSongId?: string | null;
+  onSongClick?: (songId: string, index: number) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -24,7 +26,7 @@ const statusLabels: Record<string, string> = {
   gelernt: "Gelernt",
 };
 
-export default function SetSongList({ songs, setId, onSongRemoved, onReordered }: SetSongListProps) {
+export default function SetSongList({ songs, setId, onSongRemoved, onReordered, activeSongId, onSongClick }: SetSongListProps) {
   const router = useRouter();
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -119,8 +121,18 @@ export default function SetSongList({ songs, setId, onSongRemoved, onReordered }
           onDragOver={(e) => handleDragOver(e, index)}
           onDrop={() => handleDrop(index)}
           onDragEnd={handleDragEnd}
-          onClick={() => router.push(`/songs/${song.id}`)}
-          className={`flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-neutral-50 ${
+          onClick={() => {
+            if (onSongClick) {
+              onSongClick(song.id, index);
+            } else {
+              router.push(`/songs/${song.id}`);
+            }
+          }}
+          className={`relative flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-neutral-50 ${
+            activeSongId === song.id
+              ? "border-l-4 border-primary-500 bg-primary-50 pl-3"
+              : ""
+          } ${
             dragIndex === index ? "opacity-50" : ""
           } ${dragOverIndex === index && dragIndex !== index ? "border-t-2 border-primary-400" : ""}`}
           role="listitem"

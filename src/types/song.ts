@@ -260,6 +260,23 @@ export interface DashboardSet {
   name: string;
   description: string | null;
   songs: SongWithProgress[];
+  stats: DashboardSetStats;   // NEU — immer vorhanden (berechnet in Dashboard-Service)
+}
+
+// --- Dashboard Set-Footer Stats ---
+
+export interface DashboardSetRolleStats {
+  standard: number;        // Anzahl Spielbarer_Songs mit STANDARD-MP3
+  instrumental: number;    // Anzahl Spielbarer_Songs mit INSTRUMENTAL-MP3
+  referenzVokal: number;   // Anzahl Spielbarer_Songs mit REFERENZ_VOKAL-MP3
+  total: number;           // Gesamtanzahl Spielbarer_Songs (>= 1 MP3-Quelle beliebiger Rolle)
+}
+
+export interface DashboardSetStats {
+  playableSongCount: number;              // Anzahl Songs mit >= 1 MP3-Quelle
+  rolleStats: DashboardSetRolleStats;
+  totalDurationMs: number | null;         // null im MVP (kein Dauer-Feld in DB)
+  distinctArtistCount: number;            // eindeutige nicht-leere kuenstler-Werte
 }
 
 // --- Eingabe-Typen für Strophen-CRUD ---

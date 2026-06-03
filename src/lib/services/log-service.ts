@@ -21,6 +21,13 @@ export const USER_UPDATED = "USER_UPDATED";
 export const USER_DELETED = "USER_DELETED";
 export const SETTING_CHANGED = "SETTING_CHANGED";
 export const ACCOUNT_STATUS_CHANGED = "ACCOUNT_STATUS_CHANGED";
+export const SSO_LINK_INITIATED    = "SSO_LINK_INITIATED";
+export const SSO_LINK_SUCCESS      = "SSO_LINK_SUCCESS";
+export const SSO_LINK_FAILED       = "SSO_LINK_FAILED";
+export const SSO_LINK_DENIED       = "SSO_LINK_DENIED";
+export const SSO_LINK_CONFLICT     = "SSO_LINK_CONFLICT";
+export const SSO_LINK_STATE_REPLAY = "SSO_LINK_STATE_REPLAY";
+export const SSO_UNLINK_SUCCESS    = "SSO_UNLINK_SUCCESS";
 
 // ---------------------------------------------------------------------------
 // Interfaces

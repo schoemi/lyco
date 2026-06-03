@@ -7,7 +7,14 @@ import { getTotalSessionCount } from "@/lib/services/session-service";
 import { getFaelligeAnzahl } from "@/lib/services/spaced-repetition-service";
 import { getStreak } from "@/lib/services/streak-service";
 import { getEmpfangeneFreigaben } from "@/lib/services/freigabe-service";
-import type { DashboardData, DashboardSet, SongWithProgress } from "../../../types/song";
+import type {
+  DashboardData,
+  DashboardSet,
+  SongWithProgress,
+} from "../../../types/song";
+import {
+  computeSetStats,
+} from "@/lib/services/dashboard-stats";
 
 export async function GET() {
   try {
@@ -30,21 +37,30 @@ export async function GET() {
       songMap.set(song.id, song);
     }
 
-    // Get all sets with their song associations
+    // Get all sets with their song associations (including MP3 audio sources for stats)
     const sets = await prisma.set.findMany({
       where: { userId },
       include: {
         songs: {
           orderBy: { orderIndex: "asc" },
           include: {
-            song: { select: { id: true } },
+            song: {
+              select: {
+                id: true,
+                kuenstler: true,
+                audioQuellen: {
+                  where: { typ: "MP3" },
+                  select: { rolle: true },
+                },
+              },
+            },
           },
         },
       },
       orderBy: { updatedAt: "desc" },
     });
 
-    // Build dashboard sets with enriched song data
+    // Build dashboard sets with enriched song data and computed stats
     const dashboardSets: DashboardSet[] = sets.map((set) => ({
       id: set.id,
       name: set.name,
@@ -52,6 +68,7 @@ export async function GET() {
       songs: set.songs
         .map((ss) => songMap.get(ss.song.id))
         .filter((s): s is SongWithProgress => s !== undefined),
+      stats: computeSetStats(set.songs),
     }));
 
     // Aggregate values
