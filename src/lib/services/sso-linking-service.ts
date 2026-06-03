@@ -347,7 +347,7 @@ export async function verifyIdToken(
     const isValid = await crypto.subtle.verify(
       { name: "RSASSA-PKCS1-v1_5" },
       cryptoKey,
-      signature,
+      signature as Uint8Array<ArrayBuffer>,
       signingInput
     );
 
