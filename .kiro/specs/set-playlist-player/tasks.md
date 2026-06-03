@@ -226,7 +226,7 @@ Implementierung des Set-Playlist-Players in TypeScript/React (Next.js). Der Plan
     - **Validates: Requirements 8.8**
     - In `__tests__/playlist/autoplay.property.test.ts`
 
-- [-] 19. Finaler Checkpoint — Requirement 8 vollständig validieren
+- [x] 19. Finaler Checkpoint — Requirement 8 vollständig validieren
   - Sicherstellen, dass alle neuen Tests (15.3, 15.4, 16.3, 18.2) grün sind.
   - Visuelle Prüfung: `SetCardFooter` erscheint auf dem Dashboard unterhalb jeder Set-Karte.
   - Prüfen, dass „Set abspielen"-Button auf der Set-Detailseite den Playlist-Modus automatisch startet.
