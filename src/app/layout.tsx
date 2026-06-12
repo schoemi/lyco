@@ -28,7 +28,7 @@ export default async function RootLayout({
     <html lang="de" style={styleObj} data-app-name={theme.appName}>
       <head />
       <body>
-        <HealthCheck />
+        {process.env.ENABLE_DB_HEALTH_CHECK && <HealthCheck />}
         <ThemeHydrator />
         {children}
       </body>

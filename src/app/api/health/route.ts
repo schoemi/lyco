@@ -8,6 +8,11 @@ import { prisma } from "@/lib/prisma";
  * Returns 200 if the database is reachable, 503 otherwise.
  */
 export async function GET() {
+  // Health check only runs when explicitly enabled via ENV variable
+  if (!process.env.ENABLE_DB_HEALTH_CHECK) {
+    return NextResponse.json({ status: "ok", database: "skipped" });
+  }
+
   try {
     await prisma.$queryRaw`SELECT 1`;
     return NextResponse.json({ status: "ok", database: "connected" });
